@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    /* Premium Animations */
+    .fade-up { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(15px); }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    
+    .task-card { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .task-card:hover { transform: translateY(-4px); box-shadow: 0 15px 30px -5px rgba(15, 23, 42, 0.08); }
+    .task-card:active { transform: scale(0.98); }
+</style>
+
+<div class="max-w-2xl mx-auto space-y-6 fade-up pb-32 pt-4">
+
+    <!-- 1. HEADER SECTION -->
+    <div class="flex items-center justify-between px-2 mb-6">
+        <div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Micro Tasks</h2>
+            <p class="text-[11px] text-slate-500 font-bold tracking-micro uppercase mt-1">Complete & Earn</p>
+        </div>
+        <div class="bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg text-xs font-black shadow-sm border border-emerald-200 flex items-center gap-2">
+            <i class="fa-solid fa-list-ul"></i> {{ tasks|length }} Available
+        </div>
+    </div>
+    
+    <!-- 2. GMAIL TASK PROMO (PINNED) -->
+    <!-- এটি ইউজারকে জিমেইল কাজের দিকে প্ররোচিত করবে কারণ সেগুলোতে আয় বেশি -->
+    <a href="/gmail-tasks" class="block bg-gradient-to-r from-rose-500 to-pink-600 p-1 rounded-3xl shadow-xl shadow-rose-200 relative overflow-hidden group hover:scale-[1.02] transition duration-300">
+        <!-- Shine Animation -->
+        <div class="absolute top-0 left-[-100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 animate-[shimmer_3s_infinite]"></div>
+        
+        <div class="absolute top-0 right-0 bg-yellow-400 text-slate-900 text-[10px] font-black px-4 py-1 rounded-bl-xl z-10 flex items-center gap-1 shadow-sm uppercase tracking-widest">
+            <i class="fa-solid fa-star"></i> Pinned
+        </div>
+        
+        <div class="bg-white rounded-[24px] p-5 relative z-10 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="h-14 w-14 bg-gradient-to-br from-rose-50 to-pink-50 text-rose-500 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-rose-100">
+                    <i class="fa-brands fa-google"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-slate-800 text-base leading-tight">Create Gmail & Earn</h3>
+                    <p class="text-[11px] text-slate-500 mt-1 font-medium">প্রতিটি জিমেইল খুলে ২৫-১০০ টাকা আয় করুন!</p>
+                    <span class="inline-block mt-1.5 bg-red-50 text-red-600 text-[9px] font-black px-2 py-0.5 rounded border border-red-100 uppercase tracking-widest">
+                        High Paying
+                    </span>
+                </div>
+            </div>
+            
+            <div class="bg-rose-500 text-white h-10 w-10 rounded-xl flex items-center justify-center shadow-lg group-hover:bg-rose-600 transition flex-shrink-0">
+                <i class="fa-solid fa-arrow-right"></i>
+            </div>
+        </div>
+    </a>
+
+    <!-- 3. NORMAL TASK LIST -->
+    <div class="space-y-4 relative">
+        {% for task in tasks %}
+        
+        <!-- Logic for Category Icons & Colors -->
+        {% set icon_bg = 'bg-slate-50 text-slate-600 border-slate-100' %}
+        {% set icon_class = 'fa-solid fa-globe' %}
+        
+        {% if 'YouTube' in task.category %}
+            {% set icon_bg = 'bg-red-50 text-red-500 border-red-100' %}
+            {% set icon_class = 'fa-brands fa-youtube' %}
+        {% elif 'Facebook' in task.category %}
+            {% set icon_bg = 'bg-blue-50 text-blue-600 border-blue-100' %}
+            {% set icon_class = 'fa-brands fa-facebook' %}
+        {% elif 'TikTok' in task.category %}
+            {% set icon_bg = 'bg-slate-900 text-white border-slate-800' %}
+            {% set icon_class = 'fa-brands fa-tiktok' %}
+        {% elif 'Telegram' in task.category %}
+            {% set icon_bg = 'bg-sky-50 text-sky-500 border-sky-100' %}
+            {% set icon_class = 'fa-brands fa-telegram' %}
+        {% endif %}
+
+        <div class="task-card clean-card p-6 relative overflow-hidden group">
+            
+            <!-- Rejected Indicator Line -->
+            {% if task.is_rejected %}
+            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500"></div>
+            {% else %}
+            <!-- Normal Hover Line -->
+            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-transparent group-hover:bg-emerald-400 transition-colors duration-300"></div>
+            {% endif %}
+
+            <!-- Oversized Watermark Number -->
+            <div class="absolute right-4 -bottom-6 text-[80px] font-black text-slate-50 pointer-events-none select-none leading-none z-0 group-hover:scale-110 transition duration-500">
+                {% if loop.index < 10 %}0{% endif %}{{ loop.index }}
+            </div>
+
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+                
+                <!-- Left: Icon & Info -->
+                <div class="flex gap-4 items-start w-full">
+                    <div class="h-14 w-14 rounded-[20px] flex items-center justify-center text-2xl shadow-sm border {{ icon_bg }} flex-shrink-0">
+                        <i class="{{ icon_class }}"></i>
+                    </div>
+                    
+                    <div class="flex-grow pr-2">
+                        <h3 class="font-bold text-slate-900 text-lg leading-tight mb-1">{{ task.title }}</h3>
+                        
+                        <!-- Badges Row -->
+                        <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                            <!-- Category Badge -->
+                            <span class="text-[9px] font-black bg-slate-100 text-slate-500 px-2.5 py-1 rounded-md uppercase tracking-wider border border-slate-200">
+                                {{ task.category }}
+                            </span>
+                            
+                            <!-- Dynamic Task Type Badges -->
+                            {% if task.task_type == 'screenshot' %}
+                                <span class="text-[9px] font-black bg-teal-50 text-teal-600 px-2.5 py-1 rounded-md uppercase tracking-wider border border-teal-100 flex items-center gap-1">
+                                    <i class="fa-solid fa-camera"></i> Proof Req
+                                </span>
+                            {% elif task.task_type == 'fb_post' %}
+                                <span class="text-[9px] font-black bg-blue-50 text-blue-600 px-2.5 py-1 rounded-md uppercase tracking-wider border border-blue-100 flex items-center gap-1">
+                                    <i class="fa-solid fa-share-nodes"></i> Post & Share
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description or Rejection Notice -->
+                        {% if task.is_rejected %}
+                            <p class="text-[10px] text-red-600 font-bold mt-2.5 bg-red-50 px-2.5 py-1 rounded-md inline-flex items-center gap-1.5 border border-red-100">
+                                <i class="fa-solid fa-triangle-exclamation"></i> প্রুফ বাতিল হয়েছে! আবার চেষ্টা করুন।
+                            </p>
+                        {% else %}
+                            <p class="text-xs text-slate-500 mt-2 line-clamp-1 font-medium">{{ task.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Right: Reward & Action -->
+                <div class="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto mt-2 md:mt-0 gap-3 border-t md:border-t-0 border-slate-100 pt-4 md:pt-0">
+                    <span class="text-xl font-black text-slate-900 font-mono tracking-tight">
+                        ৳{{ task.reward }}
+                    </span>
+                    
+                    {% if task.task_type in ['screenshot', 'fb_post'] %}
+                        <!-- Requires Submission Button -->
+                        <a href="/task/submit/{{ task.id }}" class="btn-emerald text-white px-6 py-2.5 rounded-xl text-xs font-bold w-full md:w-auto text-center shadow-lg {{ 'ring-2 ring-red-400 shadow-red-200/50' if task.is_rejected else 'shadow-emerald-500/30' }}">
+                            {{ 'Retry Task' if task.is_rejected else 'Start Task' }}
+                        </a>
+                    {% else %}
+                        <!-- Direct Link Visit Button -->
+                        <a href="{{ task.link }}" target="_blank" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl text-xs font-bold w-full md:w-auto text-center hover:bg-slate-800 transition shadow-lg shadow-slate-900/20">
+                            Visit Link
+                        </a>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-20 bg-white rounded-[32px] border border-slate-100 shadow-sm">
+            <div class="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl text-slate-300">
+                <i class="fa-solid fa-check-double"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800">All Caught Up!</h3>
+            <p class="text-xs text-slate-500 mt-1 font-medium">নতুন কাজের জন্য কিছুক্ষণ অপেক্ষা করুন</p>
+            <button onclick="location.reload()" class="mt-6 text-xs font-bold text-emerald-600 bg-emerald-50 px-6 py-3 rounded-full border border-emerald-100 hover:bg-emerald-100 transition shadow-sm flex items-center gap-2 mx-auto">
+                <i class="fa-solid fa-rotate-right"></i> পেজ রিফ্রেশ করুন
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .fade-up { animation: fadeUp 0.5s ease-out forwards; opacity: 0; transform: translateY(20px); }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    
+    .profile-header {
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.4);
+    }
+    
+    /* iOS Style Menu List */
+    .menu-group {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid rgba(15, 23, 42, 0.05);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        overflow: hidden;
+    }
+    .menu-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        background: white;
+        transition: background-color 0.2s;
+    }
+    .menu-item:active { background-color: #F8FAFC; }
+    .menu-item:not(:last-child) { border-bottom: 1px solid #F1F5F9; }
+</style>
+
+<div class="max-w-md mx-auto space-y-6 fade-up pb-32 pt-4">
+
+    <!-- 1. PROFILE HEADER CARD -->
+    <div class="profile-header rounded-[32px] p-8 text-white relative overflow-hidden text-center">
+        <!-- Abstract Glows -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500 opacity-20 rounded-full blur-[50px] -mr-10 -mt-10"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-teal-500 opacity-20 rounded-full blur-[50px] -ml-10 -mb-10"></div>
+
+        <div class="relative z-10">
+            <!-- Avatar -->
+            <div class="relative inline-block mb-4">
+                <div class="h-24 w-24 bg-white rounded-[24px] flex items-center justify-center text-slate-900 text-4xl font-black shadow-2xl mx-auto transform rotate-3">
+                    {{ user.email[0] | upper }}
+                </div>
+                <!-- Verification Badge -->
+                {% if user.is_active %}
+                <div class="absolute -bottom-2 -right-2 bg-emerald-500 text-white h-8 w-8 rounded-full flex items-center justify-center border-4 border-[#0F172A] shadow-sm" title="Verified">
+                    <i class="fa-solid fa-check text-[10px]"></i>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Info -->
+            <h2 class="text-2xl font-black tracking-tight">{{ user.full_name or user.email.split('@')[0] | title }}</h2>
+            <p class="text-slate-400 text-xs mt-1 font-medium">{{ user.email }}</p>
+            
+            <!-- Badges Row -->
+            <div class="mt-6 flex items-center justify-center gap-2">
+                <div class="bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-[10px] font-bold tracking-wider uppercase text-slate-300">
+                    UID: <span class="text-white">{{ user.referral_code }}</span>
+                </div>
+                {% if user.current_level > 0 %}
+                <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 text-slate-900 px-3 py-1.5 rounded-lg text-[10px] font-black tracking-widest uppercase shadow-md shadow-yellow-500/20">
+                    VIP LVL {{ user.current_level }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. QUICK STATS -->
+    <div class="grid grid-cols-2 gap-4">
+        <div class="clean-card p-5 text-center">
+            <div class="h-10 w-10 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center text-lg mx-auto mb-2"><i class="fa-solid fa-wallet"></i></div>
+            <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Main Bal</p>
+            <h3 class="text-xl font-black text-slate-800 font-mono tracking-tight">৳{{ user.balance }}</h3>
+        </div>
+        <div class="clean-card p-5 text-center">
+            <div class="h-10 w-10 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center text-lg mx-auto mb-2"><i class="fa-solid fa-users"></i></div>
+            <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Team</p>
+            <h3 class="text-xl font-black text-slate-800 font-mono tracking-tight">{{ ref_count }}</h3>
+        </div>
+    </div>
+
+    <!-- 3. REFERRAL COPY BOX -->
+    <div class="clean-card p-5 relative overflow-hidden">
+        <div class="absolute right-0 top-0 opacity-5 text-6xl transform translate-x-4 -translate-y-4"><i class="fa-solid fa-gift"></i></div>
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Invite Link</p>
+        
+        <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100 relative z-10">
+            <input type="text" id="refLink" value="..." class="bg-transparent text-xs font-bold text-slate-600 w-full outline-none font-mono pl-2 truncate" readonly>
+            <button onclick="copyRef(this)" class="btn-emerald text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md active:scale-95 transition flex-shrink-0">
+                Copy
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. SETTINGS LIST (iOS Style) -->
+    <div>
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-4">Account</p>
+        
+        <div class="menu-group">
+            <a href="/withdraw" class="menu-item group">
+                <div class="flex items-center gap-4">
+                    <div class="h-8 w-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-money-bill-transfer text-sm"></i></div>
+                    <span class="font-bold text-slate-700 text-sm">উইথড্র ফান্ড</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-emerald-500 transition transform group-hover:translate-x-1"></i>
+            </a>
+
+            <a href="/history" class="menu-item group">
+                <div class="flex items-center gap-4">
+                    <div class="h-8 w-8 bg-slate-50 text-slate-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-clock-rotate-left text-sm"></i></div>
+                    <span class="font-bold text-slate-700 text-sm">ট্রানজেকশন হিস্টোরি</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-emerald-500 transition transform group-hover:translate-x-1"></i>
+            </a>
+
+            <a href="/adm" class="menu-item group">
+                <div class="flex items-center gap-4">
+                    <div class="h-8 w-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-sliders text-sm"></i></div>
+                    <span class="font-bold text-slate-700 text-sm">পেমেন্ট মেথড সেটআপ</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-emerald-500 transition transform group-hover:translate-x-1"></i>
+            </a>
+        </div>
+
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-4 mt-6">System</p>
+
+        <div class="menu-group">
+            {% if user.role == 'admin' %}
+            <a href="/admin" class="menu-item group">
+                <div class="flex items-center gap-4">
+                    <div class="h-8 w-8 bg-slate-900 text-white rounded-lg flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-shield-halved text-sm"></i></div>
+                    <span class="font-bold text-slate-900 text-sm">এডমিন প্যানেল</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-slate-900 transition transform group-hover:translate-x-1"></i>
+            </a>
+            {% endif %}
+
+            <a href="https://wa.me/8801894577178" target="_blank" class="menu-item group">
+                <div class="flex items-center gap-4">
+                    <div class="h-8 w-8 bg-[#25D366]/10 text-[#25D366] rounded-lg flex items-center justify-center group-hover:scale-110 transition"><i class="fa-brands fa-whatsapp text-sm"></i></div>
+                    <span class="font-bold text-slate-700 text-sm">সাপোর্ট চ্যাট</span>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square text-slate-300 text-[10px] group-hover:text-[#25D366] transition transform group-hover:translate-x-1"></i>
+            </a>
+
+            <a href="/logout" class="menu-item group">
+                <div class="flex items-center gap-4">
+                    <div class="h-8 w-8 bg-red-50 text-red-500 rounded-lg flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition"><i class="fa-solid fa-power-off text-sm"></i></div>
+                    <span class="font-bold text-red-600 text-sm">লগ আউট</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-red-500 transition transform group-hover:translate-x-1"></i>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<!-- Scripts -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const domain = window.location.origin;
+        const uniqueCode = "{{ user.referral_code if user.referral_code else 'GenerateID' }}";
+        const fullLink = `${domain}/register?ref=${uniqueCode}`;
+        
+        const inputField = document.getElementById("refLink");
+        if(inputField) {
+            inputField.value = fullLink;
+        }
+    });
+
+    function copyRef(btn) {
+        const copyText = document.getElementById("refLink");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); 
+
+        navigator.clipboard.writeText(copyText.value).then(() => {
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            btn.classList.add("bg-slate-800");
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.classList.remove("bg-slate-800");
+            }, 2000);
+        });
+    }
+</script>
+
+{% endblock %}

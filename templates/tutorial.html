@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .clean-card {
+        background: white;
+        border: 1px solid #F1F5F9;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+    }
+</style>
+
+<div class="max-w-2xl mx-auto space-y-8 fade-up pb-32 pt-4 px-2">
+
+    <!-- 1. HEADER -->
+    <div class="text-center space-y-2">
+        <div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-indigo-50 text-[#4F46E5] text-3xl shadow-sm mb-2 transform -rotate-3">
+            <i class="fa-brands fa-youtube"></i>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">কিভাবে কাজ করবেন?</h2>
+        <p class="text-slate-500 text-xs md:text-sm font-medium max-w-sm mx-auto">ভিডিওটি মনোযোগ দিয়ে দেখুন এবং নিয়ম মেনে কাজ করুন</p>
+    </div>
+
+    <!-- 2. VIDEO PLAYER (Fully Responsive Mobile Frame) -->
+    <div class="flex justify-center">
+        <!-- 
+           Width: max-w-[400px] (মোবাইলের সাইজের জন্য পারফেক্ট)
+           Height: h-[740px] (রিলস ভিডিওর জন্য ফিক্সড হাইট যাতে পুরোটা দেখা যায়)
+        -->
+        <div class="relative w-full max-w-[400px] h-[740px] bg-slate-900 rounded-[35px] overflow-hidden shadow-2xl shadow-indigo-200 border-[6px] border-white ring-1 ring-slate-200">
+            
+            <!-- Loading Placeholder -->
+            <div class="absolute inset-0 flex items-center justify-center bg-slate-50 z-0">
+                <div class="flex flex-col items-center gap-3">
+                    <i class="fa-solid fa-circle-notch fa-spin text-[#4F46E5] text-3xl"></i>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading Video...</span>
+                </div>
+            </div>
+
+            <!-- New Facebook Iframe -->
+            <iframe 
+                src="https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1496951945406341%2F%3Fapp%3Dfbl&width=500&show_text=false&height=739&appId" 
+                class="absolute top-0 left-0 w-full h-full z-10" 
+                style="border:none;overflow:hidden" 
+                scrolling="no" 
+                frameborder="0" 
+                allowfullscreen="true" 
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+                allowFullScreen="true">
+            </iframe>
+        </div>
+    </div>
+    
+    <!-- Sound Hint -->
+    <div class="text-center -mt-4 relative z-20">
+        <p class="text-[10px] text-slate-500 font-bold bg-white px-4 py-1.5 rounded-full inline-block shadow-md border border-slate-100 animate-pulse">
+            <i class="fa-solid fa-volume-high text-[#4F46E5] mr-1"></i> ভিডিওতে সাউন্ড না থাকলে ভিডিওর ওপর ট্যাপ করুন
+        </p>
+    </div>
+
+    <!-- 3. INSTRUCTION STEPS (Bento Style) -->
+    <div class="clean-card p-6 md:p-8 rounded-[30px] relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED]"></div>
+        
+        <h3 class="font-black text-slate-800 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider border-b border-slate-100 pb-3">
+            <i class="fa-solid fa-list-check text-[#4F46E5]"></i> কাজের ধাপসমূহ
+        </h3>
+
+        <div class="space-y-6 relative">
+            <!-- Vertical Timeline Line -->
+            <div class="absolute left-[15px] top-2 bottom-2 w-0.5 bg-slate-100"></div>
+
+            <!-- Step 1 -->
+            <div class="relative flex gap-4 group">
+                <div class="h-8 w-8 bg-indigo-100 text-[#4F46E5] rounded-full flex items-center justify-center font-black text-sm z-10 ring-4 ring-white group-hover:scale-110 transition">1</div>
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800">একাউন্ট তৈরি করুন</h4>
+                    <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">আপনার সঠিক নাম এবং ইমেইল দিয়ে রেজিস্ট্রেশন সম্পন্ন করুন।</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="relative flex gap-4 group">
+                <div class="h-8 w-8 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center font-black text-sm z-10 ring-4 ring-white group-hover:scale-110 transition">2</div>
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800">টাস্ক কমপ্লিট করুন</h4>
+                    <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">ভিডিও দেখা বা ফেসবুক লাইক দেওয়ার কাজগুলো সঠিকভাবে করুন এবং প্রুফ জমা দিন।</p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="relative flex gap-4 group">
+                <div class="h-8 w-8 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-black text-sm z-10 ring-4 ring-white group-hover:scale-110 transition">3</div>
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800">টাকা বুঝে নিন</h4>
+                    <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">মিনিমাম ব্যালেন্স হলে বিকাশ, নগদ বা রকেটের মাধ্যমে পেমেন্ট রিকোয়েস্ট দিন।</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. CTA BUTTON -->
+    <div class="text-center pb-6">
+        {% if session.get('user_id') %}
+            <a href="/tasks" class="inline-flex items-center gap-2 bg-[#0F172A] text-white px-10 py-4 rounded-2xl font-black shadow-xl shadow-slate-900/20 hover:bg-[#4F46E5] hover:scale-105 transition duration-300">
+                <span>কাজ শুরু করুন</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        {% else %}
+            <a href="/register" class="inline-flex items-center gap-2 bg-gradient-to-r from-[#4F46E5] to-[#7C3AED] text-white px-10 py-4 rounded-2xl font-black shadow-xl shadow-indigo-500/30 hover:scale-105 transition duration-300">
+                <span>এখনই জয়েন করুন</span>
+                <i class="fa-solid fa-user-plus"></i>
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}
