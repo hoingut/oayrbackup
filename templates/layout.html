@@ -10,7 +10,7 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://i.ibb.co.com/Ngmr6bCY/images.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/192/3135/3135715.png">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,7 +18,7 @@
     <!-- FontAwesome Pro Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts (Inter) -->
+    <!-- Google Fonts (Inter for Fintech Look) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Custom Fintech Styles -->
@@ -56,9 +56,9 @@
             100% { transform: translate(100px, 50px) scale(1.1); }
         }
 
-        /* --- GLASSMORPHISM UI --- */
+        /* --- UI COMPONENTS --- */
         .glass-nav {
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border-bottom: 1px solid rgba(15, 23, 42, 0.05);
@@ -69,7 +69,20 @@
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .clean-card {
+            background: #FFFFFF;
+            border-radius: 24px;
+            border: 1px solid rgba(15, 23, 42, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .clean-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.15);
+            border-color: rgba(20, 184, 166, 0.2);
         }
 
         /* Buttons with Glossy Inner Shadow & Shimmer */
@@ -89,24 +102,33 @@
         @keyframes btnShimmer { 100% { left: 200%; } }
         .btn-emerald:active { transform: scale(0.96); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
 
-        /* Support Widget Pulse */
-        .whatsapp-pulse {
-            box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
-            animation: pulse-green 2s infinite;
+        /* Typography Gradients */
+        .text-gradient {
+            background: linear-gradient(to right, #0F172A, #10B981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        @keyframes pulse-green {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+
+        /* Telegram Pulse Animation */
+        .telegram-pulse {
+            box-shadow: 0 0 0 0 rgba(42, 171, 238, 0.7);
+            animation: pulse-blue 2s infinite;
         }
+        @keyframes pulse-blue {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(42, 171, 238, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(42, 171, 238, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(42, 171, 238, 0); }
+        }
+
+        /* Utilities */
+        .tracking-micro { letter-spacing: 0.15em; }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Sidebar Transition */
         #sidebar { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .sidebar-open { transform: translateX(0) !important; }
         .sidebar-closed { transform: translateX(-100%); }
-
-        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -135,15 +157,11 @@
 
             <!-- Right Actions -->
             <div class="flex items-center gap-2">
-                <!-- App Install Button (Always Visible) -->
-                <button id="navInstallBtn" onclick="triggerInstall()" class="hidden sm:flex items-center gap-1.5 bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1.5 rounded-full text-[10px] font-bold shadow-sm hover:bg-emerald-500 hover:text-white transition">
-                    <i class="fa-solid fa-download"></i> <span>Install App</span>
-                </button>
-                <button onclick="triggerInstall()" class="sm:hidden h-8 w-8 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-xs shadow-sm">
-                    <i class="fa-solid fa-download"></i>
+                <!-- ALWAYS VISIBLE INSTALL BUTTON -->
+                <button onclick="triggerInstall()" class="flex items-center gap-1.5 bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full text-[10px] font-bold shadow-sm hover:bg-emerald-500 hover:text-white transition">
+                    <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Install App</span>
                 </button>
 
-                <!-- Notification -->
                 <a href="/notice" class="h-10 w-10 rounded-full flex items-center justify-center hover:bg-slate-100 transition text-slate-500 relative">
                     <i class="fa-regular fa-bell text-lg"></i>
                     {% if settings and settings.notice_text %}
@@ -197,7 +215,6 @@
             <a href="/tasks" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 text-slate-600 hover:text-emerald-600 transition font-semibold text-sm {{ 'bg-emerald-50 text-emerald-600' if request.endpoint == 'tasks' }}">
                 <i class="fa-solid fa-bolt w-5 text-center"></i> মাইক্রো টাস্ক
             </a>
-            
             <a href="/drive" class="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 text-slate-600 hover:text-emerald-600 transition font-semibold text-sm {{ 'bg-emerald-50 text-emerald-600' if request.endpoint == 'drive_store' }}">
                 <div class="flex items-center gap-3"><i class="fa-solid fa-wifi w-5 text-center"></i> ড্রাইভ অফার</div>
                 <span class="text-[8px] bg-rose-500 text-white px-1.5 py-0.5 rounded-full font-black uppercase tracking-widest animate-pulse">Hot</span>
@@ -227,8 +244,10 @@
             <a href="/tutorial" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 text-slate-600 hover:text-emerald-600 transition font-semibold text-sm {{ 'bg-emerald-50 text-emerald-600' if request.endpoint == 'tutorial' }}">
                 <i class="fa-brands fa-youtube w-5 text-center"></i> টিউটোরিয়াল
             </a>
-            <a href="https://wa.me/qr/B52RK6CSXGUTL1" target="_blank" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-emerald-50 text-emerald-600 transition font-semibold text-sm">
-                <i class="fa-brands fa-whatsapp w-5 text-center text-lg"></i> লাইভ সাপোর্ট
+            
+            <!-- Telegram Support Link in Menu -->
+            <a href="https://t.me/payrsrp" target="_blank" class="flex items-center gap-3 p-3 rounded-2xl hover:bg-sky-50 text-slate-600 hover:text-sky-500 transition font-semibold text-sm">
+                <i class="fa-brands fa-telegram w-5 text-center text-lg"></i> লাইভ সাপোর্ট
             </a>
             
             <!-- Admin / Staff Menu -->
@@ -272,30 +291,33 @@
         {% endwith %}
     </div>
 
-
-
-    <!-- ================= 5. MAIN CONTENT ================= -->
+    <!-- ================= 4. MAIN CONTENT ================= -->
     <main class="flex-grow container mx-auto px-4 pb-32">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- ================= 6. FLOATING WHATSAPP WIDGET ================= -->
+    <!-- ================= 5. FLOATING TELEGRAM WIDGET ================= -->
     <div class="fixed bottom-[95px] right-4 md:bottom-10 md:right-10 z-40 group">
-        <a href="https://wa.me/qr/B52RK6CSXGUTL1" target="_blank" class="relative block">
+        <a href="https://t.me/payrsrp" target="_blank" class="relative block">
+            <!-- Tooltip -->
             <div class="absolute right-16 top-3 bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition duration-300 whitespace-nowrap shadow-lg flex items-center gap-1 font-bold border border-slate-700">
                 <span>লাইভ সাপোর্ট</span>
-                <i class="fa-solid fa-headset text-emerald-400"></i>
+                <i class="fa-solid fa-headset text-sky-400"></i>
             </div>
-            <div class="h-14 w-14 bg-[#25D366] rounded-full flex items-center justify-center text-white text-3xl shadow-lg shadow-green-500/40 whatsapp-pulse transition transform hover:scale-110 hover:-rotate-12 border-2 border-white">
-                <i class="fa-brands fa-whatsapp"></i>
+            
+            <!-- Pulse Circle (Telegram Blue) -->
+            <div class="h-14 w-14 bg-[#2AABEE] rounded-full flex items-center justify-center text-white text-3xl shadow-lg shadow-sky-500/40 telegram-pulse transition transform hover:scale-110 hover:-rotate-12 border-2 border-white">
+                <i class="fa-brands fa-telegram" style="margin-right: 2px;"></i>
             </div>
-            <div class="absolute bottom-1 right-0 h-4 w-4 bg-emerald-400 rounded-full border-2 border-white shadow-sm"></div>
+            
+            <!-- Online Dot -->
+            <div class="absolute bottom-1 right-0 h-4 w-4 bg-green-400 rounded-full border-2 border-white shadow-sm"></div>
         </a>
     </div>
 
-    <!-- ================= 7. BOTTOM NAVIGATION ================= -->
+    <!-- ================= 6. BOTTOM NAVIGATION (Glassmorphism) ================= -->
     {% if session.get('user_id') %}
-    <div class="fixed bottom-6 left-4 right-4 glass-bottom-nav z-40 pb-safe rounded-[32px]">
+    <div class="fixed bottom-6 left-4 right-4 glass-bottom-nav z-40 rounded-[28px]">
         <div class="flex justify-between items-center px-4 h-[70px]">
             
             <a href="/dashboard" class="flex flex-col items-center justify-center w-12 group">
@@ -306,7 +328,7 @@
                 <i class="fa-solid fa-clock-rotate-left text-xl transition-all duration-300 {{ 'text-emerald-500 drop-shadow-md -translate-y-1' if request.endpoint == 'history' else 'text-slate-400 group-hover:text-slate-700' }}"></i>
             </a>
 
-            <!-- Center Action Button -->
+            <!-- Center Action Button (Floating Emerald) -->
             <div class="relative -top-6">
                 <a href="/tasks" class="h-16 w-16 rounded-[22px] btn-emerald flex items-center justify-center text-white text-2xl border-[3px] border-[#F8FAFC]">
                     <i class="fa-solid fa-bolt"></i>
@@ -327,27 +349,31 @@
 
     <!-- ================= SCRIPTS ================= -->
     <script>
-        // 1. PWA Setup
+        // PWA App Install Logic
         let deferredPrompt = null;
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
-        }
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
         });
+
         function triggerInstall() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => { deferredPrompt = null; });
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('App Installed');
+                    }
+                    deferredPrompt = null;
+                });
             } else {
-                alert("অ্যাপটি ইনস্টল করার অপশন সাপোর্টেড নয় অথবা আগেই ইনস্টল করা আছে। (Chrome ব্যবহার করুন)");
+                alert("অ্যাপটি ইনস্টল করার অপশন আপনার ব্রাউজারে সাপোর্টেড নয়, অথবা আপনি ইতিমধ্যেই অ্যাপটি ইনস্টল করেছেন। (Google Chrome ব্যবহার করুন)");
             }
         }
 
-        // 2. Sidebar Logic
+        // Sidebar Logic
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
+
         function toggleSidebar() {
             if (sidebar.style.transform === 'translateX(0px)') {
                 sidebar.style.transform = 'translateX(-100%)';
@@ -359,8 +385,8 @@
                 setTimeout(() => overlay.classList.remove('opacity-0'), 10);
             }
         }
-
-        // 3. Flash Message Auto Hide
+        
+        // Auto Hide Flash
         setTimeout(() => {
             document.querySelectorAll('.flash-msg').forEach(alert => {
                 alert.style.opacity = '0';
@@ -368,7 +394,12 @@
             });
         }, 3500);
 
-    
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js');
+            });
+        }
     </script>
 </body>
 </html>
