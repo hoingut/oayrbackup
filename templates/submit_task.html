@@ -1,763 +1,233 @@
-from flask import Flask, request, jsonify, render_template, session, redirect, url_for
-from supabase import create_client, Client
-from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime, timezone, timedelta
-from werkzeug.security import generate_password_hash, check_password_hash
-import random
-import uuid
-import requests
-import base64
+{% extends "layout.html" %}
+{% block content %}
 
-app = Flask(__name__)
-app.secret_key = "xweii_super_secret_key_2026" 
-app.permanent_session_lifetime = timedelta(days=30)
+<style>
+    .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .glass-card {
+        background: white;
+        border: 1px solid #F1F5F9;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+    }
 
-SUPABASE_URL = "https://hoimfethzslrjektqzpm.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvaW1mZXRoenNscmpla3RxenBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NTQ1MTcsImV4cCI6MjA5MTAzMDUxN30.6B8AK6XlWmBeGRS7RnjGJ3c76MN72r2KrdTrJB4S9kk"
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    /* Ad Container Responsiveness */
+    .ad-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+</style>
 
-BUY_RATE = 125.00  
-SELL_RATE = 118.00 
+<div class="max-w-lg mx-auto space-y-6 fade-up pb-32 pt-4">
 
-def is_admin():
-    if 'user_id' not in session: return False
-    try:
-        user = supabase.table('users').select('role').eq('id', session['user_id']).execute().data
-        if user and user[0].get('role') == 'admin': return True
-    except: pass
-    return False
+    <!-- ================= AD SECTION 1 (TOP) ================= -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-2 text-center relative overflow-hidden">
+        <p class="text-[9px] text-slate-300 uppercase tracking-widest font-bold mb-2">Sponsored</p>
+        <div class="ad-container">
+            <script>
+              atOptions = {
+                'key' : '8bb5c5eafb21fb8d7cde5d2c7cf71169',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+              };
+            </script>
+            <script src="https://www.highperformanceformat.com/8bb5c5eafb21fb8d7cde5d2c7cf71169/invoke.js"></script>
+        </div>
+    </div>
 
-def check_ban_status(user_data):
-    if user_data and user_data.get('is_banned'):
-        session.pop('user_id', None)
-        return True
-    return False
-
-def get_site_settings():
-    try: 
-        res = supabase.table('site_settings').select('*').eq('id', 1).execute().data
-        if res: return res[0]
-    except: pass
-    return {"notice_text": "Welcome to xWeii!", "withdraw_rate": 121.00, "usdt_buy": 125.00, "usdt_sell": 118.00, "ltc_buy": 125.00, "ltc_sell": 118.00}
-
-@app.context_processor
-def inject_settings():
-    return dict(settings=get_site_settings())
-
-def get_imgbb_key():
-    try:
-        keys = supabase.table('imgbb_keys').select('*').eq('is_active', True).order('usage_count').execute().data
-        if keys:
-            supabase.table('imgbb_keys').update({"usage_count": keys[0].get('usage_count', 0) + 1}).eq('id', keys[0]['id']).execute()
-            return keys[0]['api_key']
-    except: pass
-    return None
-
-def upload_to_imgbb(image_file):
-    api_key = get_imgbb_key()
-    if not api_key: return None
-    try:
-        url = "https://api.imgbb.com/1/upload"
-        payload = {"key": api_key, "image": base64.b64encode(image_file.read()).decode('utf-8')}
-        res = requests.post(url, data=payload)
-        if res.status_code == 200: return res.json()['data']['url']
-    except: pass
-    return None
-
-# ==========================================
-# ERROR-PROOF ROUTES
-# ==========================================
-@app.route('/')
-def home():
-    try:
-        # Get users safely
-        users_res = supabase.table('users').select('id').execute().data
-        users_count = len(users_res) if users_res else 0
+    <!-- 1. TASK HEADER CARD -->
+    <div class="relative bg-gradient-to-br from-[#4F46E5] to-[#7C3AED] rounded-[32px] p-8 text-white shadow-xl shadow-indigo-200 overflow-hidden text-center">
+        <!-- Decor -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-emerald-500 opacity-20 rounded-full blur-2xl -ml-5 -mb-5"></div>
         
-        # Get tasks safely
-        tasks_res = supabase.table('system_tasks').select('id').eq('status', 'approved').execute().data
-        g_tasks = len(tasks_res) if tasks_res else 0
-        
-        # Get sellers safely
-        accs_res = supabase.table('fb_accounts_for_sell').select('buyer_id').neq('status', 'available').execute().data
-        m_accs = accs_res if accs_res else []
-        total_sellers = len(set(a['buyer_id'] for a in m_accs if a.get('buyer_id')))
-        
-        # Get withdrawals safely
-        settings = get_site_settings()
-        w_rate = float(settings.get('withdraw_rate', 121.00))
-        wd_res = supabase.table('withdrawals').select('amount').eq('status', 'approved').execute().data
-        withdrawals = wd_res if wd_res else[]
-        
-        total_withdrawn_bdt = sum(float(w.get('amount', 0)) for w in withdrawals) * w_rate
-    except Exception as e:
-        print("Home Route Error:", str(e))
-        users_count = g_tasks = total_sellers = total_withdrawn_bdt = 0
-        m_accs =[]
-        
-    stats = {"users": users_count, "buy": g_tasks, "sell": len(m_accs), "sellers": total_sellers, "withdraw": total_withdrawn_bdt}
-    return render_template('home.html', stats=stats)
-
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        name, phone, email, password, captcha = request.form.get('name'), request.form.get('phone'), request.form.get('email'), request.form.get('password'), request.form.get('captcha')
-        referred_by = request.form.get('referred_by')
-        
-        if captcha != session.get('captcha_answer'): 
-            return render_template('signup.html', error="Invalid Captcha!", n1=random.randint(1,9), n2=random.randint(1,9))
+        <div class="relative z-10">
+            <div class="h-16 w-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 shadow-inner border border-white/20">
+                {% if 'YouTube' in task.category %} <i class="fa-brands fa-youtube"></i>
+                {% elif 'Facebook' in task.category %} <i class="fa-brands fa-facebook"></i>
+                {% else %} <i class="fa-solid fa-layer-group"></i> {% endif %}
+            </div>
             
-        try:
-            if supabase.table('users').select('id').eq('email', email).execute().data: 
-                return render_template('signup.html', error="Email exists!", n1=random.randint(1,9), n2=random.randint(1,9))
-                
-            if referred_by and not supabase.table('users').select('id').eq('id', referred_by).execute().data: 
-                referred_by = None
-
-            supabase.table('users').insert({
-                "id": str(uuid.uuid4()), "name": name, "phone": phone, "email": email, 
-                "password": generate_password_hash(password), "balance": 0.00, "xweii_coin": 0.00, "role": "user", "referred_by": referred_by
-            }).execute()
-        except Exception as e:
-            print("Signup Error:", str(e))
-            return render_template('signup.html', error="System Error! Please try again later.", n1=random.randint(1,9), n2=random.randint(1,9))
+            <h2 class="text-2xl font-bold mb-2">{{ task.title }}</h2>
+            <p class="text-indigo-100 text-sm px-4">{{ task.description }}</p>
             
-        return redirect(url_for('login'))
-        
-    n1, n2 = random.randint(1, 9), random.randint(1, 9)
-    session['captcha_answer'] = str(n1 + n2)
-    return render_template('signup.html', n1=n1, n2=n2)
+            <div class="mt-6 inline-flex items-center gap-2 bg-white text-[#4F46E5] px-6 py-2 rounded-full font-bold text-lg shadow-lg">
+                <i class="fa-solid fa-coins text-yellow-500"></i> ৳ {{ task.reward }}
+            </div>
+        </div>
+    </div>
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email, password = request.form.get('email'), request.form.get('password')
-        try:
-            user = supabase.table('users').select('*').eq('email', email).execute().data
-            if user and check_password_hash(user[0]['password'], password):
-                if user[0].get('is_banned'): return render_template('login.html', error="Your account is BANNED.")
-                session.permanent = True
-                session['user_id'] = user[0]['id'] 
-                return redirect(url_for('dashboard'))
-        except Exception as e:
-            print("Login Error:", str(e))
-            return render_template('login.html', error="System Error! Try again.")
+    <!-- ================= FB POST TASK UI ================= -->
+    {% if task.task_type == 'fb_post' %}
+    <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
+        <div class="absolute top-0 left-0 bg-blue-50 text-blue-600 px-4 py-1 rounded-br-2xl text-[10px] font-bold border-b border-r border-blue-100">
+            POST DETAILS
+        </div>
+        
+        <h3 class="font-bold text-slate-800 mt-4 mb-4 flex items-center gap-2 justify-center">
+            <i class="fa-brands fa-facebook text-blue-600"></i> ফেসবুকে পোস্ট করুন
+        </h3>
+
+        <!-- Image Download -->
+        {% if task.image_url %}
+        <div class="relative rounded-2xl overflow-hidden mb-4 group border border-slate-100">
+            <img src="{{ task.image_url }}" alt="Post Image" class="w-full h-48 object-cover">
+            <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                <a href="{{ task.image_url }}" download="PayR_Task.jpg" class="bg-white text-[#4F46E5] px-4 py-2 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2 hover:scale-105 transition">
+                    <i class="fa-solid fa-download"></i> ছবিটি সেভ করুন
+                </a>
+            </div>
+        </div>
+        <p class="text-[10px] text-center text-slate-400 mb-4">↑ ছবির উপর ক্লিক করে ডাউনলোড করুন ↑</p>
+        {% endif %}
+
+        <!-- Caption Copy -->
+        {% if task.caption %}
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 relative group">
+            <p id="captionText" class="text-xs text-slate-700 whitespace-pre-line leading-relaxed">{{ task.caption }}</p>
+            <button onclick="copyCaption(this)" class="absolute top-2 right-2 bg-white border border-slate-200 text-slate-500 hover:text-[#4F46E5] px-3 py-1.5 rounded-lg text-[10px] font-bold transition shadow-sm flex items-center gap-1">
+                <i class="fa-regular fa-copy"></i> কপি
+            </button>
+        </div>
+        {% endif %}
+
+        <div class="mt-4 text-[11px] text-rose-600 font-medium bg-rose-50 p-3 rounded-xl border border-rose-100 text-center leading-relaxed">
+            <i class="fa-solid fa-triangle-exclamation"></i> <b>নির্দেশনা:</b> ছবিটি এবং ক্যাপশনটি কপি করে আপনার ফেসবুকে পোস্ট করুন। এরপর সেই পোস্টের স্ক্রিনশট নিচে জমা দিন।
+        </div>
+    </div>
+    
+    <script>
+        function copyCaption(btn) {
+            const text = document.getElementById("captionText").innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-500"></i> Copied!';
+                btn.classList.add('border-emerald-200', 'bg-emerald-50');
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('border-emerald-200', 'bg-emerald-50');
+                }, 2000);
+            });
+        }
+    </script>
+    {% endif %}
+
+
+    <!-- 2. STEP 1: ACTION (Only for Screenshot Type) -->
+    {% if task.task_type == 'screenshot' %}
+    <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
+        <div class="absolute top-0 left-0 bg-indigo-50 text-[#4F46E5] px-4 py-1 rounded-br-2xl text-[10px] font-bold border-b border-r border-indigo-100">
+            STEP 01
+        </div>
+        
+        <div class="mt-4 text-center">
+            <h3 class="font-bold text-slate-700 mb-1">লিংকে গিয়ে কাজটি করুন</h3>
+            <p class="text-xs text-slate-400 mb-6">নিচের লিংকে ক্লিক করে লাইক/ফলো বা ভিডিও দেখুন</p>
             
-        return render_template('login.html', error="Invalid Email or Password!")
-    return render_template('login.html')
+            <a href="{{ task.link }}" target="_blank" class="flex items-center justify-center gap-3 w-full bg-slate-50 text-slate-700 border-2 border-slate-200 border-dashed py-4 rounded-2xl font-bold hover:bg-[#4F46E5] hover:text-white hover:border-[#4F46E5] hover:border-solid transition group">
+                <span class="group-hover:animate-pulse">লিংক ওপেন করুন</span>
+                <i class="fa-solid fa-up-right-from-square"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
 
-@app.route('/logout')
-def logout():
-    session.pop('user_id', None)
-    return redirect(url_for('login'))
+    <!-- ================= AD SECTION 2 (MIDDLE) ================= -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-2 text-center relative overflow-hidden mt-6 mb-6">
+        <p class="text-[9px] text-slate-300 uppercase tracking-widest font-bold mb-2">Sponsored</p>
+        <div class="ad-container">
+            <script>
+              atOptions = {
+                'key' : '8bb5c5eafb21fb8d7cde5d2c7cf71169',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+              };
+            </script>
+            <script src="https://www.highperformanceformat.com/8bb5c5eafb21fb8d7cde5d2c7cf71169/invoke.js"></script>
+        </div>
+    </div>
 
-@app.route('/dashboard')
-def dashboard():
-    if 'user_id' not in session: return redirect(url_for('login')) 
-    try:
-        user_res = supabase.table('users').select('*').eq('id', session['user_id']).execute().data
-        if not user_res: return redirect(url_for('logout'))
-        user = user_res[0]
-        
-        if check_ban_status(user): return redirect(url_for('login'))
-        
-        open_tasks = supabase.table('system_tasks').select('*').eq('status', 'open').execute().data or[]
-        my_locked_tasks = supabase.table('system_tasks').select('*').eq('status', 'locked').eq('locked_by', session['user_id']).execute().data or[]
-        
-        try: notice = supabase.table('site_settings').select('notice_text').eq('id', 1).execute().data[0]['notice_text']
-        except: notice = "Welcome to xWeii Network!"
-        
-        try: featured_accounts = supabase.table('fb_accounts_for_sell').select('*').eq('status', 'available').limit(3).execute().data or[]
-        except: featured_accounts =[]
-        
-        return render_template('dashboard.html', user=user, open_tasks=open_tasks, my_locked_tasks=my_locked_tasks, notice=notice, featured_accounts=featured_accounts)
-    except Exception as e:
-        print("Dashboard Error:", str(e))
-        return "An error occurred while loading your dashboard.", 500
+    <!-- 3. STEP 2: UPLOAD PROOF -->
+    <form method="POST" enctype="multipart/form-data" onsubmit="preventDoubleSubmit()">
+        <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 bg-pink-50 text-pink-600 px-4 py-1 rounded-br-2xl text-[10px] font-bold border-b border-r border-pink-100">
+                STEP {% if task.task_type == 'fb_post' %}01{% else %}02{% endif %}
+            </div>
 
-@app.route('/work')
-def work_page():
-    if 'user_id' not in session: return redirect(url_for('login')) 
-    try:
-        user_res = supabase.table('users').select('*').eq('id', session['user_id']).execute().data
-        if not user_res: return redirect(url_for('logout'))
-        user = user_res[0]
-        
-        if check_ban_status(user): return redirect(url_for('login'))
-        
-        open_tasks = supabase.table('system_tasks').select('*').eq('status', 'open').execute().data or[]
-        my_locked_tasks = supabase.table('system_tasks').select('*').eq('status', 'locked').eq('locked_by', session['user_id']).execute().data or[]
-        
-        active_traffic = supabase.table('traffic_campaigns').select('*').eq('status', 'active').execute().data or[]
-        visited_logs = supabase.table('traffic_logs').select('campaign_id').eq('user_id', session['user_id']).execute().data or []
-        visited_ids = [v['campaign_id'] for v in visited_logs]
-        available_traffic = [t for t in active_traffic if t['id'] not in visited_ids]
-        
-        return render_template('work.html', user=user, open_tasks=open_tasks, my_locked_tasks=my_locked_tasks, available_traffic=available_traffic)
-    except Exception as e:
-        print("Work Page Error:", str(e))
-        return "An error occurred while loading works.", 500
+            <div class="mt-4">
+                <h3 class="font-bold text-slate-700 mb-1 text-center">প্রুফ জমা দিন</h3>
+                <p class="text-xs text-slate-400 mb-6 text-center">কাজের একটি পরিষ্কার স্ক্রিনশট আপলোড করুন</p>
 
-@app.route('/buy_traffic')
-def buy_traffic_page():
-    if 'user_id' not in session: return redirect(url_for('login'))
-    try:
-        user_res = supabase.table('users').select('*').eq('id', session['user_id']).execute().data
-        if not user_res: return redirect(url_for('logout'))
-        
-        w_rate = float(get_site_settings().get('withdraw_rate', 121.00))
-        return render_template('buy_traffic.html', user=user_res[0], rate=w_rate)
-    except: return redirect(url_for('login'))
-
-@app.route('/visit/<int:camp_id>')
-def visit_link(camp_id):
-    if 'user_id' not in session: return redirect(url_for('login'))
-    user_id = session['user_id']
-    try:
-        camp = supabase.table('traffic_campaigns').select('*').eq('id', camp_id).execute().data
-        if not camp or camp[0]['status'] != 'active': return "Campaign ended or not active.", 400
-        
-        log = supabase.table('traffic_logs').select('id').eq('campaign_id', camp_id).eq('user_id', user_id).execute().data
-        if not log:
-            supabase.table('traffic_logs').insert({"campaign_id": camp_id, "user_id": user_id}).execute()
-            usr = supabase.table('users').select('xweii_coin').eq('id', user_id).execute().data[0]
-            supabase.table('users').update({"xweii_coin": float(usr.get('xweii_coin') or 0) + 1}).eq('id', user_id).execute()
-            
-            new_views = int(camp[0].get('current_views', 0)) + 1
-            status = 'active' if new_views < int(camp[0].get('target_views', 0)) else 'completed'
-            supabase.table('traffic_campaigns').update({"current_views": new_views, "status": status}).eq('id', camp_id).execute()
-            
-        return redirect(camp[0]['url'])
-    except Exception as e: 
-        print("Visit Link Error:", str(e))
-        return "Error processing link.", 500
-
-@app.route('/profile')
-def profile():
-    if 'user_id' not in session: return redirect(url_for('login'))
-    try:
-        user_res = supabase.table('users').select('*').eq('id', session['user_id']).execute().data
-        if not user_res: return redirect(url_for('logout'))
-        user = user_res[0]
-        
-        if check_ban_status(user): return redirect(url_for('login'))
-        
-        referrals = supabase.table('users').select('id').eq('referred_by', session['user_id']).execute().data or[]
-        return render_template('profile.html', user=user, total_refs=len(referrals))
-    except Exception as e:
-        print("Profile Error:", str(e))
-        return redirect(url_for('login'))
-
-@app.route('/history')
-def history():
-    if 'user_id' not in session: return redirect(url_for('login'))
-    try:
-        uid = session['user_id']
-        user_res = supabase.table('users').select('is_banned').eq('id', uid).execute().data
-        if not user_res or check_ban_status(user_res[0]): return redirect(url_for('login'))
-        
-        # safely fetching all history
-        g_hist = supabase.table('system_tasks').select('*').eq('locked_by', uid).neq('status', 'open').neq('status', 'locked').order('id', desc=True).execute().data or[]
-        w_hist = supabase.table('withdrawals').select('*').eq('user_id', uid).order('id', desc=True).execute().data or[]
-        t_hist = supabase.table('topups').select('*').eq('user_id', uid).order('id', desc=True).execute().data or[]
-        c_hist = supabase.table('p2p_tickets').select('*').eq('user_id', uid).order('id', desc=True).execute().data or[]
-        tr_hist = supabase.table('traffic_campaigns').select('*').eq('user_id', uid).order('id', desc=True).execute().data or[]
-        shop_hist = supabase.table('fb_accounts_for_sell').select('*').eq('buyer_id', uid).order('id', desc=True).execute().data or[]
-        r_hist = supabase.table('redotpay_orders').select('*').eq('user_id', uid).order('id', desc=True).execute().data or[]
-        
-        return render_template('history.html', gmail=g_hist, withdrawals=w_hist, topups=t_hist, crypto=c_hist, traffic=tr_hist, shop=shop_hist, redotpay=r_hist)
-    except Exception as e:
-        print("History Error:", str(e))
-        return "Internal Error occurred in History.", 500
-
-@app.route('/withdraw_page')
-def withdraw_page():
-    if 'user_id' not in session: return redirect(url_for('login'))
-    try:
-        user_res = supabase.table('users').select('*').eq('id', session['user_id']).execute().data
-        if not user_res or check_ban_status(user_res[0]): return redirect(url_for('login'))
-        
-        w_rate = float(get_site_settings().get('withdraw_rate', 121.00))
-        return render_template('withdraw.html', user=user_res[0], withdraw_rate=w_rate)
-    except: return redirect(url_for('login'))
-
-@app.route('/topup_page')
-def topup_page():
-    if 'user_id' not in session: return redirect(url_for('login'))
-    try:
-        user_res = supabase.table('users').select('*').eq('id', session['user_id']).execute().data
-        if not user_res or check_ban_status(user_res[0]): return redirect(url_for('login'))
-        
-        w_rate = float(get_site_settings().get('withdraw_rate', 121.00))
-        return render_template('topup.html', user=user_res[0], deposit_rate=w_rate)
-    except: return redirect(url_for('login'))
-
-@app.route('/redotpay_page')
-def redotpay_page():
-    if 'user_id' not in session: return redirect(url_for('login'))
-    try:
-        user_res = supabase.table('users').select('*').eq('id', session['user_id']).execute().data
-        if not user_res or check_ban_status(user_res[0]): return redirect(url_for('login'))
-        return render_template('redotpay.html', user=user_res[0])
-    except: return redirect(url_for('login'))
-
-@app.route('/shop')
-def shop():
-    if 'user_id' not in session: return redirect(url_for('login'))
-    try:
-        user_res = supabase.table('users').select('*').eq('id', session['user_id']).execute().data
-        if not user_res or check_ban_status(user_res[0]): return redirect(url_for('login'))
-        
-        accounts = supabase.table('fb_accounts_for_sell').select('*').eq('status', 'available').execute().data or[]
-        return render_template('shop.html', user=user_res[0], accounts=accounts)
-    except: 
-        return render_template('shop.html', user={"balance":0}, accounts=[])
-
-@app.route('/exchange')
-def exchange():
-    if 'user_id' not in session: return redirect(url_for('login'))
-    try:
-        user_res = supabase.table('users').select('*').eq('id', session['user_id']).execute().data
-        if not user_res or check_ban_status(user_res[0]): return redirect(url_for('login'))
-        
-        active_ticket = supabase.table('p2p_tickets').select('*').eq('user_id', session['user_id']).eq('status', 'open').execute().data
-        return render_template('exchange.html', user=user_res[0], ticket=active_ticket[0] if active_ticket else None)
-    except Exception as e:
-        print("Exchange Error:", str(e))
-        return redirect(url_for('login'))
-
-@app.route('/tutorial')
-def tutorial(): return render_template('tutorial.html')
-@app.route('/about')
-def about(): return render_template('about.html')
-@app.route('/saluk')
-def saluk(): return render_template('saluk.html')
-
-# ==========================================
-# USER APIS
-# ==========================================
-@app.route('/api/redotpay', methods=['POST'])
-def submit_redotpay():
-    if 'user_id' not in session: return jsonify({"msg": "Login required"}), 401
-    try:
-        d = request.json
-        email, amt = d.get('email'), float(d.get('amount') or 0)
-        if amt < 0.1: return jsonify({"msg": "Minimum recharge is $0.1!"}), 400
-        if not email: return jsonify({"msg": "Email is required!"}), 400
-        
-        fee = amt * 0.05
-        total = amt + fee
-        
-        user = supabase.table('users').select('balance').eq('id', session['user_id']).execute().data[0]
-        if total > float(user.get('balance', 0)): return jsonify({"msg": f"Insufficient balance! You need ${total:.2f}."}), 400
-        
-        supabase.table('users').update({"balance": float(user.get('balance', 0)) - total}).eq('id', session['user_id']).execute()
-        supabase.table('redotpay_orders').insert({"user_id": session['user_id'], "email": email, "amount": amt, "fee": fee, "total_deducted": total}).execute()
-        return jsonify({"msg": f"RedotPay recharge of ${amt:.2f} submitted!"})
-    except Exception as e: 
-        print("RedotPay Error:", str(e))
-        return jsonify({"msg": "Error processing request!"}), 500
-
-@app.route('/api/convert_coins', methods=['POST'])
-def convert_coins():
-    if 'user_id' not in session: return jsonify({"msg": "Login required"}), 401
-    try:
-        coins = float(request.json['coins'])
-        if coins <= 0: return jsonify({"msg": "Invalid amount"}), 400
-        user = supabase.table('users').select('balance', 'xweii_coin').eq('id', session['user_id']).execute().data[0]
-        current_coins = float(user.get('xweii_coin') or 0)
-        if current_coins < coins: return jsonify({"msg": "Not enough XWeii Coins!"}), 400
-        
-        w_rate = float(get_site_settings().get('withdraw_rate', 121.00))
-        usd_value = (coins / 1000.0) * (250.0 / w_rate)
-        
-        supabase.table('users').update({"xweii_coin": current_coins - coins, "balance": float(user.get('balance', 0)) + usd_value}).eq('id', session['user_id']).execute()
-        return jsonify({"msg": f"Converted {coins} Coins to ${usd_value:.2f} USD!"})
-    except Exception as e: 
-        return jsonify({"msg": "Error processing request!"}), 500
-
-@app.route('/api/buy_traffic', methods=['POST'])
-def buy_traffic():
-    if 'user_id' not in session: return jsonify({"msg": "Login required"}), 401
-    try:
-        d = request.json
-        views = int(d['views'])
-        if views < 100: return jsonify({"msg": "Minimum 100 views!"}), 400
-        
-        w_rate = float(get_site_settings().get('withdraw_rate', 121.00))
-        cost_usd = (views / 1000.0) * (300.0 / w_rate)
-        
-        user = supabase.table('users').select('balance').eq('id', session['user_id']).execute().data[0]
-        if float(user.get('balance', 0)) < cost_usd: return jsonify({"msg": f"Insufficient balance! Need ${cost_usd:.2f}"}), 400
-        
-        supabase.table('users').update({"balance": float(user.get('balance', 0)) - cost_usd}).eq('id', session['user_id']).execute()
-        supabase.table('traffic_campaigns').insert({"user_id": session['user_id'], "url": d['url'], "camp_type": d['type'], "target_views": views, "cost_usd": cost_usd, "status": "pending"}).execute()
-        return jsonify({"msg": "Campaign submitted!"})
-    except Exception as e: 
-        return jsonify({"msg": "Error processing request!"}), 500
-
-@app.route('/api/task/lock', methods=['POST'])
-def lock_task():
-    if 'user_id' not in session: return jsonify({"msg": "Login required"}), 401
-    try:
-        my_locks = supabase.table('system_tasks').select('id').eq('status', 'locked').eq('locked_by', session['user_id']).execute().data
-        if my_locks and len(my_locks) >= 2: return jsonify({"msg": "Max 2 active works allowed!"}), 400
-        
-        task_id = request.json['id']
-        task = supabase.table('system_tasks').select('*').eq('id', task_id).execute().data
-        if not task or task[0]['status'] != 'open': return jsonify({"msg": "Already locked!"}), 400
-        
-        supabase.table('system_tasks').update({"status": "locked", "locked_by": session['user_id'], "locked_at": datetime.now(timezone.utc).isoformat()}).eq('id', task_id).execute()
-        return jsonify({"msg": "Work Locked! You have 1 hour."})
-    except Exception as e: 
-        return jsonify({"msg": "Error processing request!"}), 500
-
-@app.route('/api/task/submit', methods=['POST'])
-def submit_task():
-    if 'user_id' not in session: return jsonify({"msg": "Login required"}), 401
-    try:
-        task_id = request.json['id']
-        task = supabase.table('system_tasks').select('*').eq('id', task_id).execute().data[0]
-        if task.get('task_type') == 'facebook':
-            if not request.json.get('submitted_data'): return jsonify({"msg": "Credentials required!"}), 400
-            final_submission = request.json.get('submitted_data')
-        else: final_submission = f"{task.get('prefix', '')}[Auto-Submitted]"
-        
-        supabase.table('system_tasks').update({"status": "submitted", "submitted_email": final_submission, "submitted_at": datetime.now(timezone.utc).isoformat()}).eq('id', task_id).execute()
-        return jsonify({"msg": "Work Marked as Done!"})
-    except Exception as e: 
-        return jsonify({"msg": "Error processing request!"}), 500
-
-@app.route('/api/withdraw', methods=['POST'])
-def withdraw():
-    if 'user_id' not in session: return jsonify({"msg": "Login required"}), 401
-    try:
-        amt, method, account = float(request.json['amount']), request.json['method'], request.json['account']
-        if amt * float(get_site_settings().get('withdraw_rate', 121.00)) < 20: return jsonify({"msg": "Min withdrawal ৳20 BDT!"}), 400
-        
-        user = supabase.table('users').select('balance').eq('id', session['user_id']).execute().data[0]
-        if amt > float(user.get('balance', 0)): return jsonify({"msg": "Insufficient balance!"}), 400
-        
-        supabase.table('users').update({"balance": float(user.get('balance', 0)) - amt}).eq('id', session['user_id']).execute()
-        supabase.table('withdrawals').insert({"user_id": session['user_id'], "amount": amt, "method": method, "account_info": account}).execute()
-        return jsonify({"msg": "Withdrawal submitted!"})
-    except Exception as e: 
-        return jsonify({"msg": "Error processing request!"}), 500
-
-@app.route('/api/shop/buy', methods=['POST'])
-def buy_fb_account():
-    if 'user_id' not in session: return jsonify({"msg": "Login required"}), 401
-    try:
-        acc_id = request.json['id']
-        delivery = request.json['delivery']
-        acc = supabase.table('fb_accounts_for_sell').select('*').eq('id', acc_id).execute().data
-        if not acc or acc[0]['status'] != 'available': return jsonify({"status": "error", "msg": "Sorry, already sold!"}), 400
-        
-        acc = acc[0]
-        user = supabase.table('users').select('balance').eq('id', session['user_id']).execute().data[0]
-        price = float(acc.get('price') or 0.0)
-        
-        if float(user.get('balance', 0)) < price: return jsonify({"status": "error", "msg": f"Insufficient balance! You need ${price}."}), 400
-        
-        supabase.table('users').update({"balance": float(user.get('balance', 0)) - price}).eq('id', session['user_id']).execute()
-        supabase.table('fb_accounts_for_sell').update({"status": "sold", "buyer_id": session['user_id'], "delivery_method": delivery}).eq('id', acc_id).execute()
-        
-        if delivery == 'on_page': return jsonify({"status": "success", "msg": "Purchase Successful!", "email": acc['email'], "password": acc['password']})
-        return jsonify({"status": "success", "msg": "Purchase Successful! Credentials have been sent."})
-    except Exception as e: 
-        return jsonify({"status": "error", "msg": "Error processing request!"}), 500
-
-@app.route('/api/topup', methods=['POST'])
-def submit_topup():
-    if 'user_id' not in session: return jsonify({"msg": "Login required"}), 401
-    try:
-        amt, method, trx_id = float(request.json['amount']), request.json['method'], request.json['transaction_id']
-        if amt <= 0 or not trx_id: return jsonify({"msg": "Invalid Details!"}), 400
-        
-        supabase.table('topups').insert({"user_id": session['user_id'], "amount": amt, "method": method, "transaction_id": trx_id}).execute()
-        return jsonify({"msg": "Top-up request submitted!"})
-    except Exception as e: 
-        return jsonify({"msg": "Error processing request!"}), 500
-
-@app.route('/api/exchange/create_ticket', methods=['POST'])
-def create_ticket():
-    if 'user_id' not in session: return jsonify({"msg": "Login required"}), 401
-    try:
-        existing = supabase.table('p2p_tickets').select('id').eq('user_id', session['user_id']).eq('status', 'open').execute().data
-        if existing: return jsonify({"status": "error", "msg": "Active ticket exists!"}), 400
-        
-        d = request.json
-        t_type, coin, amount = d['type'], d['coin'], float(d['amount'])
-        rate = float(get_site_settings().get(f"{coin.lower()}_{t_type}", 0))
-        bdt_amount = amount * rate
-        
-        res = supabase.table('p2p_tickets').insert({
-            "user_id": session['user_id'], "ticket_type": t_type, "coin": coin, "amount": amount, "bdt_amount": bdt_amount, 
-            "payment_method": d['method'], "wallet_address": d.get('wallet', ''), "receive_method": d.get('receive_method', '')
-        }).execute()
-        
-        ticket_id = res.data[0]['id']
-        if t_type == 'buy': admin_msg = f"Hello! You requested to BUY {amount} {coin}. Please send ৳{bdt_amount} BDT to our {d['method']} and upload TrxID here."
-        else: admin_msg = f"Hello! You requested to SELL {amount} {coin}. Please send {amount} {coin} to our wallet. We will send ৳{bdt_amount} BDT to your {d['receive_method']} ({d['method']})."
-        
-        supabase.table('ticket_chats').insert({"ticket_id": ticket_id, "sender_id": "system", "sender_role": "admin", "message": admin_msg}).execute()
-        return jsonify({"status": "success", "msg": "Ticket Created Successfully!"})
-    except Exception as e: 
-        return jsonify({"status": "error", "msg": "Error processing request!"}), 500
-
-@app.route('/api/exchange/get_chat/<int:ticket_id>', methods=['GET'])
-def get_chat(ticket_id):
-    if 'user_id' not in session: return jsonify({"msg": "Login required"}), 401
-    try: return jsonify(supabase.table('ticket_chats').select('*').eq('ticket_id', ticket_id).order('id').execute().data or [])
-    except: return jsonify([])
-
-@app.route('/api/exchange/send_msg', methods=['POST'])
-def send_msg():
-    if 'user_id' not in session: return jsonify({"msg": "Login required"}), 401
-    try:
-        ticket_id = request.form.get('ticket_id')
-        message = request.form.get('message', '')
-        image_url = upload_to_imgbb(request.files['image']) if 'image' in request.files and request.files['image'].filename else None
-        
-        if not message and not image_url: return jsonify({"msg": "Empty message!"}), 400
-        
-        role = 'admin' if is_admin() else 'user'
-        supabase.table('ticket_chats').insert({"ticket_id": ticket_id, "sender_id": session['user_id'], "sender_role": role, "message": message, "image_url": image_url}).execute()
-        return jsonify({"msg": "Sent!"})
-    except Exception as e: 
-        return jsonify({"msg": "Error sending message!"}), 500
-
-
-# ==========================================
-# ADMIN ROUTES (Safe Fetching)
-# ==========================================
-@app.route('/admin')
-def admin():
-    if not is_admin(): return "<h2 style='text-align:center; margin-top:30vh; color:#1E293B;'>Admins Only.</h2>"
-    try:
-        users_count = len(supabase.table('users').select('id').execute().data or[])
-        
-        w_rate = float(get_site_settings().get('withdraw_rate', 121.00))
-        withdrawals = supabase.table('withdrawals').select('amount').eq('status', 'approved').execute().data or[]
-        total_payout_bdt = sum(float(w.get('amount', 0)) for w in withdrawals) * w_rate
-        
-        completed_works = len(supabase.table('system_tasks').select('id').eq('status', 'approved').execute().data or[])
-        
-        p_works = len(supabase.table('system_tasks').select('id').eq('status', 'submitted').execute().data or[])
-        p_withdraws = len(supabase.table('withdrawals').select('id').eq('status', 'pending').execute().data or[])
-        p_topups = len(supabase.table('topups').select('id').eq('status', 'pending').execute().data or[])
-        p_tickets = len(supabase.table('p2p_tickets').select('id').eq('status', 'open').execute().data or[])
-        p_traffic = len(supabase.table('traffic_campaigns').select('id').eq('status', 'pending').execute().data or[])
-        p_redot = len(supabase.table('redotpay_orders').select('id').eq('status', 'pending').execute().data or[])
-        
-        pending_total = p_works + p_withdraws + p_topups + p_tickets + p_traffic + p_redot
-    except Exception as e:
-        print("Admin Stats Error:", str(e))
-        users_count = total_payout_bdt = completed_works = pending_total = 0
-        
-    stats = {"users": users_count, "payout": total_payout_bdt, "works": completed_works, "pending": pending_total}
-    return render_template('admin.html', stats=stats)
-
-@app.route('/admin/users')
-def admin_users():
-    if not is_admin(): return "<h2 style='text-align:center; margin-top:30vh;'>Admins Only.</h2>"
-    try:
-        all_users = supabase.table('users').select('*').order('balance', desc=True).execute().data or[]
-        for u in all_users:
-            refs = supabase.table('users').select('id').eq('referred_by', u['id']).execute().data or []
-            u['total_refs'] = len(refs)
-        return render_template('admin_users.html', users=all_users)
-    except:
-        return render_template('admin_users.html', users=[])
-
-@app.route('/admin/inbox')
-def admin_inbox():
-    if not is_admin(): return redirect(url_for('login'))
-    try:
-        tickets = supabase.table('p2p_tickets').select('*').eq('status', 'open').order('id', desc=True).execute().data or[]
-        for t in tickets:
-            usr = supabase.table('users').select('email, name').eq('id', t['user_id']).execute().data
-            if usr:
-                t['user_name'] = usr[0]['name']
-                t['user_email'] = usr[0]['email']
-            else:
-                t['user_name'] = "Unknown"
-        return render_template('admin_inbox.html', tickets=tickets)
-    except:
-        return render_template('admin_inbox.html', tickets=[])
-
-@app.route('/api/admin/pending', methods=['GET'])
-def get_pending():
-    if not is_admin(): return jsonify({"msg": "Unauthorized!"}), 401
-    try:
-        g = supabase.table('system_tasks').select('*').eq('status', 'submitted').execute().data or[]
-        w = supabase.table('withdrawals').select('*').eq('status', 'pending').execute().data or[]
-        t = supabase.table('topups').select('*').eq('status', 'pending').execute().data or[]
-        c = supabase.table('traffic_campaigns').select('*').eq('status', 'pending').execute().data or[]
-        r = supabase.table('redotpay_orders').select('*').eq('status', 'pending').execute().data or []
-        
-        for item in[g, w, t, c, r]:
-            for obj in item:
-                uid = obj.get('locked_by') or obj.get('user_id')
-                if uid:
-                    usr = supabase.table('users').select('email').eq('id', uid).execute().data
-                    obj['user_email'] = usr[0]['email'] if usr else 'Unknown'
+                <!-- Custom Upload Box -->
+                <div class="relative w-full group">
+                    <input type="file" name="screenshot" id="fileInput" accept="image/*" required 
+                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                           onchange="updateFileName(this)">
                     
-        return jsonify({"gmail": g, "withdrawals": w, "topups": t, "traffic": c, "redotpay": r})
-    except Exception as e:
-        print("Admin Pending Fetch Error:", str(e))
-        return jsonify({"gmail": [], "withdrawals": [], "topups": [], "traffic":[], "redotpay": []})
+                    <div id="uploadBox" class="border-2 border-dashed border-indigo-200 bg-indigo-50/50 rounded-2xl p-8 text-center transition duration-300 group-hover:border-[#4F46E5] group-hover:bg-indigo-50">
+                        <div id="uploadIcon" class="h-12 w-12 bg-white rounded-full flex items-center justify-center text-[#4F46E5] text-xl mx-auto mb-3 shadow-sm group-hover:scale-110 transition">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <p id="uploadText" class="text-sm font-bold text-slate-600 group-hover:text-[#4F46E5]">
+                            ছবি সিলেক্ট করুন
+                        </p>
+                        <p class="text-[10px] text-slate-400 mt-1">Max Size: 5MB</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-@app.route('/api/admin/action', methods=['POST'])
-def admin_action():
-    if not is_admin(): return jsonify({"msg": "Unauthorized!"}), 401
-    try:
-        d = request.json
-        status = d['action']
-        
-        if d['table'] == 'traffic_campaigns':
-            if status == 'approved': supabase.table('traffic_campaigns').update({"status": "active"}).eq('id', d['id']).execute()
-            elif status == 'rejected':
-                camp = supabase.table('traffic_campaigns').select('*').eq('id', d['id']).execute().data[0]
-                user = supabase.table('users').select('balance').eq('id', camp['user_id']).execute().data[0]
-                supabase.table('users').update({"balance": float(user.get('balance',0)) + float(camp.get('cost_usd',0))}).eq('id', camp['user_id']).execute()
-                supabase.table('traffic_campaigns').update({"status": "rejected"}).eq('id', d['id']).execute()
-            return jsonify({"msg": "Traffic Action Successful!"})
+        <!-- 4. SUBMIT BUTTON -->
+        <div class="fixed bottom-[95px] md:bottom-24 left-0 w-full px-4 z-30">
+            <div class="max-w-lg mx-auto">
+                <button type="submit" id="submitBtn" class="btn-emerald w-full text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl shadow-emerald-500/30 hover:scale-[1.02] active:scale-95 transition flex items-center justify-center gap-3">
+                    <span>জমা দিন</span>
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </form>
 
-        if d['table'] == 'p2p_tickets':
-            t_status = 'completed' if status == 'approved' else 'cancelled'
-            supabase.table('p2p_tickets').update({"status": t_status}).eq('id', d['id']).execute()
-            return jsonify({"msg": f"P2P Ticket {t_status}!"})
+</div>
+
+<!-- Scripts -->
+<script>
+    // 1. File Upload UX
+    function updateFileName(input) {
+        const uploadBox = document.getElementById('uploadBox');
+        const uploadIcon = document.getElementById('uploadIcon');
+        const uploadText = document.getElementById('uploadText');
+
+        if (input.files && input.files[0]) {
+            // Success State
+            uploadBox.classList.remove('border-indigo-200', 'bg-indigo-50/50');
+            uploadBox.classList.add('border-emerald-500', 'bg-emerald-50');
             
-        if d['table'] == 'redotpay_orders':
-            if status == 'rejected':
-                req = supabase.table('redotpay_orders').select('*').eq('id', d['id']).execute().data[0]
-                usr = supabase.table('users').select('balance').eq('id', req['user_id']).execute().data[0]
-                supabase.table('users').update({"balance": float(usr.get('balance',0)) + float(req.get('total_deducted',0))}).eq('id', req['user_id']).execute()
-                
-        supabase.table(d['table']).update({"status": status}).eq('id', d['id']).execute()
-        
-        if d['table'] == 'system_tasks':
-            sub = supabase.table('system_tasks').select('*').eq('id', d['id']).execute().data[0]
-            worker_id = sub['locked_by']
-            user = supabase.table('users').select('balance', 'warnings').eq('id', worker_id).execute().data[0]
-            if status == 'approved': 
-                supabase.table('users').update({"balance": float(user.get('balance',0)) + float(sub.get('reward',0))}).eq('id', worker_id).execute()
-            elif status == 'rejected':
-                new_warn = int(user.get('warnings') or 0) + 1
-                supabase.table('users').update({"warnings": new_warn, "is_banned": True if new_warn >= 3 else False}).eq('id', worker_id).execute()
-                
-        if d['table'] == 'topups' and status == 'approved':
-            tp_req = supabase.table('topups').select('*').eq('id', d['id']).execute().data[0]
-            user = supabase.table('users').select('balance').eq('id', tp_req['user_id']).execute().data[0]
-            supabase.table('users').update({"balance": float(user.get('balance',0)) + float(tp_req.get('amount',0))}).eq('id', tp_req['user_id']).execute()
-
-        if d['table'] == 'withdrawals':
-            w_req = supabase.table('withdrawals').select('*').eq('id', d['id']).execute().data[0]
-            withdrawing_user_id = w_req['user_id']
-            amount_withdrawn = float(w_req.get('amount',0))
-            user_info = supabase.table('users').select('balance', 'referred_by').eq('id', withdrawing_user_id).execute().data[0]
+            // Change Icon
+            uploadIcon.className = "h-12 w-12 bg-emerald-500 text-white rounded-full flex items-center justify-center text-xl mx-auto mb-3 shadow-sm";
+            uploadIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
             
-            if status == 'rejected': 
-                supabase.table('users').update({"balance": float(user_info.get('balance',0)) + amount_withdrawn}).eq('id', withdrawing_user_id).execute()
-            elif status == 'approved' and user_info.get('referred_by'):
-                referrer_data = supabase.table('users').select('balance').eq('id', user_info['referred_by']).execute().data
-                if referrer_data:
-                    supabase.table('users').update({"balance": float(referrer_data[0].get('balance',0)) + (amount_withdrawn * 0.07)}).eq('id', user_info['referred_by']).execute()
-                    
-        return jsonify({"msg": "Action processed successfully!"})
-    except Exception as e:
-        print("Admin Action Error:", str(e))
-        return jsonify({"msg": "Error processing action!"}), 500
+            // Show Filename
+            uploadText.textContent = input.files[0].name;
+            uploadText.className = "text-sm font-bold text-emerald-700 truncate w-full px-2 block";
+        }
+    }
 
-@app.route('/api/admin/update_settings', methods=['POST'])
-def update_settings():
-    if not is_admin(): return jsonify({"msg": "Unauthorized!"}), 401
-    try:
-        d = request.json
-        payload = {"notice_text": d.get('notice'), "withdraw_rate": float(d.get('withdraw_rate') or 121), "usdt_buy": float(d.get('usdt_buy') or 125), "usdt_sell": float(d.get('usdt_sell') or 118), "ltc_buy": float(d.get('ltc_buy') or 125), "ltc_sell": float(d.get('ltc_sell') or 118)}
-        supabase.table('site_settings').upsert({"id": 1, **payload}).execute()
-        return jsonify({"msg": "Settings updated successfully!"})
-    except: return jsonify({"msg": "Error updating settings!"}), 500
+    // 2. Prevent Double Click
+    function preventDoubleSubmit() {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i> <span class="tracking-widest">আপলোড হচ্ছে...</span>';
+        btn.classList.add('opacity-90', 'cursor-not-allowed');
+        return true;
+    }
+</script>
 
-@app.route('/api/admin/add_api_key', methods=['POST'])
-def add_api_key():
-    if not is_admin(): return jsonify({"msg": "Unauthorized"}), 401
-    try:
-        api_key = request.json.get('api_key')
-        if api_key:
-            supabase.table('imgbb_keys').insert({"api_key": api_key}).execute()
-            return jsonify({"msg": "API Key added successfully!"})
-        return jsonify({"msg": "Invalid Key"}), 400
-    except: return jsonify({"msg": "Error adding API Key!"}), 500
-
-@app.route('/api/admin/save_note', methods=['POST'])
-def save_note():
-    if not is_admin(): return jsonify({"msg": "Unauthorized!"}), 401
-    try:
-        supabase.table('users').update({"note": request.json['note']}).eq('id', request.json['user_id']).execute()
-        return jsonify({"msg": "Note saved!"})
-    except: return jsonify({"msg": "Error saving note"}), 500
-
-@app.route('/api/admin/add_task', methods=['POST'])
-def add_task():
-    if not is_admin(): return jsonify({"msg": "Unauthorized!"}), 401
-    try:
-        d = request.json
-        supabase.table('system_tasks').insert({"name": d['name'], "prefix": d.get('prefix',''), "password": d.get('password',''), "reward": d['reward'], "task_type": d.get('task_type', 'gmail'), "instruction": d.get('instruction','')}).execute()
-        return jsonify({"msg": "Work published!"})
-    except: return jsonify({"msg": "Error publishing work!"}), 500
-
-@app.route('/api/admin/add_fb_account', methods=['POST'])
-def add_fb_account():
-    if not is_admin(): return jsonify({"msg": "Unauthorized!"}), 401
-    try:
-        d = request.json
-        supabase.table('fb_accounts_for_sell').insert({"name": d.get('name', ''), "creation_date": d.get('creation_date', ''), "friends": d.get('friends', ''), "conditions": d.get('conditions', ''), "verification": d.get('verification', ''), "id_reach": d.get('id_reach', ''), "country": d.get('country', ''), "profile_link": d.get('profile_link', ''), "email": d.get('email', ''), "password": d.get('password', ''), "price": float(d.get('price') or 0), "platform": d.get('platform', 'Facebook')}).execute()
-        return jsonify({"msg": "Account listed!"})
-    except: return jsonify({"msg": "Error listing account!"}), 500
-
-# ==========================================
-# BACKGROUND JOBS
-# ==========================================
-def system_background_jobs():
-    now = datetime.now(timezone.utc)
-    try:
-        locked = supabase.table('system_tasks').select('*').eq('status', 'locked').execute().data or[]
-        for t in locked:
-            if t.get('locked_at'):
-                lock_time = datetime.fromisoformat(t['locked_at'].replace("Z", "+00:00"))
-                if (now - lock_time).total_seconds() > 3600:
-                    penalty = float(t.get('reward', 0)) * 0.75
-                    worker_id = t['locked_by']
-                    usr = supabase.table('users').select('balance', 'warnings').eq('id', worker_id).execute().data[0]
-                    
-                    new_bal = max(0.00, float(usr.get('balance', 0)) - penalty)
-                    new_warn = int(usr.get('warnings') or 0) + 1
-                    supabase.table('users').update({"balance": new_bal, "warnings": new_warn, "is_banned": True if new_warn >= 3 else False}).eq('id', worker_id).execute()
-                    supabase.table('system_tasks').update({"status": "open", "locked_by": None, "locked_at": None}).eq('id', t['id']).execute()
-
-        submitted = supabase.table('system_tasks').select('*').eq('status', 'submitted').execute().data or[]
-        for t in submitted:
-            if t.get('submitted_at'):
-                sub_time = datetime.fromisoformat(t['submitted_at'].replace("Z", "+00:00"))
-                if (now - sub_time).total_seconds() > 21600:
-                    supabase.table('system_tasks').update({"status": "approved"}).eq('id', t['id']).execute()
-                    usr = supabase.table('users').select('balance').eq('id', t['locked_by']).execute().data[0]
-                    supabase.table('users').update({"balance": float(usr.get('balance', 0)) + float(t.get('reward', 0))}).eq('id', t['locked_by']).execute()
-                    
-        open_tickets = supabase.table('p2p_tickets').select('*').eq('status', 'open').execute().data or[]
-        for tk in open_tickets:
-            if tk.get('created_at'):
-                tk_time = datetime.fromisoformat(tk['created_at'].replace("Z", "+00:00"))
-                if (now - tk_time).total_seconds() > 1800:
-                    supabase.table('p2p_tickets').update({"status": "cancelled"}).eq('id', tk['id']).execute()
-    except Exception as e:
-        print("Background Job Error:", str(e))
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=system_background_jobs, trigger="interval", minutes=5)
-scheduler.start()
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+{% endblock %}
