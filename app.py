@@ -309,7 +309,100 @@ def index():
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
     return render_template('home.html')
+# ==========================================
+# 🧩 CAPTCHA ENTRY SYSTEM (Daily 10)
+# ==========================================
+@app.route('/captcha', methods=['GET', 'POST'])
+@login_required
+def captcha_page():
+    from datetime import datetime
+    today_date = str(datetime.utcnow().date())
+    
+    # 1. Fetch user status
+    user_data = supabase.table('profiles').select('captcha_count, last_captcha_date, balance').eq('id', session['user_id']).single().execute().data
+    
+    # Reset if new day
+    if user_data.get('last_captcha_date') != today_date:
+        user_data['captcha_count'] = 0
+        supabase.table('profiles').update({'captcha_count': 0, 'last_captcha_date': today_date}).eq('id', session['user_id']).execute()
 
+    # Check Limit
+    if user_data['captcha_count'] >= 10:
+        flash("আজকের ১০টি ক্যাপচা সম্পন্ন হয়েছে! আগামীকাল আবার চেষ্টা করুন।", "warning")
+        return redirect(url_for('dashboard'))
+
+    if request.method == 'POST':
+        user_input = request.form.get('captcha_input', '').strip()
+        correct_captcha = session.get('current_captcha', '')
+
+        if user_input.upper() == correct_captcha.upper():
+            # Success! Add 1 Taka
+            new_bal = float(user_data['balance']) + 1.00
+            new_count = user_data['captcha_count'] + 1
+            
+            supabase.table('profiles').update({
+                'balance': new_bal, 
+                'captcha_count': new_count,
+                'last_captcha_date': today_date
+            }).eq('id', session['user_id']).execute()
+            
+            flash("✅ ক্যাপচা সঠিক! ৳১ যোগ হয়েছে।", "success")
+        else:
+            flash("❌ ক্যাপচা ভুল হয়েছে! আবার চেষ্টা করুন।", "error")
+            
+        return redirect(url_for('captcha_page'))
+
+    # Generate New Captcha (Mixed Letters and Numbers)
+    import string, random
+    chars = string.ascii_uppercase + string.digits
+    new_captcha = ''.join(random.choices(chars, k=6))
+    session['current_captcha'] = new_captcha
+
+    return render_template('captcha.html', captcha_text=new_captcha, count=user_data['captcha_count'])
+
+
+# ==========================================
+# 🎟️ SCRATCH CARD SYSTEM (Daily 3)
+# ==========================================
+@app.route('/skatch', methods=['GET', 'POST'])
+@login_required
+def scratch_page():
+    from datetime import datetime
+    import random
+    today_date = str(datetime.utcnow().date())
+    
+    # Fetch user status
+    user_data = supabase.table('profiles').select('scratch_count, last_scratch_date, balance').eq('id', session['user_id']).single().execute().data
+    
+    # Reset if new day
+    if user_data.get('last_scratch_date') != today_date:
+        user_data['scratch_count'] = 0
+        supabase.table('profiles').update({'scratch_count': 0, 'last_scratch_date': today_date}).eq('id', session['user_id']).execute()
+
+    # Check Limit
+    if user_data['scratch_count'] >= 3:
+        if request.method == 'POST':
+            return jsonify({'success': False, 'message': 'আজকের স্পিন লিমিট শেষ!'})
+        flash("আজকের ৩টি স্ক্র্যাচ কার্ড শেষ! আগামীকাল আবার আসুন।", "warning")
+        return redirect(url_for('dashboard'))
+
+    # POST (AJAX Call from frontend when scratching is done)
+    if request.method == 'POST':
+        # Random Reward between 3 and 10
+        reward = random.randint(3, 10)
+        
+        new_bal = float(user_data['balance']) + float(reward)
+        new_count = user_data['scratch_count'] + 1
+        
+        supabase.table('profiles').update({
+            'balance': new_bal, 
+            'scratch_count': new_count,
+            'last_scratch_date': today_date
+        }).eq('id', session['user_id']).execute()
+        
+        return jsonify({'success': True, 'reward': reward})
+
+    return render_template('scratch.html', count=user_data['scratch_count'])
 
 # ==========================================
 # LIVE CHAT SYSTEM (USER & ADMIN)
