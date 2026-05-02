@@ -2,140 +2,252 @@
 {% block content %}
 
 <style>
-    /* AI Page Reveal */
-    .buy-reveal { animation: revealIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    @keyframes revealIn { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    /* Premium Entry Animations */
+    .fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(15px); }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-    /* Summary Card */
-    .summary-card {
-        background: rgba(15, 23, 42, 0.7);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(139, 92, 246, 0.2);
-        border-radius: 32px;
-        position: relative;
-        overflow: hidden;
+    /* Custom Input Fields */
+    .premium-input {
+        background: #F8FAFC;
+        border: 1.5px solid #E2E8F0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-
-    /* Cyber Input Styling */
-    .cyber-input {
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: #f1f5f9;
-        border-radius: 18px;
-        padding: 14px 18px;
-        transition: all 0.3s ease;
-    }
-    .cyber-input:focus {
-        border-color: #8B5CF6;
-        background: rgba(139, 92, 246, 0.05);
-        box-shadow: 0 0 15px rgba(139, 92, 246, 0.15);
+    .premium-input:focus {
+        background: #FFFFFF;
+        border-color: #2563EB;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         outline: none;
     }
 
-    /* Instruction Box */
-    .instruction-node {
-        background: rgba(139, 92, 246, 0.05);
-        border: 1px dashed rgba(139, 92, 246, 0.3);
-        border-radius: 20px;
+    /* Custom Payment Select Cards (Radio Buttons) */
+    .payment-card {
+        border: 2px solid transparent;
+        background: #F8FAFC;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
     }
-
-    .btn-confirm {
-        background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-        box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
-        transition: all 0.3s ease;
+    .payment-card:hover {
+        background: #FFFFFF;
+        border-color: #DBEAFE;
     }
-    .btn-confirm:active { transform: scale(0.96); }
-
-    select.cyber-input option {
-        background: #0f172a;
-        color: white;
+    /* Checked States */
+    input[type="radio"]:checked + .payment-card {
+        border-color: #2563EB;
+        background: #EFF6FF;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.1);
     }
+    input[type="radio"]:checked + .payment-card .check-circle {
+        background: #2563EB; border-color: #2563EB;
+    }
+    input[type="radio"]:checked + .payment-card .check-circle i { opacity: 1; transform: scale(1); }
 </style>
 
-<div class="max-w-md mx-auto buy-reveal pb-32 pt-4 px-2">
+<div class="max-w-xl mx-auto space-y-6 fade-in-up pb-8 px-1">
 
-    <!-- ১. প্যাক সামারি কার্ড -->
-    <div class="summary-card p-6 text-center mb-6 shadow-2xl">
-        <div class="absolute -right-10 -top-10 w-32 h-32 bg-violet-600/10 rounded-full blur-3xl"></div>
-        
-        <p class="text-[10px] font-black text-slate-500 uppercase tracking-[3px] mb-2">Order Summary</p>
-        <h2 class="text-xl font-bold text-white leading-tight mb-1">{{ pack.title }}</h2>
-        <div class="flex items-center justify-center gap-3 text-xs text-slate-400 font-medium">
-            <span class="px-2 py-0.5 bg-white/5 rounded-md border border-white/5">{{ pack.operator }}</span>
-            <span class="h-1 w-1 bg-slate-700 rounded-full"></span>
-            <span>মেয়াদ: {{ pack.validity }}</span>
-        </div>
-        
-        <div class="mt-5 inline-flex items-center gap-2 bg-violet-600/20 text-violet-400 px-6 py-2 rounded-2xl border border-violet-500/20 shadow-inner">
-            <span class="text-[10px] font-bold uppercase opacity-60">Pay:</span>
-            <span class="text-2xl font-black tracking-tighter">৳{{ pack.offer_price }}</span>
+    <!-- ==========================================
+         1. HEADER (Navigation)
+    ========================================== -->
+    <div class="flex items-center gap-4 mb-2">
+        <a href="/drive" class="h-10 w-10 bg-white rounded-xl flex items-center justify-center text-slate-500 shadow-sm border border-slate-200 hover:text-blue-600 hover:bg-blue-50 transition-all active:scale-95">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+            <h2 class="text-2xl font-black text-slate-800 tracking-tight leading-none">Checkout</h2>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">Complete your order</p>
         </div>
     </div>
 
-    <!-- ২. পেমেন্ট ফর্ম প্যানেল -->
-    <div class="summary-card p-8 border-t-2 border-t-violet-500/30">
-        <h3 class="font-bold text-slate-200 mb-6 text-sm uppercase tracking-widest flex items-center gap-2">
-            <i class="fa-solid fa-file-invoice-dollar text-violet-500"></i> পেমেন্ট এবং ডাটা এন্ট্রি
-        </h3>
-        
-        <!-- পেমেন্ট ইন্সট্রাকশন -->
-        <div class="instruction-node p-4 mb-8 text-center">
-            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Send Money To (Admin)</p>
-            <div class="text-lg font-black text-violet-400 font-mono tracking-widest mb-1">01912107604</div>
-            <p class="text-[9px] text-slate-400 italic">টাকা পাঠিয়ে নিচের ফর্মে তথ্য দিন।</p>
-        </div>
+    <!-- ==========================================
+         2. ORDER SUMMARY CARD
+    ========================================== -->
+    <div class="bg-white p-6 rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 relative overflow-hidden">
+        <!-- Abstract Decor -->
+        <div class="absolute right-0 top-0 w-24 h-24 bg-blue-50 rounded-bl-full opacity-50 pointer-events-none"></div>
 
-        <form method="POST" class="space-y-6">
+        <p class="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-4 flex items-center gap-1.5">
+            <i class="fa-solid fa-receipt text-blue-500"></i> Order Summary
+        </p>
+
+        <div class="flex items-start gap-4 mb-5">
+            <!-- Dynamic Operator Icon -->
+            <div class="h-14 w-14 rounded-[16px] flex items-center justify-center text-white font-black text-base shadow-md flex-shrink-0
+                {% if pack.operator == 'Grameenphone' %} bg-blue-600
+                {% elif pack.operator == 'Robi' %} bg-red-600
+                {% elif pack.operator == 'Airtel' %} bg-rose-500
+                {% elif pack.operator == 'Banglalink' %} bg-orange-500
+                {% else %} bg-emerald-500 {% endif %}">
+                {{ pack.operator[:2] | upper }}
+            </div>
             
-            <!-- Receiver Mobile -->
+            <div class="flex-grow">
+                <h3 class="font-black text-slate-800 text-lg leading-tight mb-1">{{ pack.title }}</h3>
+                <div class="flex flex-wrap items-center gap-2 mt-1.5">
+                    <span class="bg-slate-50 border border-slate-200 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">{{ pack.operator }}</span>
+                    <span class="bg-slate-50 border border-slate-200 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1"><i class="fa-regular fa-clock"></i> {{ pack.validity }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 rounded-[16px] p-4 border border-slate-100 flex items-center justify-between">
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">১. অফারটি যে নাম্বারে যাবে</label>
-                <div class="relative">
-                    <span class="absolute left-4 top-4 text-slate-500"><i class="fa-solid fa-phone-volume"></i></span>
-                    <input type="number" name="mobile" required placeholder="01XXXXXXXXX" 
-                           class="cyber-input w-full pl-12 text-sm font-bold tracking-[2px]">
+                <p class="text-[9px] font-black uppercase tracking-[0.1em] text-slate-400 mb-0.5">Total Payable</p>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-2xl font-black text-blue-600 font-mono tracking-tight leading-none">৳{{ pack.offer_price }}</span>
+                    <span class="text-xs text-slate-400 font-bold line-through">৳{{ pack.regular_price }}</span>
                 </div>
             </div>
+            <div class="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-green-200 shadow-sm text-right">
+                <span class="block text-[8px] opacity-70 mb-0.5">You Save</span>
+                {{ pack.commission }}
+            </div>
+        </div>
+    </div>
 
-            <!-- Payment Method -->
+    <!-- ==========================================
+         3. PAYMENT INSTRUCTIONS
+    ========================================== -->
+    <div class="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden">
+        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500"></div>
+        
+        <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-building-columns text-blue-500"></i> Payment Protocol
+        </h3>
+
+        <!-- Official Number Box -->
+        <div class="bg-slate-50 border border-slate-200 p-4 rounded-[16px] flex items-center justify-between mb-4 group">
             <div>
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">২. পেমেন্ট মেথড</label>
-                <div class="relative">
-                    <span class="absolute left-4 top-4 text-slate-500"><i class="fa-solid fa-building-columns"></i></span>
-                    <select name="method" class="cyber-input w-full pl-12 text-sm font-bold appearance-none">
-                        <option value="bKash">bKash</option>
-                        <option value="Nagad">Nagad</option>
-                        <option value="Rocket">Rocket</option>
-                    </select>
-                    <span class="absolute right-4 top-4 text-slate-500 pointer-events-none"><i class="fa-solid fa-chevron-down text-xs"></i></span>
-                </div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.1em] mb-1">Official Payment Number</p>
+                <p class="text-xl font-black text-slate-800 font-mono tracking-widest select-all" id="payNumber">01912107604</p>
             </div>
-
-            <!-- Sender & TrxID Row -->
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">৩. আপনার নাম্বার</label>
-                    <input type="number" name="sender" required placeholder="Sender No" 
-                           class="cyber-input w-full text-xs font-bold px-4">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">৪. TrxID</label>
-                    <input type="text" name="trx_id" required placeholder="8X7H9..." 
-                           class="cyber-input w-full text-xs font-bold px-4 font-mono uppercase">
-                </div>
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="btn-confirm w-full py-5 rounded-2xl text-white font-black text-sm uppercase tracking-[3px] shadow-2xl flex items-center justify-center gap-3 mt-4">
-                ইনিশিয়েট অর্ডার <i class="fa-solid fa-arrow-right-long"></i>
+            <button type="button" onclick="copyAdminNumber(this)" class="h-10 w-10 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition shadow-sm active:scale-95 flex items-center justify-center flex-shrink-0">
+                <i class="fa-regular fa-copy text-sm"></i>
             </button>
-        </form>
+        </div>
+
+        <p class="text-xs text-slate-500 font-medium leading-relaxed bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+            <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> উপরের নম্বরে <b>৳{{ pack.offer_price }}</b> Send Money করুন এবং নিচের ফর্মে তথ্য দিয়ে অর্ডার কনফার্ম করুন।
+        </p>
     </div>
 
-    <!-- Security Footer -->
-    <div class="text-center mt-8 opacity-40">
-        <p class="text-[9px] font-mono text-slate-500 tracking-tighter uppercase">End-to-End Encrypted Transaction Node</p>
+    <!-- ==========================================
+         4. CHECKOUT FORM
+    ========================================== -->
+    <form id="driveBuyForm" method="POST" class="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 space-y-6" onsubmit="return preventDoubleSubmit()">
+        
+        <!-- Step 1: Target Mobile -->
+        <div>
+            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">১. যে নম্বরে অফারটি নিতে চান</label>
+            <div class="relative group">
+                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors"><i class="fa-solid fa-mobile-screen"></i></span>
+                <input type="tel" name="mobile" required pattern="01[3-9][0-9]{8}" placeholder="01XXXXXXXXX" 
+                       class="premium-input w-full pl-11 pr-4 py-4 rounded-[16px] text-sm font-bold font-mono tracking-widest text-slate-800">
+            </div>
+        </div>
+
+        <!-- Step 2: Payment Method -->
+        <div>
+            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 ml-1">২. পেমেন্ট মেথড</label>
+            <div class="grid grid-cols-3 gap-3">
+                <label class="cursor-pointer relative">
+                    <input type="radio" name="method" value="bKash" class="peer sr-only" required>
+                    <div class="payment-card p-3 rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-black text-slate-600 ml-1">bKash</span>
+                        <div class="check-circle h-4 w-4 rounded-full border-2 border-slate-300 flex items-center justify-center transition-all bg-white">
+                            <i class="fa-solid fa-check text-white text-[8px] opacity-0 transition-all transform scale-50"></i>
+                        </div>
+                    </div>
+                </label>
+                <label class="cursor-pointer relative">
+                    <input type="radio" name="method" value="Nagad" class="peer sr-only" required>
+                    <div class="payment-card p-3 rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-black text-slate-600 ml-1">Nagad</span>
+                        <div class="check-circle h-4 w-4 rounded-full border-2 border-slate-300 flex items-center justify-center transition-all bg-white">
+                            <i class="fa-solid fa-check text-white text-[8px] opacity-0 transition-all transform scale-50"></i>
+                        </div>
+                    </div>
+                </label>
+                <label class="cursor-pointer relative">
+                    <input type="radio" name="method" value="Rocket" class="peer sr-only" required>
+                    <div class="payment-card p-3 rounded-xl flex items-center justify-between">
+                        <span class="text-xs font-black text-slate-600 ml-1">Rocket</span>
+                        <div class="check-circle h-4 w-4 rounded-full border-2 border-slate-300 flex items-center justify-center transition-all bg-white">
+                            <i class="fa-solid fa-check text-white text-[8px] opacity-0 transition-all transform scale-50"></i>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Step 3: Sender & TrxID -->
+        <div class="grid sm:grid-cols-2 gap-5">
+            <div>
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">৩. আপনার নম্বর</label>
+                <div class="relative group">
+                    <span class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors"><i class="fa-solid fa-phone"></i></span>
+                    <input type="tel" name="sender" required pattern="01[3-9][0-9]{8}" placeholder="Sender No" 
+                           class="premium-input w-full pl-10 pr-3 py-3.5 rounded-[16px] text-xs font-bold font-mono tracking-widest text-slate-800">
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">৪. TrxID</label>
+                <div class="relative group">
+                    <span class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors"><i class="fa-solid fa-hashtag"></i></span>
+                    <input type="text" name="trx_id" required placeholder="8X7H9F..." 
+                           class="premium-input w-full pl-10 pr-3 py-3.5 rounded-[16px] text-xs font-black font-mono uppercase tracking-[0.15em] text-slate-800">
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-4 rounded-[16px] font-black text-sm uppercase tracking-widest shadow-[0_8px_20px_rgba(37,99,235,0.25)] hover:bg-blue-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2">
+            <span>Place Order</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+    </form>
+
+    <!-- Footer -->
+    <div class="text-center opacity-40 pb-4">
+        <p class="text-[9px] font-mono font-bold text-slate-600 tracking-widest uppercase flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-lock text-[8px]"></i> End-to-End Encrypted Checkout
+        </p>
     </div>
+
 </div>
+
+<!-- Scripts -->
+<script>
+    // Premium Copy Function with UI Feedback
+    function copyAdminNumber(btn) {
+        const num = document.getElementById("payNumber").innerText;
+        navigator.clipboard.writeText(num).then(() => {
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check text-green-600"></i>';
+            btn.classList.add('bg-green-50', 'border-green-200');
+            btn.classList.remove('bg-white', 'border-slate-200', 'text-slate-500');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-green-50', 'border-green-200');
+                btn.classList.add('bg-white', 'border-slate-200', 'text-slate-500');
+            }, 2000);
+        });
+    }
+
+    // Submit Loader to Prevent Double Clicks & Validate Fields
+    function preventDoubleSubmit() {
+        const form = document.getElementById('driveBuyForm');
+        
+        // Let HTML5 handle validation first
+        if (form.checkValidity()) {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i> <span class="tracking-widest">Processing...</span>';
+            btn.classList.add('opacity-90', 'cursor-not-allowed');
+            return true;
+        }
+        return false;
+    }
+</script>
 
 {% endblock %}
