@@ -2,120 +2,109 @@
 {% block content %}
 
 <style>
-    .slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
-    @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+    .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
     
-    .timeline-dot {
-        transition: all 0.3s ease;
-    }
-    .group:hover .timeline-dot {
-        border-color: #10B981; /* Emerald */
-        transform: scale(1.2);
-    }
+    .timeline-dot { transition: all 0.3s ease; }
+    .notice-card:hover .timeline-dot { border-color: #2563EB; transform: scale(1.2); }
 </style>
 
-<div class="max-w-2xl mx-auto space-y-8 slide-up pb-32 pt-4">
+<div class="max-w-2xl mx-auto space-y-6 fade-in-up pb-8 px-1">
 
-    <!-- 1. PREMIUM HEADER -->
-    <div class="bg-[#0F172A] rounded-[32px] p-8 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden">
-        <!-- Decor Blobs -->
-        <div class="absolute top-0 right-0 w-40 h-40 bg-emerald-500/20 rounded-full blur-[60px] -mr-10 -mt-10"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-teal-500/20 rounded-full blur-[50px] -ml-10 -mb-10"></div>
+    <!-- ==========================================
+         1. PREMIUM HEADER
+    ========================================== -->
+    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[24px] p-6 text-white shadow-lg relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl -mr-10 -mt-10"></div>
 
         <div class="relative z-10 flex items-center justify-between">
             <div>
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-1.5">
-                        <span class="h-1.5 w-1.5 bg-emerald-400 rounded-full animate-ping"></span> Live Updates
-                    </span>
-                </div>
-                <h2 class="text-3xl font-black tracking-tight">নোটিশ বোর্ড</h2>
-                <p class="text-slate-400 text-sm mt-1 font-medium">অফিসিয়াল ঘোষণা এবং প্ল্যাটফর্ম আপডেট</p>
+                <span class="bg-blue-500/20 border border-blue-500/30 text-blue-300 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-1.5 w-max mb-3">
+                    <span class="h-1.5 w-1.5 bg-blue-400 rounded-full animate-ping"></span> Live Updates
+                </span>
+                <h2 class="text-2xl font-black tracking-tight">Notice Board</h2>
+                <p class="text-slate-400 text-xs mt-1 font-medium">অফিসিয়াল ঘোষণা এবং আপডেটসমূহ</p>
             </div>
-            <div class="h-16 w-16 bg-white/10 rounded-[20px] flex items-center justify-center text-3xl backdrop-blur-md border border-white/10 shadow-inner text-emerald-400">
+            <div class="h-14 w-14 bg-white/10 rounded-[16px] flex items-center justify-center text-2xl backdrop-blur-md border border-white/10 text-blue-400">
                 <i class="fa-solid fa-bullhorn"></i>
             </div>
         </div>
     </div>
 
-    <!-- 2. ADMIN POST FORM -->
+    <!-- ==========================================
+         2. ADMIN POST FORM
+    ========================================== -->
     {% if user.role == 'admin' %}
-    <div class="clean-card p-6 border-l-4 border-l-emerald-500 relative overflow-hidden">
-        
-        <div class="flex items-center gap-3 mb-5">
-            <div class="h-10 w-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-sm">
-                <i class="fa-solid fa-pen-nib"></i>
-            </div>
-            <h3 class="font-black text-slate-800 text-lg">নতুন ঘোষণা দিন</h3>
-        </div>
+    <div class="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 border-l-4 border-l-blue-600 relative overflow-hidden">
+        <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2 uppercase tracking-widest">
+            <i class="fa-solid fa-pen-nib text-blue-600"></i> Write Notice
+        </h3>
 
         <form method="POST" action="/notice" class="space-y-4">
             <div>
-                <label class="block text-[10px] font-black text-slate-400 mb-1.5 ml-1 uppercase tracking-widest">শিরোনাম</label>
-                <input type="text" name="title" required placeholder="নোটিশের বিষয়..." 
-                       class="w-full p-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition text-sm font-bold text-slate-800 bg-slate-50 focus:bg-white">
+                <input type="text" name="title" required placeholder="Notice Title..." 
+                       class="w-full p-3.5 border border-slate-200 rounded-[14px] focus:outline-none focus:border-blue-500 bg-slate-50 focus:bg-white transition text-sm font-bold text-slate-800">
             </div>
             <div>
-                <label class="block text-[10px] font-black text-slate-400 mb-1.5 ml-1 uppercase tracking-widest">বিস্তারিত</label>
-                <textarea name="content" required rows="4" placeholder="কি জানাতে চান..." 
-                          class="w-full p-3.5 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition text-sm font-medium text-slate-700 bg-slate-50 focus:bg-white"></textarea>
+                <textarea name="content" required rows="3" placeholder="Write details here..." 
+                          class="w-full p-3.5 border border-slate-200 rounded-[14px] focus:outline-none focus:border-blue-500 bg-slate-50 focus:bg-white transition text-sm font-medium text-slate-700"></textarea>
             </div>
-            <div class="flex justify-end pt-2">
-                <button type="submit" class="btn-emerald text-white px-8 py-3.5 rounded-xl text-sm font-black shadow-lg flex items-center gap-2">
-                    <span>পাবলিশ করুন</span>
-                    <i class="fa-solid fa-paper-plane"></i>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-[12px] text-xs font-bold shadow-md hover:bg-blue-700 transition flex items-center gap-2">
+                    Publish <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
         </form>
     </div>
     {% endif %}
 
-    <!-- 3. TIMELINE NOTICE LIST -->
-    <div class="relative pl-4 md:pl-6 space-y-8 mt-8">
-        <!-- Vertical Line -->
-        <div class="absolute left-4 md:left-6 top-2 bottom-0 w-0.5 bg-slate-200 rounded-full"></div>
+    <!-- ==========================================
+         3. TIMELINE NOTICE LIST
+    ========================================== -->
+    <div class="relative pl-3 md:pl-5 space-y-6 mt-6">
+        <!-- Vertical Timeline Line -->
+        <div class="absolute left-3 md:left-5 top-2 bottom-0 w-0.5 bg-slate-200 rounded-full"></div>
 
         {% for notice in notices %}
-        <div class="relative pl-8 group">
+        <div class="relative pl-6 md:pl-8 notice-card">
             
             <!-- Timeline Dot -->
-            <div class="timeline-dot absolute left-[-6px] top-6 h-3.5 w-3.5 bg-white border-[3px] border-slate-300 rounded-full z-10 shadow-sm"></div>
+            <div class="timeline-dot absolute left-[-5px] top-5 h-3 w-3 bg-white border-[3px] border-slate-300 rounded-full z-10 shadow-sm"></div>
 
-            <div class="clean-card p-6 relative overflow-hidden">
+            <div class="bg-white p-5 md:p-6 rounded-[24px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 hover:border-blue-200 transition">
                 
-                <!-- Date Badge & Admin Actions -->
+                <!-- Date Badge & Actions -->
                 <div class="flex justify-between items-start mb-4">
-                    <span class="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 border border-slate-200 uppercase tracking-wider">
-                        <i class="fa-regular fa-clock text-emerald-500"></i> {{ notice.created_at[:10] }}
+                    <span class="text-[9px] font-bold text-slate-500 bg-slate-50 px-2.5 py-1 rounded-md flex items-center gap-1.5 border border-slate-200 uppercase tracking-widest">
+                        <i class="fa-regular fa-clock text-blue-500"></i> {{ notice.created_at[:10] }}
                     </span>
 
                     {% if user.role == 'admin' %}
-                    <a href="/notice/delete/{{ notice.id }}" onclick="return confirm('ডিলিট করবেন?')" 
-                       class="h-8 w-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition shadow-sm" title="Delete">
-                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    <a href="/notice/delete/{{ notice.id }}" onclick="return confirm('ডিলিট করবেন?')" class="h-7 w-7 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition shadow-sm" title="Delete">
+                        <i class="fa-solid fa-trash-can text-[10px]"></i>
                     </a>
                     {% endif %}
                 </div>
 
                 <!-- Title & Content -->
-                <h3 class="text-xl font-black text-slate-900 mb-3 leading-tight tracking-tight">
+                <h3 class="text-base md:text-lg font-bold text-slate-900 mb-2 leading-tight">
                     {{ notice.title }}
                 </h3>
                 
-                <div class="text-sm text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50/80 p-4 rounded-2xl border border-slate-100 font-medium" id="notice-text-{{ loop.index }}">
+                <div class="text-xs text-slate-600 leading-relaxed whitespace-pre-line bg-blue-50/30 p-4 rounded-[16px] border border-slate-100 font-medium" id="notice-text-{{ loop.index }}">
 {{ notice.content }}
                 </div>
 
                 <!-- Footer Actions -->
-                <div class="mt-5 flex gap-3">
+                <div class="mt-4 flex gap-2">
                     <button onclick="copyNotice('notice-text-{{ loop.index }}', this)" 
-                            class="text-xs font-bold text-slate-500 hover:text-emerald-600 flex items-center gap-1.5 transition bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-emerald-200 hover:bg-emerald-50 shadow-sm">
-                        <i class="fa-regular fa-copy"></i> Copy Text
+                            class="text-[10px] font-bold text-slate-500 hover:text-blue-600 flex items-center gap-1.5 transition bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg hover:border-blue-200 hover:bg-blue-50 active:scale-95">
+                        <i class="fa-regular fa-copy"></i> Copy
                     </button>
                     <!-- WhatsApp Share -->
                     <a href="whatsapp://send?text={{ notice.title }} - {{ notice.content }}" 
-                       class="text-xs font-bold text-slate-500 hover:text-teal-600 flex items-center gap-1.5 transition bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-teal-200 hover:bg-teal-50 shadow-sm">
-                        <i class="fa-brands fa-whatsapp text-teal-500"></i> Share
+                       class="text-[10px] font-bold text-slate-500 hover:text-emerald-600 flex items-center gap-1.5 transition bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg hover:border-emerald-200 hover:bg-emerald-50 active:scale-95">
+                        <i class="fa-brands fa-whatsapp text-emerald-500"></i> Share
                     </a>
                 </div>
 
@@ -123,12 +112,12 @@
         </div>
         {% else %}
         <!-- Empty State -->
-        <div class="text-center py-20 clean-card ml-8 border-dashed border-2">
-            <div class="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl text-slate-300">
+        <div class="text-center py-16 bg-white rounded-[24px] border border-slate-100 shadow-sm ml-6">
+            <div class="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl text-slate-300">
                 <i class="fa-regular fa-bell-slash"></i>
             </div>
-            <h3 class="text-lg font-black text-slate-800">কোনো নোটিশ নেই</h3>
-            <p class="text-slate-500 text-sm mt-1 font-medium">নতুন ঘোষণার জন্য অপেক্ষা করুন।</p>
+            <h3 class="text-sm font-bold text-slate-800">কোনো নোটিশ নেই</h3>
+            <p class="text-[10px] text-slate-400 mt-1 font-medium">নতুন ঘোষণার জন্য অপেক্ষা করুন।</p>
         </div>
         {% endfor %}
     </div>
@@ -142,13 +131,13 @@
         navigator.clipboard.writeText(text).then(() => {
             const originalHTML = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-            btn.classList.add('text-emerald-600', 'border-emerald-300', 'bg-emerald-50');
-            btn.classList.remove('text-slate-500');
+            btn.classList.add('text-blue-600', 'border-blue-300', 'bg-blue-50');
+            btn.classList.remove('text-slate-500', 'bg-slate-50', 'border-slate-200');
             
             setTimeout(() => {
                 btn.innerHTML = originalHTML;
-                btn.classList.remove('text-emerald-600', 'border-emerald-300', 'bg-emerald-50');
-                btn.classList.add('text-slate-500');
+                btn.classList.remove('text-blue-600', 'border-blue-300', 'bg-blue-50');
+                btn.classList.add('text-slate-500', 'bg-slate-50', 'border-slate-200');
             }, 2000);
         });
     }
