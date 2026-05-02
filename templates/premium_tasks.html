@@ -1,0 +1,150 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    /* Premium Entry Animation */
+    .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+    /* Ultra Premium VIP Card */
+    .elite-card {
+        background: linear-gradient(145deg, #0F172A 0%, #1E293B 100%);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        box-shadow: 0 10px 40px -10px rgba(245, 158, 11, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Shimmer effect for locked tasks */
+    .locked-task {
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    .locked-task::after {
+        content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+        transform: skewX(-20deg); animation: shimmer 3s infinite; pointer-events: none;
+    }
+    @keyframes shimmer { 100% { left: 200%; } }
+    
+    .locked-task:hover {
+        transform: translateY(-3px);
+        border-color: #FBBF24; /* Amber */
+        box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.2);
+    }
+</style>
+
+<div class="max-w-3xl mx-auto space-y-6 fade-in-up pb-8 px-1">
+
+    <!-- ==========================================
+         1. HERO HEADER (VIP Lure)
+    ========================================== -->
+    <div class="elite-card rounded-[32px] p-6 sm:p-8 text-white text-center">
+        <!-- Abstract Gold Glows -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl"></div>
+        <div class="absolute bottom-0 left-0 w-40 h-40 bg-yellow-300/10 rounded-full blur-3xl"></div>
+        <i class="fa-solid fa-gem absolute right-4 bottom-4 text-8xl opacity-5 transform rotate-12 pointer-events-none"></i>
+        
+        <div class="relative z-10 max-w-lg mx-auto">
+            <div class="h-16 w-16 bg-gradient-to-br from-amber-400 to-amber-600 text-slate-900 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 shadow-[0_0_20px_rgba(245,158,11,0.4)]">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">Elite Workspace</h2>
+            <p class="text-sm text-slate-400 font-medium leading-relaxed mb-6">
+                এখানে থাকা <b class="text-amber-400">{{ tasks|length }}+ হাই-পেইং টাস্ক</b> সাধারণ ইউজারদের জন্য লক করা আছে। এই কাজগুলো করে প্রতিদিন <span class="text-emerald-400 font-bold font-mono">৳2,000+</span> আয় করতে আজই ভিআইপি মেম্বারশিপে আপগ্রেড করুন!
+            </p>
+            
+            <a href="/vip" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 px-8 py-3.5 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 transition-all">
+                <i class="fa-solid fa-crown"></i> Upgrade to VIP
+            </a>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         2. TASK LIST (LOCKED)
+    ========================================== -->
+    <div class="flex items-center justify-between px-2 mb-2 mt-6">
+        <h3 class="font-bold text-slate-800 text-sm uppercase tracking-widest"><i class="fa-solid fa-layer-group text-blue-500 mr-1.5"></i> Premium Batch</h3>
+        <span class="text-[10px] bg-red-50 text-red-600 px-2 py-1 rounded-md font-bold uppercase tracking-widest border border-red-100 flex items-center gap-1">
+            <i class="fa-solid fa-lock"></i> Locked
+        </span>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4 relative">
+        
+        <!-- Premium Ad Box (Adds realism) -->
+        <div class="sm:col-span-2 bg-white border border-slate-200 rounded-[20px] p-2 flex justify-center overflow-hidden mb-2">
+            <script>
+              atOptions = {
+                'key' : '4a72be96f78b75e42afea5ee99005d34',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+              };
+            </script>
+            <script src="https://www.highperformanceformat.com/4a72be96f78b75e42afea5ee99005d34/invoke.js"></script>
+        </div>
+
+        {% for task in tasks %}
+        <div class="locked-task bg-slate-50 p-4 rounded-[20px] border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer" onclick="triggerLockedAlert()">
+            
+            <!-- Left: Info -->
+            <div class="flex items-center gap-3 w-full overflow-hidden">
+                <div class="h-12 w-12 bg-gradient-to-br from-slate-200 to-slate-300 text-slate-500 rounded-xl flex items-center justify-center text-xl shadow-inner flex-shrink-0 relative overflow-hidden">
+                    <i class="fa-solid fa-gem opacity-50"></i>
+                    <!-- Lock Overlay -->
+                    <div class="absolute inset-0 bg-slate-900/10 flex items-center justify-center backdrop-blur-[1px]">
+                        <i class="fa-solid fa-lock text-slate-600 text-sm"></i>
+                    </div>
+                </div>
+                <div class="flex-grow pr-2 min-w-0">
+                    <h4 class="font-bold text-slate-700 text-sm truncate w-full">{{ task.title }}</h4>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100 uppercase">{{ task.category }}</span>
+                        <span class="text-[9px] font-medium text-slate-400 font-mono">ID: #{{ task.id }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Reward -->
+            <div class="flex flex-col items-end flex-shrink-0">
+                <span class="text-base font-black text-emerald-600 font-mono">৳{{ task.reward }}</span>
+                <span class="mt-1 bg-slate-200 text-slate-500 px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1">
+                    <i class="fa-solid fa-lock text-[8px]"></i> VIP
+                </span>
+            </div>
+
+        </div>
+
+        <!-- Inject Ads after every 10 tasks to boost revenue -->
+        {% if loop.index % 10 == 0 %}
+        <div class="sm:col-span-2 bg-white border border-slate-200 rounded-[20px] p-2 flex justify-center overflow-hidden my-2">
+            <script>
+              atOptions = {
+                'key' : '4a72be96f78b75e42afea5ee99005d34',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+              };
+            </script>
+            <script src="https://www.highperformanceformat.com/4a72be96f78b75e42afea5ee99005d34/invoke.js"></script>
+        </div>
+        {% endif %}
+
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- Custom Alert Script -->
+<script>
+    function triggerLockedAlert() {
+        // Show an attractive error toast/alert using the app's existing toast system (if available) or standard alert
+        alert("🔒 Access Denied!\n\nএই হাই-পেইং টাস্কগুলো শুধুমাত্র VIP মেম্বারদের জন্য। দয়া করে আপনার একাউন্ট আপগ্রেড করুন।");
+        window.location.href = "/vip"; // Redirect to VIP page immediately
+    }
+</script>
+
+{% endblock %}
