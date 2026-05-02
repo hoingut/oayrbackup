@@ -2,167 +2,195 @@
 {% block content %}
 
 <style>
-    .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
-    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    /* Premium Entry Animations */
+    .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+    /* Custom Scrollbar for Team List */
+    .team-scroll::-webkit-scrollbar { width: 4px; }
+    .team-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
     
-    .premium-dark-card {
-        background: linear-gradient(145deg, #0F172A 0%, #1E293B 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.15);
+    /* Animated Progress Bar */
+    .progress-glow {
         position: relative;
         overflow: hidden;
     }
-    
-    .gold-gradient {
-        background: linear-gradient(to right, #FDE047, #F59E0B);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    .progress-glow::after {
+        content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: progressShine 2s infinite;
     }
+    @keyframes progressShine { 100% { left: 200%; } }
 </style>
 
-<div class="max-w-3xl mx-auto space-y-6 fade-up pb-32 pt-4">
+<div class="max-w-4xl mx-auto space-y-6 fade-in-up pb-8 px-1">
 
-    <!-- 1. CAMPAIGN BANNER (Dark Premium) -->
-    <div class="premium-dark-card rounded-[32px] p-8 text-white text-center">
-        <!-- Ambient Glow -->
-        <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-500/20 rounded-full blur-[60px] pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-teal-500/20 rounded-full blur-[50px] pointer-events-none"></div>
+    <!-- ==========================================
+         1. SPECIAL BOUNTY BANNER (Corporate Blue)
+    ========================================== -->
+    <div class="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-800 rounded-[32px] p-8 text-white text-center relative overflow-hidden shadow-[0_15px_40px_-10px_rgba(37,99,235,0.4)]">
+        
+        <!-- Abstract Orbs -->
+        <div class="absolute top-[-20%] right-[-10%] w-48 h-48 bg-white opacity-10 rounded-full blur-[40px] pointer-events-none"></div>
+        <div class="absolute bottom-[-20%] left-[-10%] w-32 h-32 bg-sky-400 opacity-20 rounded-full blur-[30px] pointer-events-none"></div>
+        <i class="fa-solid fa-gift absolute right-6 top-1/2 transform -translate-y-1/2 text-8xl opacity-[0.03] pointer-events-none -rotate-12"></i>
 
-        <div class="relative z-10">
-            <div class="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/30 mb-4 shadow-sm">
-                <i class="fa-solid fa-fire animate-pulse"></i> Special Bounty
+        <div class="relative z-10 max-w-lg mx-auto">
+            <div class="inline-flex items-center gap-2 bg-white/10 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20 mb-4 shadow-sm backdrop-blur-md">
+                <i class="fa-solid fa-bolt text-yellow-400"></i> Special Bounty
             </div>
             
-            <h2 class="text-3xl font-black mb-2 tracking-tight">৫০ জন এক্টিভ রেফার</h2>
-            <p class="text-sm text-slate-400 font-medium mb-6">করলেই পেয়ে যাবেন <span class="gold-gradient font-black text-lg">৳১০০০</span> বোনাস!</p>
+            <h2 class="text-3xl font-black mb-2 tracking-tight">Invite 50 Active Users</h2>
+            <p class="text-sm text-blue-100 font-medium mb-6">আপনার রেফার লিংক দিয়ে ৫০ জন এক্টিভ মেম্বার যুক্ত করলেই পেয়ে যাবেন <span class="bg-amber-400 text-slate-900 px-2 py-0.5 rounded-md font-black text-sm shadow-sm ml-1">৳১০০০</span> এক্সট্রা বোনাস!</p>
 
             <!-- Progress Bar -->
-            <div class="w-full bg-slate-800 rounded-full h-3 mb-3 border border-slate-700 overflow-hidden shadow-inner">
-                <div class="bg-gradient-to-r from-emerald-400 to-teal-400 h-full rounded-full transition-all duration-1000 ease-out relative"
-                     style="width: {{ (active_count / 50) * 100 }}%">
-                     <!-- Shine effect on bar -->
-                     <div class="absolute top-0 left-0 w-full h-full bg-white/20 animate-[shimmer_2s_infinite]"></div>
+            <div class="w-full bg-slate-900/40 rounded-full h-3.5 mb-3 border border-white/10 overflow-hidden shadow-inner backdrop-blur-sm">
+                <div class="bg-gradient-to-r from-emerald-400 to-teal-400 h-full rounded-full transition-all duration-1000 ease-out progress-glow"
+                     style="width: {{ (active_count / 50) * 100 if active_count < 50 else 100 }}%">
                 </div>
             </div>
             
-            <div class="flex justify-between text-[11px] font-black text-slate-400 uppercase tracking-wider mb-6">
+            <div class="flex justify-between text-[11px] font-black text-blue-200 uppercase tracking-widest mb-6">
                 <span class="text-emerald-400">{{ active_count }} Active</span>
                 <span>Target: 50</span>
             </div>
 
+            <!-- Action Button -->
             {% if active_count >= 50 %}
-                <a href="https://wa.me/8801894577178" target="_blank" class="btn-emerald text-white px-8 py-3 rounded-xl text-sm font-black shadow-lg inline-flex items-center gap-2 animate-bounce">
-                    <i class="fa-solid fa-gift"></i> পুরস্কার দাবি করুন
+                <a href="https://t.me/payrsrp" target="_blank" class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 px-8 py-3.5 rounded-xl text-sm font-black shadow-lg shadow-amber-500/30 inline-flex items-center gap-2 animate-bounce border border-amber-300">
+                    <i class="fa-solid fa-gift"></i> Claim Reward
                 </a>
             {% else %}
-                <button disabled class="bg-slate-800 text-slate-500 border border-slate-700 px-8 py-3 rounded-xl text-xs font-black cursor-not-allowed uppercase tracking-wider">
-                    আরও {{ 50 - active_count }} জন প্রয়োজন
+                <button disabled class="bg-white/10 text-white/50 border border-white/10 px-8 py-3.5 rounded-xl text-xs font-black cursor-not-allowed uppercase tracking-widest backdrop-blur-sm">
+                    Need {{ 50 - active_count }} More
                 </button>
             {% endif %}
         </div>
     </div>
 
-    <!-- 2. COPY LINK SECTION -->
-    <div class="clean-card p-6">
-        <label class="text-[10px] font-black text-slate-400 mb-3 block uppercase tracking-widest flex items-center gap-2">
-            <i class="fa-solid fa-link text-emerald-500"></i> Your Invite Link
-        </label>
+    <!-- ==========================================
+         2. COPY LINK SECTION (Minimalist)
+    ========================================== -->
+    <div class="bg-white p-6 sm:p-8 rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden group">
+        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-600"></div>
         
-        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-100">
-            <div class="h-12 w-12 bg-white text-slate-700 rounded-xl flex items-center justify-center shadow-sm border border-slate-200 flex-shrink-0">
-                <i class="fa-solid fa-share-nodes"></i>
+        <div class="flex items-center gap-3 mb-4">
+            <div class="h-10 w-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg shadow-sm">
+                <i class="fa-solid fa-link"></i>
             </div>
-            <input type="text" id="refLink" value="..." class="bg-transparent text-xs font-bold text-slate-700 w-full outline-none font-mono truncate px-2" readonly>
-            <button onclick="copyRef(this)" class="btn-emerald text-white px-5 py-3 rounded-xl text-xs font-black shadow-md active:scale-95 transition flex-shrink-0">
-                Copy
+            <div>
+                <h3 class="font-bold text-slate-800 text-sm">Your Affiliate Link</h3>
+                <p class="text-[10px] text-slate-500 font-medium">প্রতি এক্টিভ রেফারে পাবেন <b class="text-emerald-600">১০ টাকা</b> বোনাস।</p>
+            </div>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+            <input type="text" id="refLink" value="..." class="bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 w-full p-4 rounded-xl outline-none font-mono focus:border-blue-500 focus:bg-white transition" readonly>
+            
+            <button onclick="copyRef(this)" class="w-full sm:w-auto bg-slate-900 text-white px-8 py-4 rounded-xl text-xs font-black uppercase tracking-widest shadow-md hover:bg-blue-600 transition flex items-center justify-center gap-2 flex-shrink-0 active:scale-95">
+                <i class="fa-regular fa-copy"></i> Copy
             </button>
         </div>
-        <p class="text-[10px] text-slate-400 mt-3 font-medium">
-            <i class="fa-solid fa-circle-info text-slate-300"></i> প্রতি এক্টিভ রেফারে পাবেন <b class="text-emerald-600">১০ টাকা</b> বোনাস।
-        </p>
     </div>
 
+    <!-- ==========================================
+         3. LEADERBOARD & MY TEAM
+    ========================================== -->
     <div class="grid md:grid-cols-2 gap-6">
-        <!-- 3. TOP REFERRERS (Leaderboard) -->
-        <div class="clean-card p-6">
-            <h3 class="font-black text-slate-800 text-sm mb-5 tracking-tight flex items-center gap-2">
-                <i class="fa-solid fa-trophy text-yellow-500"></i> সেরা রেফারার
-            </h3>
+        
+        <!-- LEADERBOARD -->
+        <div class="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 flex flex-col">
+            <div class="flex items-center justify-between mb-5 border-b border-slate-50 pb-3">
+                <h3 class="font-black text-slate-800 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-500"></i> Top Networkers
+                </h3>
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded">Global</span>
+            </div>
+            
             <div class="space-y-3">
                 {% for top in leaderboard %}
-                <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition border border-transparent hover:border-slate-100">
+                <div class="flex items-center justify-between p-3 rounded-2xl transition border border-transparent hover:border-blue-100 hover:bg-blue-50/50 group">
                     <div class="flex items-center gap-3">
-                        <div class="h-8 w-8 rounded-full flex items-center justify-center font-black text-xs shadow-sm
-                            {% if loop.index == 1 %} bg-yellow-100 text-yellow-600 border border-yellow-200
-                            {% elif loop.index == 2 %} bg-slate-200 text-slate-600 border border-slate-300
-                            {% elif loop.index == 3 %} bg-orange-100 text-orange-600 border border-orange-200
-                            {% else %} bg-slate-50 text-slate-400 border border-slate-100 {% endif %}">
+                        <div class="h-9 w-9 rounded-xl flex items-center justify-center font-black text-xs shadow-sm border
+                            {% if loop.index == 1 %} bg-gradient-to-br from-amber-400 to-amber-500 text-white border-amber-500
+                            {% elif loop.index == 2 %} bg-slate-200 text-slate-600 border-slate-300
+                            {% elif loop.index == 3 %} bg-orange-200 text-orange-700 border-orange-300
+                            {% else %} bg-slate-50 text-slate-400 border-slate-100 {% endif %}">
                             {{ loop.index }}
                         </div>
-                        <p class="text-xs font-bold text-slate-700 font-mono">{{ top.email.split('@')[0][:3] }}***</p>
+                        <div>
+                            <p class="text-xs font-bold text-slate-800 font-mono">{{ top.email.split('@')[0][:3] }}***{{ top.email.split('@')[0][-2:] }}</p>
+                            <p class="text-[9px] text-slate-400 font-medium">Affiliate Partner</p>
+                        </div>
                     </div>
-                    <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-lg">
-                        {{ top.count }} Refs
+                    <span class="text-[10px] font-black text-blue-600 bg-white border border-blue-100 px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1 group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-users text-[8px]"></i> {{ top.count }}
                     </span>
                 </div>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- 4. MY TEAM LIST -->
-        <div class="clean-card p-6 flex flex-col h-full">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="font-black text-slate-800 text-sm tracking-tight flex items-center gap-2">
-                    <i class="fa-solid fa-users text-teal-500"></i> আমার টিম
+        <!-- MY TEAM -->
+        <div class="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 flex flex-col h-full">
+            <div class="flex justify-between items-center mb-5 border-b border-slate-50 pb-3">
+                <h3 class="font-black text-slate-800 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-network-wired text-blue-600"></i> My Direct Team
                 </h3>
-                <span class="text-[9px] bg-slate-100 text-slate-500 px-2 py-1 rounded-md font-black uppercase tracking-widest border border-slate-200">
+                <span class="text-[10px] bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg font-black uppercase tracking-widest border border-blue-100">
                     Total: {{ total_count }}
                 </span>
             </div>
 
-            <div class="space-y-3 overflow-y-auto pr-1 flex-grow" style="max-height: 300px;">
+            <!-- Scrollable Team List -->
+            <div class="space-y-3 overflow-y-auto pr-1 flex-grow team-scroll" style="max-height: 350px;">
                 {% for ref in referrals %}
-                <div class="flex items-center justify-between p-3 rounded-2xl border border-slate-100 hover:shadow-md transition bg-slate-50/50">
+                <div class="flex items-center justify-between p-3.5 rounded-2xl border border-slate-100 hover:border-blue-200 hover:shadow-sm transition bg-slate-50/50">
+                    
                     <div class="flex items-center gap-3">
-                        <div class="h-10 w-10 rounded-full flex items-center justify-center text-lg shadow-sm border border-white
-                            {{ 'bg-emerald-100 text-emerald-600' if ref.is_active else 'bg-slate-200 text-slate-400' }}">
+                        <div class="h-10 w-10 rounded-[14px] flex items-center justify-center text-lg shadow-sm border 
+                            {{ 'bg-emerald-50 text-emerald-600 border-emerald-100' if ref.is_active else 'bg-white text-slate-400 border-slate-200' }}">
                             <i class="fa-solid fa-user"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-slate-800 truncate w-24 sm:w-auto">{{ ref.email.split('@')[0] }}</p>
-                            <p class="text-[9px] text-slate-400 font-mono mt-0.5">{{ ref.created_at[:10] }}</p>
+                            <p class="text-xs font-bold text-slate-800 truncate w-24 sm:w-32">{{ ref.email.split('@')[0] }}</p>
+                            <p class="text-[9px] text-slate-400 font-mono mt-0.5"><i class="fa-regular fa-calendar mr-0.5"></i> {{ ref.created_at[:10] }}</p>
                         </div>
                     </div>
                     
                     <div class="text-right">
                         {% if ref.is_active %}
-                            <span class="text-[9px] font-black bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-1 rounded-lg uppercase tracking-wider">
+                            <span class="text-[9px] font-black bg-emerald-500 text-white border border-emerald-600 px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">
                                 Active
                             </span>
-                            <p class="text-[9px] text-emerald-500 font-bold mt-1">+৳10 Earned</p>
+                            <p class="text-[9px] text-emerald-600 font-bold mt-1.5 font-mono">+৳10.00</p>
                         {% else %}
-                            <span class="text-[9px] font-black bg-slate-100 text-slate-500 border border-slate-200 px-2 py-1 rounded-lg uppercase tracking-wider">
+                            <span class="text-[9px] font-black bg-slate-200 text-slate-500 border border-slate-300 px-2 py-0.5 rounded uppercase tracking-wider">
                                 Unpaid
                             </span>
+                            <p class="text-[9px] text-slate-400 font-bold mt-1.5 font-mono">৳0.00</p>
                         {% endif %}
                     </div>
                 </div>
                 {% else %}
-                <div class="text-center py-10">
-                    <div class="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl text-slate-300">
-                        <i class="fa-solid fa-user-xmark"></i>
+                <div class="text-center py-12">
+                    <div class="h-16 w-16 bg-slate-50 rounded-[16px] border border-slate-100 flex items-center justify-center mx-auto mb-3 text-2xl text-slate-300">
+                        <i class="fa-solid fa-user-plus"></i>
                     </div>
-                    <p class="text-xs font-bold text-slate-500">টিম মেম্বার নেই</p>
+                    <p class="text-sm font-bold text-slate-700">টিম মেম্বার নেই</p>
+                    <p class="text-[10px] text-slate-400 mt-1">লিংক কপি করে বন্ধুদের ইনভাইট করুন।</p>
                 </div>
                 {% endfor %}
             </div>
         </div>
+
     </div>
 
 </div>
 
 <!-- Scripts -->
 <script>
+    // Generate Dynamic Ref Link based on User ID
     document.addEventListener('DOMContentLoaded', () => {
         const domain = window.location.origin;
         const uniqueCode = "{{ user.referral_code if user.referral_code else 'GenerateID' }}";
@@ -174,19 +202,22 @@
         }
     });
 
+    // Copy Link Logic with Premium UI Feedback
     function copyRef(btnElement) {
         const copyText = document.getElementById("refLink");
         copyText.select();
-        copyText.setSelectionRange(0, 99999); 
+        copyText.setSelectionRange(0, 99999); // For mobile devices
         navigator.clipboard.writeText(copyText.value);
         
-        const originalText = btnElement.innerText;
-        btnElement.innerHTML = '<i class="fa-solid fa-check"></i>';
-        btnElement.classList.add("bg-slate-800");
+        const originalHTML = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="fa-solid fa-check text-white"></i> Copied!';
+        btnElement.classList.replace("bg-slate-900", "bg-emerald-500");
+        btnElement.classList.replace("hover:bg-blue-600", "hover:bg-emerald-600");
         
         setTimeout(() => {
-            btnElement.innerText = originalText;
-            btnElement.classList.remove("bg-slate-800");
+            btnElement.innerHTML = originalHTML;
+            btnElement.classList.replace("bg-emerald-500", "bg-slate-900");
+            btnElement.classList.replace("hover:bg-emerald-600", "hover:bg-blue-600");
         }, 2000);
     }
 </script>
