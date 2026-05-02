@@ -2,482 +2,287 @@
 {% block content %}
 
 <style>
-    /* ==========================================
-       PREMIUM ANIMATIONS & EFFECTS
-    ========================================== */
-    .reveal-premium { 
-        animation: revealPremium 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-        opacity: 0; 
-        transform: translateY(20px); 
-    }
-    @keyframes revealPremium { 
-        to { opacity: 1; transform: translateY(0); } 
-    }
+    /* Smooth Entry Animation */
+    .fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(15px); }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-    .shimmer-bg {
-        position: relative;
-        overflow: hidden;
-    }
-    .shimmer-bg::after {
-        content: '';
-        position: absolute;
-        top: 0; left: -100%; width: 50%; height: 100%;
-        background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent);
-        transform: skewX(-20deg);
-        animation: shimmerFast 3s infinite;
-    }
-    @keyframes shimmerFast { 100% { left: 200%; } }
-
-    /* Custom Scrollbar for Horizontal Lists */
-    .hide-scroll::-webkit-scrollbar { display: none; }
-    .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* Animated Border Glow */
-    .glow-border {
+    /* Unique Circle Avatar Ring */
+    .avatar-ring {
+        background: linear-gradient(135deg, #3B82F6, #10B981);
+        padding: 2.5px;
+        border-radius: 50%;
         position: relative;
     }
-    .glow-border::before {
-        content: ''; position: absolute; inset: -2px; z-index: -1;
-        background: linear-gradient(45deg, #3B82F6, #10B981, #3B82F6);
-        background-size: 200% 200%;
-        border-radius: inherit;
-        animation: rotateGlow 3s linear infinite;
-        opacity: 0; transition: opacity 0.3s ease;
+    
+    /* Modern Category Grid Cards */
+    .nav-card {
+        background: #ffffff;
+        border: 1px solid #E2E8F0;
+        border-radius: 20px;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
     }
-    .glow-border:hover::before { opacity: 0.5; }
-    @keyframes rotateGlow { 100% { background-position: 200% center; } }
+    .nav-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.05);
+        border-color: #BFDBFE;
+    }
+    .nav-card:active { transform: scale(0.96); }
+
+    /* VIP Special Cards */
+    .vip-card {
+        background: linear-gradient(145deg, #FFFBEB 0%, #FFFFFF 100%);
+        border: 1px solid #FDE68A;
+    }
+    .vip-card:hover { border-color: #F59E0B; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.1); }
 </style>
 
-<div class="space-y-6 max-w-2xl mx-auto pb-6 reveal-premium">
+<div class="space-y-6 fade-in-up max-w-2xl mx-auto px-1 pb-8">
 
     <!-- ==========================================
-         1. MODERN PROFILE HEADER
+         1. PROFILE HEADER (Unique Avatar & Welcome)
     ========================================== -->
-    <div class="bg-white p-4 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-slate-100 flex justify-between items-center relative overflow-hidden">
-        <!-- Abstract BG Pattern -->
-        <div class="absolute right-0 top-0 w-24 h-24 bg-blue-50/50 rounded-bl-full pointer-events-none"></div>
-
-        <div class="flex items-center gap-4 relative z-10">
-            <div class="relative">
-                <div class="h-14 w-14 rounded-[18px] flex items-center justify-center text-xl font-black shadow-md
-                    {% if user.current_level > 0 %} bg-gradient-to-br from-amber-400 to-amber-600 text-white border-2 border-amber-200 
-                    {% else %} bg-gradient-to-br from-blue-500 to-blue-700 text-white border-2 border-blue-200 {% endif %}">
+    <div class="bg-white p-4 rounded-[28px] shadow-sm border border-slate-100 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <!-- Unique Circular Avatar -->
+            <div class="avatar-ring shadow-sm">
+                <div class="h-12 w-12 bg-white rounded-full flex items-center justify-center text-xl font-black text-blue-600 border-[3px] border-white">
                     {{ user.email[0] | upper }}
                 </div>
-                <!-- Online Status Indicator -->
-                <div class="absolute -bottom-1 -right-1 h-4 w-4 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center">
-                    <div class="h-2 w-2 bg-white rounded-full animate-ping opacity-75"></div>
-                </div>
+                <!-- Verification Dot -->
+                {% if user.is_active or user.current_level > 0 %}
+                <div class="absolute bottom-0 right-0 h-4 w-4 bg-green-500 border-2 border-white rounded-full"></div>
+                {% endif %}
             </div>
-            
             <div>
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-0.5" id="greetingText">WELCOME BACK</p>
-                <h2 class="text-base font-bold text-slate-800 leading-none truncate max-w-[140px] sm:max-w-[200px]">
-                    {{ user.email.split('@')[0] | title }}
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Welcome</p>
+                <h2 class="text-lg font-black text-slate-800 leading-none truncate max-w-[150px] sm:max-w-[200px]">
+                    {{ user.full_name or user.email.split('@')[0] | title }}
                 </h2>
-                
-                <div class="flex items-center gap-2 mt-1.5">
-                    {% if user.current_level > 0 %}
-                        <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-0.5 rounded text-[9px] font-bold border border-amber-100">
-                            <i class="fa-solid fa-crown text-amber-500"></i> VIP LEVEL {{ user.current_level }}
-                        </span>
-                    {% elif user.is_active %}
-                        <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded text-[9px] font-bold border border-emerald-100">
-                            <i class="fa-solid fa-shield-check"></i> VERIFIED
-                        </span>
-                    {% else %}
-                        <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[9px] font-bold border border-slate-200">
-                            FREE PLAN
-                        </span>
-                    {% endif %}
-                </div>
             </div>
         </div>
         
-        <!-- Notification Bell with Ripple -->
-        <a href="/notice" class="h-10 w-10 bg-slate-50 rounded-[14px] flex items-center justify-center text-slate-500 border border-slate-200 relative hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all z-10">
-            <i class="fa-regular fa-bell text-lg"></i>
-            {% if settings.notice_text %}
-            <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 border-2 border-white"></span>
-            </span>
-            {% endif %}
+        <!-- Top Right Extra Icon (Support or Profile) -->
+        <a href="/account" class="h-10 w-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition border border-slate-100">
+            <i class="fa-solid fa-gear"></i>
         </a>
     </div>
 
     <!-- ==========================================
-         ⚠️ ACTIVATION ALERT
+         2. PREMIUM BALANCE CARD (No Hide, Direct Details)
     ========================================== -->
-    {% if settings.activation_required and not user.is_active %}
-    <div class="bg-gradient-to-r from-red-50 to-orange-50 p-1 rounded-3xl relative overflow-hidden shadow-sm">
-        <div class="bg-white rounded-[20px] p-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="h-10 w-10 bg-red-100 text-red-500 rounded-xl flex items-center justify-center text-xl animate-pulse">
-                    <i class="fa-solid fa-lock"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-slate-800 text-sm">Action Required</h3>
-                    <p class="text-[10px] text-red-500 font-medium">Please activate your account to earn.</p>
-                </div>
+    <div class="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 rounded-[32px] p-6 sm:p-8 text-white relative overflow-hidden shadow-[0_10px_30px_-5px_rgba(37,99,235,0.4)]">
+        <!-- Abstract Decor -->
+        <div class="absolute top-0 right-0 w-48 h-48 bg-white opacity-5 rounded-bl-full pointer-events-none"></div>
+        <i class="fa-solid fa-wallet absolute right-4 bottom-4 text-8xl opacity-[0.03] transform -rotate-12 pointer-events-none"></i>
+        
+        <div class="relative z-10 flex flex-col gap-6">
+            
+            <!-- Balance Area -->
+            <div>
+                <p class="text-[10px] uppercase font-bold text-blue-200 tracking-widest mb-1.5 flex items-center gap-1.5">
+                    <i class="fa-solid fa-building-columns"></i> Total Balance
+                </p>
+                <h2 class="text-4xl font-black font-mono tracking-tighter leading-none">
+                    ৳{{ user.balance }}
+                </h2>
             </div>
-            <a href="/activate" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-red-500/20 hover:bg-red-600 transition">
-                Verify Now
+
+            <!-- Income Details Button -->
+            <a href="/income" class="inline-flex items-center justify-between bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 p-3 rounded-2xl transition-all group w-full active:scale-95">
+                <div class="flex items-center gap-3">
+                    <div class="h-8 w-8 bg-white text-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+                        <i class="fa-solid fa-chart-pie text-sm"></i>
+                    </div>
+                    <div class="text-left">
+                        <h4 class="text-sm font-bold text-white leading-none mb-1">Income Details</h4>
+                        <p class="text-[9px] text-blue-200 font-medium">View today's profit & history</p>
+                    </div>
+                </div>
+                <div class="h-8 w-8 rounded-full flex items-center justify-center text-white group-hover:translate-x-1 transition-transform">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </div>
             </a>
+
         </div>
+    </div>
+
+    <!-- ==========================================
+         3. NOTICE CARD (With See All Icon)
+    ========================================== -->
+    {% if settings.notice_text %}
+    <div class="bg-white border border-slate-100 p-2 rounded-[20px] flex items-center shadow-sm">
+        <div class="bg-blue-600 text-white px-3 py-2 rounded-[14px] text-[10px] font-black flex-shrink-0 flex items-center gap-1.5 shadow-sm uppercase tracking-wider z-10">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+            </span>
+            Updates
+        </div>
+        
+        <marquee class="flex-grow text-xs text-slate-600 font-medium mx-3" scrollamount="4">
+            {{ settings.notice_text }}
+        </marquee>
+        
+        <a href="/notice" class="h-9 w-9 bg-slate-50 rounded-[12px] flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 flex-shrink-0 transition z-10" title="View All Notices">
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
     </div>
     {% endif %}
 
     <!-- ==========================================
-         2. PREMIUM WALLET CARD (Fintech Core)
+         4. TUTORIAL HIGHLIGHT
     ========================================== -->
-    <div class="bg-gradient-to-br from-[#1E3A8A] via-[#2563EB] to-[#1D4ED8] rounded-[32px] p-6 sm:p-8 text-white relative overflow-hidden shadow-[0_15px_40px_-10px_rgba(37,99,235,0.4)] shimmer-bg group">
-        
-        <!-- Abstract Finance Vectors -->
-        <div class="absolute top-0 right-0 w-48 h-48 bg-white opacity-5 rounded-full blur-3xl transform translate-x-10 -translate-y-10"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-sky-400 opacity-20 rounded-full blur-2xl transform -translate-x-10 translate-y-10"></div>
-        <i class="fa-solid fa-coins absolute right-4 bottom-4 text-8xl opacity-[0.03] transform -rotate-12 group-hover:scale-110 transition duration-700"></i>
-        
-        <div class="relative z-10">
-            
-            <!-- Top Section: Balances -->
-            <div class="flex justify-between items-start mb-8">
-                <div>
-                    <div class="flex items-center gap-2 mb-1.5 opacity-80">
-                        <i class="fa-solid fa-wallet text-[10px]"></i>
-                        <p class="text-[10px] uppercase font-bold tracking-[0.15em]">Available Balance</p>
-                    </div>
-                    <div class="flex items-center gap-3 cursor-pointer group/eye" onclick="toggleBalance()">
-                        <h2 id="balanceText" class="text-4xl font-black font-mono tracking-tighter blur-md transition-all duration-300">
-                            ৳{{ user.balance }}
-                        </h2>
-                        <div class="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm group-hover/eye:bg-white/20 transition">
-                            <i id="eyeIcon" class="fa-regular fa-eye-slash text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-right">
-                    <div class="flex items-center justify-end gap-1.5 mb-1.5 text-amber-300">
-                        <p class="text-[10px] uppercase font-bold tracking-[0.15em]">VIP Yield</p>
-                        <i class="fa-solid fa-crown text-[10px]"></i>
-                    </div>
-                    <h2 class="text-xl font-bold font-mono text-amber-300 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20">
-                        ৳{{ user.vip_balance or 0 }}
-                    </h2>
-                </div>
-            </div>
-
-            <!-- Middle Section: Live Stats Glass Box -->
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 flex gap-4 mb-6 relative overflow-hidden">
-                <div class="absolute left-1/2 top-2 bottom-2 w-px bg-white/10"></div>
-                
-                <div class="flex-1">
-                    <p class="text-[9px] text-blue-100 uppercase tracking-widest font-semibold mb-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-arrow-trend-up text-emerald-400"></i> Today's Profit
-                    </p>
-                    <p class="text-lg font-black text-white font-mono">৳ {{ today_income }}</p>
-                </div>
-                
-                <div class="flex-1 pl-2">
-                    <p class="text-[9px] text-blue-100 uppercase tracking-widest font-semibold mb-1 flex items-center gap-1.5">
-                        <i class="fa-regular fa-clock text-amber-400"></i> In Review
-                    </p>
-                    <p class="text-lg font-black text-white font-mono">৳ {{ pending_income }}</p>
-                </div>
-            </div>
-
-            <!-- Bottom Section: Quick Actions -->
-            <div class="flex gap-3">
-                <a href="/withdraw" class="flex-1 bg-white text-blue-700 py-3 rounded-xl text-xs font-bold text-center shadow-lg hover:bg-blue-50 transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-money-bill-transfer"></i> Withdraw
-                </a>
-                {% if user.current_level > 0 %}
-                    <a href="/vip" class="flex-1 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 py-3 rounded-xl text-xs font-black text-center shadow-lg hover:from-amber-500 hover:to-amber-600 transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-bolt"></i> Claim Profit
-                    </a>
-                {% else %}
-                    <a href="/tasks" class="flex-1 bg-blue-800/50 border border-blue-400/50 text-white py-3 rounded-xl text-xs font-bold text-center hover:bg-blue-800 transition flex items-center justify-center gap-2 backdrop-blur-sm">
-                        <i class="fa-solid fa-play"></i> Start Earning
-                    </a>
-                {% endif %}
-            </div>
-
-        </div>
-    </div>
-
-    <!-- ==========================================
-         3. DAILY REWARDS & CHECK-IN (Bento Style)
-    ========================================== -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        
-        <!-- Left/Top: Notice Marquee -->
-        {% if settings.notice_text %}
-        <a href="/notice" class="md:col-span-3 bg-blue-50/80 border border-blue-100 p-2 rounded-2xl flex items-center overflow-hidden hover:bg-blue-100 transition group">
-            <div class="bg-blue-600 text-white px-3 py-1.5 rounded-xl text-[10px] font-bold flex-shrink-0 mr-3 flex items-center gap-1.5 shadow-sm uppercase tracking-wider relative overflow-hidden">
-                <div class="absolute inset-0 bg-white/20 w-full animate-[shimmerFast_2s_infinite]"></div>
-                <i class="fa-solid fa-bolt text-[10px]"></i> UPDATE
-            </div>
-            <marquee class="text-xs text-slate-700 font-medium group-hover:text-blue-700" scrollamount="4">
-                {{ settings.notice_text }}
-            </marquee>
-        </a>
-        {% endif %}
-
-        <!-- Daily Check-in Card -->
-        {% if user.last_checkin != today_date %}
-        <div class="md:col-span-3 bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 glow-border">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-gift text-blue-600"></i> Daily Check-in
-                </h3>
-                <span class="text-[9px] text-blue-700 font-bold uppercase tracking-widest bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100">
-                    Streak: {{ user.streak_count if user.streak_count else 0 }}/7
-                </span>
-            </div>
-            
-            <div class="flex justify-between gap-1.5 mb-5 hide-scroll overflow-x-auto pb-1">
-                {% for day, reward in[(1,5), (2,7), (3,15), (4,18), (5,22), (6,25)] %}
-                <div class="flex flex-col items-center gap-1.5 min-w-[36px]">
-                    <span class="text-[8px] font-bold text-slate-400 uppercase">Day {{ day }}</span>
-                    <div class="h-10 w-full rounded-xl flex items-center justify-center text-[10px] border-2 transition-all
-                        {{ 'bg-blue-600 text-white border-blue-600 shadow-md transform -translate-y-1' if user.streak_count >= day else 'bg-slate-50 text-slate-400 border-slate-100' }}">
-                        <span class="font-bold">৳{{ reward }}</span>
-                    </div>
-                </div>
-                {% endfor %}
-                <div class="flex flex-col items-center gap-1.5 min-w-[40px]">
-                    <span class="text-[8px] font-bold text-amber-500 uppercase">Day 7</span>
-                    <div class="h-10 w-full rounded-xl flex items-center justify-center text-[10px] border-2 transition-all
-                        {{ 'bg-amber-500 text-white border-amber-500 shadow-md transform -translate-y-1' if user.streak_count >= 7 else 'bg-amber-50 text-amber-500 border-amber-200' }}">
-                        <i class="fa-solid fa-gem"></i>
-                    </div>
-                </div>
-            </div>
-            <a href="/daily-checkin" class="w-full block bg-slate-900 text-white text-center py-3.5 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg hover:bg-blue-600 active:scale-95 transition-all">
-                Claim Today's Bonus
-            </a>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- ==========================================
-         4. QUICK SERVICES GRID (Advanced Layout)
-    ========================================== -->
-    <div>
-        <div class="flex items-center justify-between mb-3 px-1">
-            <h3 class="font-bold text-slate-800 text-xs uppercase tracking-widest">Platform Services</h3>
-            <a href="/tutorial" class="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-md flex items-center gap-1 hover:bg-red-100 transition">
-                <i class="fa-brands fa-youtube"></i> How to work?
-            </a>
-        </div>
-
-        <div class="grid grid-cols-4 gap-3">
-            <!-- Row 1 -->
-            <a href="/tasks" class="bg-white p-3 rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-300 hover:shadow-md transition group">
-                <div class="h-11 w-11 bg-indigo-50 text-indigo-600 rounded-[14px] flex items-center justify-center text-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors"><i class="fa-solid fa-list-check"></i></div>
-                <span class="text-[10px] font-bold text-slate-600">Tasks</span>
-            </a>
-            <a href="/drive" class="bg-white p-3 rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-300 hover:shadow-md transition group relative">
-                <span class="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
-                <div class="h-11 w-11 bg-sky-50 text-sky-500 rounded-[14px] flex items-center justify-center text-lg group-hover:bg-sky-500 group-hover:text-white transition-colors"><i class="fa-solid fa-wifi"></i></div>
-                <span class="text-[10px] font-bold text-slate-600">Drive</span>
-            </a>
-            <a href="/withdraw" class="bg-white p-3 rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-300 hover:shadow-md transition group">
-                <div class="h-11 w-11 bg-emerald-50 text-emerald-600 rounded-[14px] flex items-center justify-center text-lg group-hover:bg-emerald-500 group-hover:text-white transition-colors"><i class="fa-solid fa-money-bill-transfer"></i></div>
-                <span class="text-[10px] font-bold text-slate-600">Cashout</span>
-            </a>
-            <a href="/vip" class="bg-white p-3 rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col items-center gap-2 hover:border-amber-300 hover:shadow-md transition group">
-                <div class="h-11 w-11 bg-amber-50 text-amber-500 rounded-[14px] flex items-center justify-center text-lg group-hover:bg-amber-500 group-hover:text-white transition-colors"><i class="fa-solid fa-crown"></i></div>
-                <span class="text-[10px] font-bold text-slate-600">VIP</span>
-            </a>
-            
-            <!-- Row 2 -->
-            <a href="/gmail-tasks" class="col-span-2 bg-white p-3 rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 flex items-center gap-3 hover:border-red-300 transition group overflow-hidden relative">
-                <div class="absolute right-[-10px] top-[-10px] text-5xl text-red-50 opacity-50 transform rotate-12 group-hover:scale-110 transition"><i class="fa-brands fa-google"></i></div>
-                <div class="h-11 w-11 bg-red-50 text-red-500 rounded-[14px] flex items-center justify-center text-xl flex-shrink-0 z-10"><i class="fa-brands fa-google"></i></div>
-                <div class="z-10 text-left">
-                    <span class="block text-[11px] font-black text-slate-800 uppercase">Gmail Work</span>
-                    <span class="text-[9px] text-slate-400 font-medium">High Paying</span>
-                </div>
-            </a>
-            <a href="/spin" class="bg-white p-3 rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-300 transition group">
-                <div class="h-11 w-11 bg-orange-50 text-orange-500 rounded-[14px] flex items-center justify-center text-lg group-hover:bg-orange-500 group-hover:text-white transition-colors"><i class="fa-solid fa-dharmachakra"></i></div>
-                <span class="text-[10px] font-bold text-slate-600">Spin</span>
-            </a>
-            <a href="/referrals" class="bg-white p-3 rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-300 transition group">
-                <div class="h-11 w-11 bg-blue-50 text-blue-600 rounded-[14px] flex items-center justify-center text-lg group-hover:bg-blue-600 group-hover:text-white transition-colors"><i class="fa-solid fa-users"></i></div>
-                <span class="text-[10px] font-bold text-slate-600">Refer</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- ==========================================
-         5. DATA ANALYTICS & LIVE ACTIVITIES
-    ========================================== -->
-    <div class="grid md:grid-cols-2 gap-4">
-        
-        <!-- Live Payouts Monitor -->
-        <div class="bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 h-[260px] flex flex-col relative overflow-hidden">
-            <div class="flex justify-between items-center mb-4 border-b border-slate-50 pb-3">
-                <h3 class="font-bold text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2">
-                    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
-                    Live Payouts
-                </h3>
-                <i class="fa-solid fa-money-bill-transfer text-slate-300"></i>
-            </div>
-            
-            <div class="flex-grow overflow-hidden relative">
-                <!-- Fade Gradients for smooth scrolling illusion -->
-                <div class="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-white to-transparent z-10"></div>
-                <div class="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-white to-transparent z-10"></div>
-                
-                <div id="payoutContainer" class="absolute top-0 left-0 w-full flex flex-col gap-2">
-                    <!-- JS will populate realistic data here -->
-                    <div class="text-center py-10 text-slate-400 text-xs" id="payoutLoader">
-                        <i class="fa-solid fa-circle-notch fa-spin text-xl mb-3 text-blue-500"></i><br>Syncing Ledger...
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Leaderboard -->
-        <div class="bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 h-[260px] flex flex-col">
-            <div class="flex justify-between items-center mb-4 border-b border-slate-50 pb-3">
-                <h3 class="font-bold text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2">
-                    <i class="fa-solid fa-trophy text-amber-500"></i> Top Earners
-                </h3>
-                <span class="text-[9px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-bold">Today</span>
-            </div>
-            
-            <div class="space-y-2.5 overflow-y-auto hide-scroll flex-grow">
-                {% for winner in leaderboard %}
-                <div class="flex items-center justify-between p-2.5 rounded-xl transition-colors {{ 'bg-gradient-to-r from-amber-50 to-white border border-amber-100/50' if loop.index == 1 else 'bg-slate-50 border border-slate-100 hover:bg-blue-50' }}">
-                    <div class="flex items-center gap-3">
-                        <div class="h-8 w-8 rounded-lg flex items-center justify-center font-black text-xs shadow-sm
-                            {% if loop.index == 1 %} bg-amber-500 text-white
-                            {% elif loop.index == 2 %} bg-slate-400 text-white
-                            {% else %} bg-orange-400 text-white {% endif %}">
-                            {{ loop.index }}
-                        </div>
-                        <div>
-                            <span class="text-xs font-bold text-slate-800 block leading-tight">
-                                {{ winner.email.split('@')[0][:3] }}<span class="text-slate-400">***</span>{{ winner.email.split('@')[0][-2:] }}
-                            </span>
-                            <span class="text-[9px] text-slate-400 font-medium">Verified User</span>
-                        </div>
-                    </div>
-                    <span class="text-[10px] font-black font-mono text-blue-600 bg-white px-2.5 py-1 rounded-md border border-slate-100 shadow-sm">
-                        ৳{{ winner.balance }}
-                    </span>
-                </div>
-                {% else %}
-                <div class="text-center py-8">
-                    <i class="fa-solid fa-ranking-star text-3xl text-slate-200 mb-2"></i>
-                    <p class="text-xs text-slate-400 font-medium">Computing Ranks...</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-    </div>
-
-    <!-- 6. SYSTEM UPTIME TERMINAL -->
-    <div class="mt-4 bg-slate-900 rounded-[20px] p-4 flex items-center justify-between border border-slate-800 shadow-lg">
-        <div class="flex items-center gap-3">
-            <div class="h-8 w-8 bg-blue-500/20 text-blue-400 rounded-lg flex items-center justify-center text-sm">
-                <i class="fa-solid fa-server"></i>
+    <a href="/tutorial" class="block bg-gradient-to-r from-slate-900 to-slate-800 p-4 rounded-[24px] shadow-lg flex items-center justify-between group overflow-hidden relative">
+        <div class="absolute right-0 top-0 w-24 h-24 bg-red-500/10 rounded-bl-full"></div>
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="h-12 w-12 bg-red-500 text-white rounded-[16px] flex items-center justify-center text-xl shadow-md group-hover:scale-105 transition-transform">
+                <i class="fa-brands fa-youtube"></i>
             </div>
             <div>
-                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight">System Status</p>
-                <p class="text-xs font-bold text-emerald-400 flex items-center gap-1.5"><div class="h-1.5 w-1.5 bg-emerald-500 rounded-full"></div> Operational</p>
+                <h3 class="font-bold text-white text-sm">How to start working?</h3>
+                <p class="text-[10px] text-slate-400 mt-0.5">নতুন ইউজাররা ভিডিওটি সম্পূর্ণ দেখুন</p>
             </div>
         </div>
-        <div class="flex justify-center gap-1.5" id="countdown">
-            <!-- JS Uptime Data -->
+        <i class="fa-solid fa-play text-slate-500 group-hover:text-red-400 transition-colors relative z-10 mr-2"></i>
+    </a>
+
+    <!-- ==========================================
+         5. EARNING NAVIGATIONS
+    ========================================== -->
+    <div>
+        <div class="flex items-center justify-between px-2 mb-3">
+            <h3 class="font-bold text-slate-800 text-xs uppercase tracking-widest flex items-center gap-1.5">
+                <i class="fa-solid fa-bolt text-blue-500"></i> Earning Hub
+            </h3>
         </div>
+        <div class="grid grid-cols-4 gap-3">
+            <a href="/tasks" class="nav-card">
+                <div class="h-10 w-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-list-check"></i></div>
+                <span class="text-[10px] font-bold text-slate-700">Micro Tasks</span>
+            </a>
+            <a href="/gmail-tasks" class="nav-card relative overflow-hidden">
+                <span class="absolute top-0 right-0 bg-red-500 h-2 w-2 rounded-bl-lg"></span>
+                <div class="h-10 w-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-brands fa-google"></i></div>
+                <span class="text-[10px] font-bold text-slate-700">Gmail</span>
+            </a>
+            <a href="/captcha" class="nav-card">
+                <div class="h-10 w-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-keyboard"></i></div>
+                <span class="text-[10px] font-bold text-slate-700">Captcha</span>
+            </a>
+            <a href="/spin" class="nav-card">
+                <div class="h-10 w-10 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-dharmachakra"></i></div>
+                <span class="text-[10px] font-bold text-slate-700">Lucky Spin</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         6. VIP & PREMIUM ZONE
+    ========================================== -->
+    <div>
+        <div class="flex items-center justify-between px-2 mb-3 mt-2">
+            <h3 class="font-bold text-slate-800 text-xs uppercase tracking-widest flex items-center gap-1.5">
+                <i class="fa-solid fa-crown text-amber-500"></i> Elite Network
+            </h3>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+            <a href="/vip" class="nav-card vip-card flex-row text-left px-5">
+                <div class="h-12 w-12 bg-gradient-to-br from-amber-400 to-amber-500 text-white rounded-xl flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-gem"></i></div>
+                <div>
+                    <span class="block text-xs font-black text-slate-800">VIP Plans</span>
+                    <span class="text-[9px] text-slate-500 font-medium">Auto Daily Profit</span>
+                </div>
+            </a>
+            <a href="/premium-tasks" class="nav-card vip-card flex-row text-left px-5 relative overflow-hidden">
+                <div class="absolute right-0 top-0 bg-red-500 text-white text-[8px] font-black px-2 py-0.5 rounded-bl-lg uppercase">Locked</div>
+                <div class="h-12 w-12 bg-slate-800 text-amber-400 rounded-xl flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-briefcase"></i></div>
+                <div>
+                    <span class="block text-xs font-black text-slate-800">Premium Work</span>
+                    <span class="text-[9px] text-slate-500 font-medium">High Paying</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         7. DAILY CHECK-IN
+    ========================================== -->
+    {% if user.last_checkin != today_date %}
+    <div class="bg-white p-5 rounded-[24px] shadow-sm border border-slate-100">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-calendar-check text-blue-600"></i> Daily Check-in
+            </h3>
+            <span class="text-[9px] text-blue-700 font-bold uppercase tracking-widest bg-blue-50 px-2.5 py-1 rounded border border-blue-100">
+                Streak: {{ user.streak_count if user.streak_count else 0 }}/7
+            </span>
+        </div>
+        
+        <div class="flex justify-between gap-1.5 mb-5 overflow-x-auto hide-scroll">
+            {% for day, reward in[(1,5), (2,7), (3,15), (4,18), (5,22), (6,25)] %}
+            <div class="flex flex-col items-center gap-1 min-w-[35px]">
+                <span class="text-[8px] font-bold text-slate-400 uppercase">D{{ day }}</span>
+                <div class="h-9 w-full rounded-[10px] flex items-center justify-center text-[10px] border-2 transition-all
+                    {{ 'bg-blue-600 text-white border-blue-600 shadow-sm' if user.streak_count >= day else 'bg-slate-50 text-slate-400 border-slate-100' }}">
+                    <span class="font-bold">৳{{ reward }}</span>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="flex flex-col items-center gap-1 min-w-[35px]">
+                <span class="text-[8px] font-bold text-amber-500 uppercase">D7</span>
+                <div class="h-9 w-full rounded-[10px] flex items-center justify-center text-[10px] border-2 transition-all
+                    {{ 'bg-amber-500 text-white border-amber-500 shadow-sm' if user.streak_count >= 7 else 'bg-amber-50 text-amber-500 border-amber-200' }}">
+                    <i class="fa-solid fa-gift"></i>
+                </div>
+            </div>
+        </div>
+        <a href="/daily-checkin" class="w-full block bg-slate-900 text-white text-center py-3.5 rounded-[14px] text-xs font-black uppercase tracking-widest shadow-lg hover:bg-blue-600 active:scale-95 transition-all">
+            Claim Today's Bonus
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- ==========================================
+         8. OTHER UTILITIES (Drive, Withdraw, History, etc.)
+    ========================================== -->
+    <div>
+        <div class="flex items-center justify-between px-2 mb-3 mt-2">
+            <h3 class="font-bold text-slate-800 text-xs uppercase tracking-widest flex items-center gap-1.5">
+                <i class="fa-solid fa-layer-group text-slate-400"></i> Utilities
+            </h3>
+        </div>
+        <div class="grid grid-cols-4 gap-3">
+            <a href="/drive" class="nav-card"><div class="h-10 w-10 bg-sky-50 text-sky-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-wifi"></i></div><span class="text-[10px] font-bold text-slate-700">Drive</span></a>
+            <a href="/withdraw" class="nav-card"><div class="h-10 w-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-money-bill-transfer"></i></div><span class="text-[10px] font-bold text-slate-700">Cashout</span></a>
+            <a href="/history" class="nav-card"><div class="h-10 w-10 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-clock-rotate-left"></i></div><span class="text-[10px] font-bold text-slate-700">History</span></a>
+            <a href="/referrals" class="nav-card"><div class="h-10 w-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-users"></i></div><span class="text-[10px] font-bold text-slate-700">My Team</span></a>
+            <a href="/proofs" class="nav-card"><div class="h-10 w-10 bg-pink-50 text-pink-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-receipt"></i></div><span class="text-[10px] font-bold text-slate-700">Proofs</span></a>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         9. SYSTEM UPTIME
+    ========================================== -->
+    <div class="text-center mt-6 pt-4 border-t border-slate-200">
+        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
+            <i class="fa-solid fa-server text-blue-500 mr-1"></i> System Uptime
+        </p>
+        <div class="flex justify-center gap-1.5" id="countdown"></div>
     </div>
 
 </div>
 
-<!-- ==========================================
-     ADVANCED JS LOGIC (Dashboard Only)
-========================================== -->
+<!-- System Uptime Script -->
 <script>
-    // 1. Balance Toggle (With smooth blur transition)
-    function toggleBalance() {
-        const balance = document.getElementById("balanceText");
-        const icon = document.getElementById("eyeIcon");
-        if (balance.classList.contains("blur-md")) {
-            balance.classList.remove("blur-md");
-            icon.classList.replace("fa-eye-slash", "fa-eye");
-        } else {
-            balance.classList.add("blur-md");
-            icon.classList.replace("fa-eye", "fa-eye-slash");
-        }
-    }
-
-    // 2. Realistic Live Payout Simulator
     (function() {
-        const container = document.getElementById('payoutContainer');
-        const methods =['bKash', 'Nagad', 'Rocket'];
-        const prefixes =['017', '019', '018', '016', '013', '015', '014'];
-        
-        function generateAmount() {
-            // Generates realistic amounts (e.g. 350, 500, 1200)
-            const base = Math.floor(Math.random() * (200 - 10) + 10) * 10; 
-            return base;
-        }
-
-        function createPayoutNode() {
-            const loader = document.getElementById('payoutLoader');
-            if(loader) loader.remove();
-
-            const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-            const lastTwo = Math.floor(1000 + Math.random() * 9000).toString().slice(-4);
-            const method = methods[Math.floor(Math.random() * methods.length)];
-            const amount = generateAmount();
-
-            let iconHtml = '';
-            if(method === 'bKash') iconHtml = '<div class="h-8 w-8 bg-pink-50 text-pink-600 rounded-xl flex items-center justify-center text-xs"><i class="fa-solid fa-wallet"></i></div>';
-            else if(method === 'Nagad') iconHtml = '<div class="h-8 w-8 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center text-xs"><i class="fa-solid fa-wallet"></i></div>';
-            else iconHtml = '<div class="h-8 w-8 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xs"><i class="fa-solid fa-wallet"></i></div>';
-
-            const div = document.createElement('div');
-            // Adding Tailwind classes + slide down animation
-            div.className = "flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 slide-down-item";
-            
-            div.innerHTML = `
-                <div class="flex items-center gap-3">
-                    ${iconHtml}
-                    <div>
-                        <p class="text-[11px] text-slate-800 font-bold font-mono tracking-widest">${prefix}****${lastTwo}</p>
-                        <p class="text-[9px] text-slate-400 mt-0.5 font-medium">Just now via ${method}</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <span class="text-[11px] font-black text-emerald-600 font-mono">-৳${amount}</span>
-                    <p class="text-[8px] text-emerald-500 font-bold uppercase tracking-widest mt-0.5"><i class="fa-solid fa-check"></i> Sent</p>
-                </div>
-            `;
-
-            container.insertBefore(div, container.firstChild);
-
-            // Keep only max 4 items to prevent overflow
-            if (container.children.length > 4) {
-                container.removeChild(container.lastElementChild);
-            }
-
-            // Randomize next interval (Fast pacing for live feel)
-            let nextInterval = Math.floor(Math.random() * (12000 - 3000) + 3000); 
-            setTimeout(createPayoutNode, nextInterval);
-        }
-        
-        // Start simulation after short delay
-        setTimeout(createPayoutNode, 1500);
-
-        // 3. System Uptime Terminal Logic
-        function updateUptime() {
+        function updateSiteAge() {
             const startDate = new Date("2025-12-19T00:00:00").getTime(); 
             const now = new Date().getTime();
             const diff = now - startDate;
@@ -485,33 +290,19 @@
             if (diff > 0) {
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
                 document.getElementById("countdown").innerHTML = `
-                    <div class="bg-slate-800 px-2 py-1 rounded-md border border-slate-700 min-w-[32px] text-center shadow-inner">
-                        <span class="block text-xs font-black text-white font-mono">${days}</span><span class="text-[6px] text-slate-400 uppercase tracking-widest block -mt-1">Day</span>
-                    </div>
-                    <div class="bg-slate-800 px-2 py-1 rounded-md border border-slate-700 min-w-[32px] text-center shadow-inner">
-                        <span class="block text-xs font-black text-white font-mono">${hours}</span><span class="text-[6px] text-slate-400 uppercase tracking-widest block -mt-1">Hrs</span>
-                    </div>
-                    <div class="bg-slate-800 px-2 py-1 rounded-md border border-slate-700 min-w-[32px] text-center shadow-inner">
-                        <span class="block text-xs font-black text-blue-400 font-mono">${mins}</span><span class="text-[6px] text-slate-400 uppercase tracking-widest block -mt-1">Min</span>
-                    </div>
+                    <div class="bg-white px-2 py-1 rounded-md border border-slate-200 text-center min-w-[36px] shadow-sm"><span class="block text-xs font-bold text-slate-700 font-mono">${days}</span><span class="text-[7px] text-slate-400 font-bold uppercase">D</span></div>
+                    <div class="bg-white px-2 py-1 rounded-md border border-slate-200 text-center min-w-[36px] shadow-sm"><span class="block text-xs font-bold text-slate-700 font-mono">${hours}</span><span class="text-[7px] text-slate-400 font-bold uppercase">H</span></div>
+                    <div class="bg-white px-2 py-1 rounded-md border border-slate-200 text-center min-w-[36px] shadow-sm"><span class="block text-xs font-bold text-slate-700 font-mono">${minutes}</span><span class="text-[7px] text-slate-400 font-bold uppercase">M</span></div>
+                    <div class="bg-white px-2 py-1 rounded-md border border-slate-200 text-center min-w-[36px] shadow-sm"><span class="block text-xs font-bold text-blue-600 font-mono">${seconds}</span><span class="text-[7px] text-slate-400 font-bold uppercase">S</span></div>
                 `;
             }
         }
-        setInterval(updateUptime, 60000); // Update every minute
-        updateUptime();
-
-        // 4. Time-based Greeting
-        const hour = new Date().getHours();
-        const greetElement = document.getElementById("greetingText");
-        if(greetElement) {
-            if (hour < 5) greetElement.innerText = "GOOD NIGHT";
-            else if (hour < 12) greetElement.innerText = "GOOD MORNING";
-            else if (hour < 17) greetElement.innerText = "GOOD AFTERNOON";
-            else greetElement.innerText = "GOOD EVENING";
-        }
+        setInterval(updateSiteAge, 1000);
+        updateSiteAge();
     })();
 </script>
 
