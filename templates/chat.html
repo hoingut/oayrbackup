@@ -3,19 +3,18 @@
 
 <style>
     /* ==========================================
-       HIDING WIDGETS (BOTTOM NAV ONLY)
+       HIDING LAYOUT WIDGETS (BOTTOM NAV & TELEGRAM)
     ========================================== */
-    /* Hide bottom navbar */
-    .bottom-navbar { display: none !important; }
-    /* Hide telegram floating button (since we are on chat page) */
-    .fixed.z-40.group { display: none !important; }
+    /* Hide the new Floating Pill Bottom Nav */
+    nav.fixed.bottom-6 { display: none !important; }
+    /* Hide telegram floating button */
+    div.fixed.bottom-\[110px\] { display: none !important; }
     
-    /* Adjust main container padding: Keep Top padding for Top Navbar, Remove Bottom Padding */
-    main { padding-bottom: 20px !important; }
+    /* Adjust main container padding to remove bottom gap */
+    main { padding-bottom: 10px !important; }
 
     /* Native App Chat Layout */
     .chat-layout {
-        /* Height matches screen minus top navbar and padding */
         height: calc(100vh - 120px); 
         display: flex;
         flex-direction: column;
@@ -72,7 +71,7 @@
                     </div>
                     <p class="text-[11px] text-slate-600 font-medium leading-relaxed">
                         স্বাগতম! আমরা আপনাকে সাহায্য করার জন্য আছি। যদি এখানে রিপ্লাই পেতে দেরি হয়, তবে দয়া করে আমাদের 
-                        <a href="https://t.me/payrsrp" target="_blank" class="text-blue-600 font-black hover:underline inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-blue-100 mx-1">
+                        <a href="https://t.me/payrsrp" target="_blank" class="text-blue-600 font-black hover:underline inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-blue-100 mx-1 shadow-sm">
                             <i class="fa-brands fa-telegram"></i> টেলিগ্রাম সাপোর্টে
                         </a> 
                         মেসেজ দিন।
@@ -123,7 +122,7 @@
         <!-- ==========================================
              INPUT AREA
         ========================================== -->
-        <div class="bg-white border-t border-slate-200 flex-shrink-0 z-20 relative">
+        <div class="bg-white border-t border-slate-200 flex-shrink-0 z-20 relative pb-safe">
             
             <!-- Image Preview Box -->
             <div id="imagePreviewBox" class="hidden absolute bottom-full left-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 p-3 flex items-center justify-between shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
@@ -160,7 +159,6 @@
     function scrollToBottom() {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
-    // Initial scroll
     setTimeout(scrollToBottom, 100);
 
     // Image Preview Logic
@@ -190,7 +188,6 @@
 
         if (!msgInput.value.trim() && imgInput.files.length === 0) return;
 
-        // Show loading spinner
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
         btn.classList.add('opacity-80');
@@ -198,29 +195,21 @@
         const formData = new FormData(form);
 
         try {
-            await fetch(window.location.href, {
-                method: 'POST',
-                body: formData
-            });
-
-            // Clear input fields immediately
+            await fetch(window.location.href, { method: 'POST', body: formData });
             form.reset();
             removeImage();
-            
-            // Instantly fetch and show the new message
             fetchNewMessages(true);
         } catch (error) {
             console.error('Error sending message:', error);
             alert("Network error! Message not sent.");
         } finally {
-            // Restore button
             btn.disabled = false;
             btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
             btn.classList.remove('opacity-80');
         }
     }
 
-    // BACKGROUND POLLING (Every 1.5 Seconds)
+    // BACKGROUND POLLING
     function fetchNewMessages(forceScroll = false) {
         fetch(window.location.href)
             .then(response => response.text())
@@ -231,12 +220,8 @@
                 
                 if (chatContent.innerHTML.length !== newContent.length) {
                     const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 100;
-                    
                     chatContent.innerHTML = newContent;
-                    
-                    if(isAtBottom || forceScroll) {
-                        setTimeout(scrollToBottom, 100);
-                    }
+                    if(isAtBottom || forceScroll) setTimeout(scrollToBottom, 100);
                 }
             });
     }
@@ -251,5 +236,4 @@
         }
     });
 </script>
-
 {% endblock %}
