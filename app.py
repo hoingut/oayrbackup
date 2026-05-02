@@ -309,7 +309,135 @@ def index():
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
     return render_template('home.html')
+
+
+# ==========================================
+# LIVE CHAT SYSTEM (USER & ADMIN)
+# ==========================================
+
+@app.route('/chat', methods=['GET', 'POST'])
+@login_required
+def user_chat():
+    user_id = session['user_id']
     
+    # 1. Ensure thread exists
+    thread_res = supabase.table('chat_threads').select('*').eq('user_id', user_id).execute()
+    if not thread_res.data:
+        supabase.table('chat_threads').insert({'user_id': user_id, 'status': 'active'}).execute()
+        
+    if request.method == 'POST':
+        message = request.form.get('message', '').strip()
+        file = request.files.get('image')
+        image_url = None
+        
+        # ImgBB Upload using existing function
+        if file and file.filename != '':
+            img_url, err = smart_imgbb_upload(file)
+            if img_url:
+                image_url = img_url
+            else:
+                flash(f"Image Upload Failed: {err}", "error")
+                return redirect(url_for('user_chat'))
+                
+        if message or image_url:
+            # Save message
+            supabase.table('chat_messages').insert({
+                'thread_id': user_id,
+                'sender_role': 'user',
+                'message': message,
+                'image_url': image_url
+            }).execute()
+            
+            # Update Thread (If archived, keep archived. If hidden, make active)
+            thread = supabase.table('chat_threads').select('status').eq('user_id', user_id).single().execute().data
+            new_status = 'active' if thread['status'] != 'archived' else 'archived'
+            
+            supabase.table('chat_threads').update({
+                'last_message': message if message else '🖼️ Image Sent',
+                'status': new_status,
+                'updated_at': "now()"
+            }).eq('user_id', user_id).execute()
+            
+            return redirect(url_for('user_chat'))
+
+    # Fetch messages
+    messages = supabase.table('chat_messages').select('*').eq('thread_id', user_id).order('created_at', desc=False).execute().data
+    return render_template('chat.html', messages=messages, user=g.user)
+
+
+@app.route('/admin/inbox', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_inbox():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        user_res = supabase.table('profiles').select('id').eq('email', email).execute()
+        
+        if user_res.data:
+            target_id = user_res.data[0]['id']
+            # Ensure thread exists
+            t_res = supabase.table('chat_threads').select('*').eq('user_id', target_id).execute()
+            if not t_res.data:
+                supabase.table('chat_threads').insert({'user_id': target_id, 'status': 'active'}).execute()
+            else:
+                # Reactivate if hidden/archived
+                supabase.table('chat_threads').update({'status': 'active'}).eq('user_id', target_id).execute()
+                
+            return redirect(url_for('admin_chat_room', target_id=target_id))
+        else:
+            flash("User not found with this email!", "error")
+            return redirect(url_for('admin_inbox'))
+
+    # Get active threads (not hidden, not archived)
+    threads_data = supabase.table('chat_threads').select('*, profiles(email)').eq('status', 'active').order('updated_at', desc=True).execute().data
+    return render_template('admin_inbox.html', threads=threads_data)
+
+
+@app.route('/admin/inbox/<target_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_chat_room(target_id):
+    user_info = supabase.table('profiles').select('email').eq('id', target_id).single().execute().data
+    
+    if request.method == 'POST':
+        message = request.form.get('message', '').strip()
+        file = request.files.get('image')
+        image_url = None
+        
+        if file and file.filename != '':
+            img_url, err = smart_imgbb_upload(file)
+            if img_url: image_url = img_url
+            
+        if message or image_url:
+            supabase.table('chat_messages').insert({
+                'thread_id': target_id,
+                'sender_role': 'admin',
+                'message': message,
+                'image_url': image_url
+            }).execute()
+            
+            # Update thread
+            supabase.table('chat_threads').update({
+                'last_message': message if message else '🖼️ Image Sent',
+                'status': 'active',
+                'updated_at': "now()"
+            }).eq('user_id', target_id).execute()
+            
+            return redirect(url_for('admin_chat_room', target_id=target_id))
+
+    messages = supabase.table('chat_messages').select('*').eq('thread_id', target_id).order('created_at', desc=False).execute().data
+    return render_template('admin_chat.html', messages=messages, target_id=target_id, target_email=user_info['email'])
+
+
+@app.route('/admin/inbox/action/<action>/<target_id>')
+@login_required
+@admin_required
+def admin_inbox_action(action, target_id):
+    if action in ['hide', 'archive']:
+        supabase.table('chat_threads').update({'status': action}).eq('user_id', target_id).execute()
+        flash(f"Chat {action}d successfully.", "success")
+    return redirect(url_for('admin_inbox'))
+
     # --- ADMIN: ADVANCED CUSTOM FILTER (DYNAMIC) ---
 # --- ADMIN: MANAGE DRIVE PACKS --
 
