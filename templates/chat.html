@@ -2,16 +2,26 @@
 {% block content %}
 
 <style>
+    /* ==========================================
+       HIDING WIDGETS FOR FULL-SCREEN CHAT 
+    ========================================== */
+    /* Hide bottom navbar */
+    .bottom-navbar { display: none !important; }
+    /* Hide telegram floating button */
+    .fixed.z-40.group { display: none !important; }
+    /* Remove bottom padding from main container */
+    main { padding-bottom: 10px !important; }
+
     /* Native App Chat Layout */
     .chat-layout {
-        height: calc(100vh - 150px);
+        height: calc(100vh - 100px); /* Takes full screen minus top nav */
         display: flex;
         flex-direction: column;
         background: #F8FAFC;
         border-radius: 24px;
         overflow: hidden;
         border: 1px solid #E2E8F0;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
     
     .chat-messages {
@@ -24,37 +34,35 @@
     .chat-messages::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
 
     /* Message Bubbles */
-    .bubble { max-width: 80%; width: fit-content; animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .bubble { max-width: 80%; width: fit-content; animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     @keyframes popIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     
     .msg-user {
         background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
         color: white; border-radius: 20px 20px 4px 20px;
-        padding: 10px 14px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        padding: 10px 14px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.15);
     }
     .msg-admin {
         background: #FFFFFF; color: #1E293B; border-radius: 20px 20px 20px 4px;
         padding: 10px 14px; border: 1px solid #E2E8F0; box-shadow: 0 2px 10px rgba(0,0,0,0.02);
     }
 
-    /* Image Preview Box */
     #imagePreviewBox { transition: all 0.3s ease; }
 </style>
 
-<div class="max-w-2xl mx-auto pt-4 pb-8 px-1">
-    
+<div class="max-w-2xl mx-auto pt-2 px-1">
     <div class="chat-layout relative">
         
-        <!-- Header for User -->
-        <div class="bg-white px-5 py-4 border-b border-slate-100 flex items-center justify-between z-10 shadow-sm flex-shrink-0">
+        <!-- Header -->
+        <div class="bg-white px-5 py-3 border-b border-slate-100 flex items-center justify-between z-10 shadow-sm flex-shrink-0">
             <div class="flex items-center gap-3">
                 <a href="/dashboard" class="h-9 w-9 bg-slate-50 rounded-full flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition border border-slate-200"><i class="fa-solid fa-arrow-left text-sm"></i></a>
                 <div>
-                    <h2 class="font-bold text-slate-800 text-sm">Support Chat</h2>
-                    <p class="text-[10px] text-emerald-500 font-bold flex items-center gap-1.5 uppercase tracking-widest"><span class="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-ping"></span> Live Agent</p>
+                    <h2 class="font-bold text-slate-800 text-sm leading-tight">Live Support</h2>
+                    <p class="text-[9px] text-emerald-500 font-bold flex items-center gap-1.5 uppercase tracking-widest"><span class="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-ping"></span> Online</p>
                 </div>
             </div>
-            <div class="h-10 w-10 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center text-xl"><i class="fa-brands fa-telegram"></i></div>
+            <div class="h-9 w-9 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center text-lg"><i class="fa-brands fa-telegram"></i></div>
         </div>
 
         <!-- Chat Container -->
@@ -91,20 +99,19 @@
             </div>
         </div>
 
-        <!-- Input Area -->
+        <!-- Input Area (No Page Reload) -->
         <div class="bg-white border-t border-slate-100 flex-shrink-0 z-10 relative">
             
-            <!-- Image Preview Box -->
-            <div id="imagePreviewBox" class="hidden absolute bottom-full left-0 w-full bg-white/90 backdrop-blur-md border-t border-slate-100 p-3 flex items-center justify-between">
+            <div id="imagePreviewBox" class="hidden absolute bottom-full left-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 p-3 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <img id="previewImg" src="" class="h-12 w-12 object-cover rounded-lg border border-slate-200 shadow-sm">
+                    <img id="previewImg" src="" class="h-10 w-10 object-cover rounded-lg border border-slate-200 shadow-sm">
                     <span class="text-xs font-bold text-slate-600">Image attached</span>
                 </div>
                 <button type="button" onclick="removeImage()" class="h-8 w-8 bg-red-50 text-red-500 rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <form method="POST" enctype="multipart/form-data" class="p-3 flex items-end gap-2" id="chatForm" onsubmit="handleSend()">
-                
+            <!-- Form with AJAX submit -->
+            <form class="p-3 flex items-end gap-2" id="chatForm" onsubmit="handleAjaxSend(event)">
                 <label class="h-11 w-11 bg-slate-50 text-slate-400 rounded-[14px] flex items-center justify-center cursor-pointer hover:text-blue-600 hover:bg-blue-50 transition border border-slate-200 flex-shrink-0 shadow-sm">
                     <i class="fa-solid fa-image text-lg"></i>
                     <input type="file" name="image" id="imageInput" class="hidden" accept="image/*" onchange="previewImage(this)">
@@ -127,7 +134,7 @@
 
     // Scroll to bottom smoothly
     function scrollToBottom() {
-        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+        chatBox.scrollTop = chatBox.scrollHeight;
     }
     scrollToBottom();
 
@@ -147,21 +154,50 @@
         document.getElementById('imagePreviewBox').classList.add('hidden');
     }
 
-    // Show Loading Spinner on Send
-    function handleSend() {
+    // 🚀 AJAX SEND LOGIC (NO RELOAD)
+    async function handleAjaxSend(event) {
+        event.preventDefault(); // Prevent page refresh
+        
+        const form = document.getElementById('chatForm');
         const btn = document.getElementById('sendBtn');
-        const img = document.getElementById('imageInput');
+        const msgInput = document.getElementById('msgInput');
+        const imgInput = document.getElementById('imageInput');
+
+        if (!msgInput.value.trim() && imgInput.files.length === 0) return;
+
+        // Show loading spinner
         btn.disabled = true;
-        if(img.files.length > 0) {
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-        } else {
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        btn.classList.add('opacity-80');
+
+        const formData = new FormData(form);
+
+        try {
+            // Send data to backend silently
+            await fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            });
+
+            // Clear input fields immediately
+            form.reset();
+            removeImage();
+            
+            // Instantly fetch and show the new message
+            fetchNewMessages(true);
+        } catch (error) {
+            console.error('Error sending message:', error);
+            alert("Network error! Message not sent.");
+        } finally {
+            // Restore button
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+            btn.classList.remove('opacity-80');
         }
-        return true;
     }
 
-    // Silent Background Polling
-    function fetchNewMessages() {
+    // FAST BACKGROUND POLLING (Every 1.5 Seconds)
+    function fetchNewMessages(forceScroll = false) {
         fetch(window.location.href)
             .then(response => response.text())
             .then(html => {
@@ -171,13 +207,25 @@
                 
                 if (chatContent.innerHTML.length !== newContent.length) {
                     const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 100;
+                    
                     chatContent.innerHTML = newContent;
-                    if(isAtBottom) scrollToBottom();
+                    
+                    if(isAtBottom || forceScroll) {
+                        setTimeout(scrollToBottom, 100);
+                    }
                 }
             });
     }
-    // Poll every 3 seconds
-    setInterval(fetchNewMessages, 3000);
-</script>
+    
+    // Poll fast for real-time experience
+    setInterval(fetchNewMessages, 1500); 
 
+    // Submit on Enter (Shift+Enter for new line)
+    document.getElementById("msgInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            document.getElementById("chatForm").dispatchEvent(new Event('submit'));
+        }
+    });
+</script>
 {% endblock %}
