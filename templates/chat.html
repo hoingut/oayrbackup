@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .chat-box { height: 60vh; overflow-y: auto; scroll-behavior: smooth; }
+    .chat-box::-webkit-scrollbar { width: 4px; }
+    .chat-box::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+    .msg-user { background: #2563EB; color: white; border-bottom-right-radius: 4px; }
+    .msg-admin { background: #F1F5F9; color: #1E293B; border-bottom-left-radius: 4px; border: 1px solid #E2E8F0; }
+</style>
+
+<div class="max-w-2xl mx-auto pb-8 pt-4 fade-in">
+    <!-- Header -->
+    <div class="bg-white p-4 rounded-t-[24px] border border-slate-200 shadow-sm flex items-center justify-between z-10 relative">
+        <div class="flex items-center gap-3">
+            <a href="/dashboard" class="h-10 w-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-500 hover:text-blue-600 transition"><i class="fa-solid fa-arrow-left"></i></a>
+            <div>
+                <h2 class="font-bold text-slate-800">Support Chat</h2>
+                <p class="text-[10px] text-green-500 font-bold flex items-center gap-1"><span class="h-1.5 w-1.5 bg-green-500 rounded-full animate-ping"></span> Live Agent</p>
+            </div>
+        </div>
+        <i class="fa-brands fa-telegram text-3xl text-blue-100"></i>
+    </div>
+
+    <!-- Chat Box -->
+    <div class="chat-box bg-[#F8FAFC] border-x border-slate-200 p-4 space-y-4" id="chatContainer">
+        <div class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest my-2">Chat Started</div>
+        
+        {% for msg in messages %}
+            {% if msg.sender_role == 'user' %}
+            <!-- User Message (Right) -->
+            <div class="flex justify-end">
+                <div class="max-w-[75%]">
+                    {% if msg.image_url %}
+                        <img src="{{ msg.image_url }}" class="rounded-xl mb-1 border-2 border-white shadow-sm max-w-full" alt="img">
+                    {% endif %}
+                    {% if msg.message %}
+                        <div class="msg-user p-3 rounded-2xl text-sm font-medium shadow-sm">{{ msg.message }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <!-- Admin Message (Left) -->
+            <div class="flex justify-start">
+                <div class="max-w-[75%]">
+                    <p class="text-[9px] font-bold text-slate-400 ml-1 mb-0.5">Admin</p>
+                    {% if msg.image_url %}
+                        <img src="{{ msg.image_url }}" class="rounded-xl mb-1 border-2 border-slate-200 shadow-sm max-w-full" alt="img">
+                    {% endif %}
+                    {% if msg.message %}
+                        <div class="msg-admin p-3 rounded-2xl text-sm font-medium">{{ msg.message }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- Input Area -->
+    <div class="bg-white p-4 rounded-b-[24px] border border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
+        <form method="POST" enctype="multipart/form-data" class="flex items-end gap-2" id="chatForm">
+            <!-- Image Upload Btn -->
+            <label class="h-12 w-12 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center cursor-pointer hover:text-blue-600 hover:bg-blue-50 transition border border-slate-200 flex-shrink-0">
+                <i class="fa-solid fa-image"></i>
+                <input type="file" name="image" class="hidden" accept="image/*" onchange="document.getElementById('imgBadge').classList.remove('hidden')">
+                <span id="imgBadge" class="absolute top-2 right-2 h-2 w-2 bg-green-500 rounded-full hidden"></span>
+            </label>
+            
+            <textarea name="message" rows="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 resize-none" placeholder="Type message..."></textarea>
+            
+            <button type="submit" class="h-12 w-12 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-blue-700 transition flex-shrink-0" onclick="this.innerHTML='<i class=\'fa-solid fa-spinner fa-spin\'></i>'">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Auto scroll to bottom
+    const chatBox = document.getElementById("chatContainer");
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Optional: Refresh page every 10 seconds to get new messages automatically
+    setInterval(() => { window.location.reload(); }, 10000);
+</script>
+{% endblock %}
