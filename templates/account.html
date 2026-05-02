@@ -2,20 +2,15 @@
 {% block content %}
 
 <style>
-    .fade-up { animation: fadeUp 0.5s ease-out forwards; opacity: 0; transform: translateY(20px); }
+    .fade-up { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(15px); }
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
     
-    .profile-header {
-        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-        box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.4);
-    }
-    
-    /* iOS Style Menu List */
+    /* iOS Style Menu Group */
     .menu-group {
-        background: white;
+        background: #ffffff;
         border-radius: 24px;
-        border: 1px solid rgba(15, 23, 42, 0.05);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
         overflow: hidden;
     }
     .menu-item {
@@ -23,169 +18,250 @@
         align-items: center;
         justify-content: space-between;
         padding: 16px 20px;
-        background: white;
-        transition: background-color 0.2s;
+        background: #ffffff;
+        transition: background-color 0.2s ease;
     }
     .menu-item:active { background-color: #F8FAFC; }
     .menu-item:not(:last-child) { border-bottom: 1px solid #F1F5F9; }
+
+    /* Custom Toggle Switch */
+    .toggle-checkbox:checked { right: 0; border-color: #2563EB; }
+    .toggle-checkbox:checked + .toggle-label { background-color: #2563EB; }
+    .toggle-checkbox { right: 0; z-index: 1; border-color: #e2e8f0; transition: all 0.3s; }
+    .toggle-label { width: 44px; height: 24px; background-color: #cbd5e1; border-radius: 9999px; transition: all 0.3s; }
+    .toggle-dot { top: 2px; left: 2px; width: 20px; height: 20px; background-color: white; border-radius: 50%; transition: all 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .toggle-checkbox:checked ~ .toggle-dot { transform: translateX(20px); }
 </style>
 
-<div class="max-w-md mx-auto space-y-6 fade-up pb-32 pt-4">
+<div class="max-w-xl mx-auto space-y-6 fade-up pb-6 px-1">
 
-    <!-- 1. PROFILE HEADER CARD -->
-    <div class="profile-header rounded-[32px] p-8 text-white relative overflow-hidden text-center">
-        <!-- Abstract Glows -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500 opacity-20 rounded-full blur-[50px] -mr-10 -mt-10"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-teal-500 opacity-20 rounded-full blur-[50px] -ml-10 -mb-10"></div>
+    <!-- ==========================================
+         1. PREMIUM PROFILE HEADER CARD
+    ========================================== -->
+    <div class="bg-gradient-to-br from-[#1E40AF] to-[#2563EB] rounded-[32px] p-6 text-white relative overflow-hidden shadow-[0_10px_30px_rgba(37,99,235,0.2)]">
+        <!-- Ambient Decor -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-sky-400 opacity-20 rounded-full blur-xl -ml-5 -mb-5 pointer-events-none"></div>
 
+        <div class="relative z-10 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <!-- Avatar -->
+                <div class="relative group">
+                    <div class="h-16 w-16 bg-white text-blue-600 rounded-[20px] flex items-center justify-center text-3xl font-black shadow-lg border border-white/20">
+                        {{ user.email[0] | upper }}
+                    </div>
+                    <!-- Edit Icon -->
+                    <a href="/adm" class="absolute -bottom-2 -right-2 h-7 w-7 bg-slate-900 text-white rounded-full flex items-center justify-center text-[10px] border-2 border-blue-600 hover:scale-110 transition shadow-sm">
+                        <i class="fa-solid fa-pen"></i>
+                    </a>
+                </div>
+                <!-- User Info -->
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight leading-none mb-1">
+                        {{ user.full_name or user.email.split('@')[0] | title }}
+                    </h2>
+                    <p class="text-xs text-blue-200 font-medium mb-2">{{ user.email }}</p>
+                    
+                    <!-- Badges -->
+                    <div class="flex items-center gap-2">
+                        {% if user.is_active %}
+                        <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 backdrop-blur-sm">
+                            <i class="fa-solid fa-shield-check"></i> Verified
+                        </span>
+                        {% endif %}
+                        
+                        {% if user.current_level > 0 %}
+                        <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 backdrop-blur-sm">
+                            <i class="fa-solid fa-crown"></i> VIP {{ user.current_level }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Strip Inside Header -->
+        <div class="mt-6 bg-white/10 rounded-2xl p-3 border border-white/10 backdrop-blur-md flex divide-x divide-white/10 relative z-10">
+            <div class="flex-1 text-center">
+                <p class="text-[9px] text-blue-200 uppercase tracking-widest font-semibold mb-0.5">Main Bal</p>
+                <p class="text-sm font-bold font-mono">৳ {{ user.balance }}</p>
+            </div>
+            <div class="flex-1 text-center">
+                <p class="text-[9px] text-blue-200 uppercase tracking-widest font-semibold mb-0.5">VIP Bal</p>
+                <p class="text-sm font-bold font-mono {{ 'text-amber-300' if user.current_level > 0 else 'text-white' }}">৳ {{ user.vip_balance or 0 }}</p>
+            </div>
+            <div class="flex-1 text-center">
+                <p class="text-[9px] text-blue-200 uppercase tracking-widest font-semibold mb-0.5">Team</p>
+                <p class="text-sm font-bold font-mono">{{ ref_count }} Users</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         2. QUICK INVITE BANNER (Modern)
+    ========================================== -->
+    <div class="bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 flex items-center justify-between relative overflow-hidden group">
+        <div class="absolute right-0 top-0 w-24 h-24 bg-blue-50 rounded-bl-full opacity-50 group-hover:bg-blue-100 transition-colors"></div>
         <div class="relative z-10">
-            <!-- Avatar -->
-            <div class="relative inline-block mb-4">
-                <div class="h-24 w-24 bg-white rounded-[24px] flex items-center justify-center text-slate-900 text-4xl font-black shadow-2xl mx-auto transform rotate-3">
-                    {{ user.email[0] | upper }}
-                </div>
-                <!-- Verification Badge -->
-                {% if user.is_active %}
-                <div class="absolute -bottom-2 -right-2 bg-emerald-500 text-white h-8 w-8 rounded-full flex items-center justify-center border-4 border-[#0F172A] shadow-sm" title="Verified">
-                    <i class="fa-solid fa-check text-[10px]"></i>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Info -->
-            <h2 class="text-2xl font-black tracking-tight">{{ user.full_name or user.email.split('@')[0] | title }}</h2>
-            <p class="text-slate-400 text-xs mt-1 font-medium">{{ user.email }}</p>
-            
-            <!-- Badges Row -->
-            <div class="mt-6 flex items-center justify-center gap-2">
-                <div class="bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-[10px] font-bold tracking-wider uppercase text-slate-300">
-                    UID: <span class="text-white">{{ user.referral_code }}</span>
-                </div>
-                {% if user.current_level > 0 %}
-                <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 text-slate-900 px-3 py-1.5 rounded-lg text-[10px] font-black tracking-widest uppercase shadow-md shadow-yellow-500/20">
-                    VIP LVL {{ user.current_level }}
-                </div>
-                {% endif %}
-            </div>
+            <p class="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1"><i class="fa-solid fa-gift mr-1"></i> Earn Bonus</p>
+            <h3 class="text-sm font-bold text-slate-800">Invite Friends & Earn</h3>
+            <p class="text-[10px] text-slate-500 mt-0.5">Get ৳10 for every verified referral.</p>
         </div>
-    </div>
-
-    <!-- 2. QUICK STATS -->
-    <div class="grid grid-cols-2 gap-4">
-        <div class="clean-card p-5 text-center">
-            <div class="h-10 w-10 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center text-lg mx-auto mb-2"><i class="fa-solid fa-wallet"></i></div>
-            <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Main Bal</p>
-            <h3 class="text-xl font-black text-slate-800 font-mono tracking-tight">৳{{ user.balance }}</h3>
-        </div>
-        <div class="clean-card p-5 text-center">
-            <div class="h-10 w-10 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center text-lg mx-auto mb-2"><i class="fa-solid fa-users"></i></div>
-            <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Team</p>
-            <h3 class="text-xl font-black text-slate-800 font-mono tracking-tight">{{ ref_count }}</h3>
-        </div>
-    </div>
-
-    <!-- 3. REFERRAL COPY BOX -->
-    <div class="clean-card p-5 relative overflow-hidden">
-        <div class="absolute right-0 top-0 opacity-5 text-6xl transform translate-x-4 -translate-y-4"><i class="fa-solid fa-gift"></i></div>
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Invite Link</p>
-        
-        <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100 relative z-10">
-            <input type="text" id="refLink" value="..." class="bg-transparent text-xs font-bold text-slate-600 w-full outline-none font-mono pl-2 truncate" readonly>
-            <button onclick="copyRef(this)" class="btn-emerald text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md active:scale-95 transition flex-shrink-0">
-                Copy
+        <div class="relative z-10 text-right">
+            <input type="hidden" id="hiddenRefLink" value="">
+            <button onclick="copyMyRef(this)" class="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md hover:bg-blue-600 transition flex items-center gap-2">
+                Copy Link <i class="fa-regular fa-copy"></i>
             </button>
         </div>
     </div>
 
-    <!-- 4. SETTINGS LIST (iOS Style) -->
+    <!-- ==========================================
+         3. SETTINGS GROUPS (iOS / Fintech Style)
+    ========================================== -->
+    
+    <!-- Group 1: Financials -->
     <div>
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-4">Account</p>
-        
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-4">My Finances</p>
         <div class="menu-group">
+            <a href="/adm" class="menu-item group">
+                <div class="flex items-center gap-4">
+                    <div class="h-8 w-8 bg-blue-50 text-blue-600 rounded-[10px] flex items-center justify-center text-sm group-hover:bg-blue-600 group-hover:text-white transition-colors"><i class="fa-solid fa-building-columns"></i></div>
+                    <span class="font-bold text-slate-700 text-sm">Payment Methods</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    {% if user.wallet_number %}
+                        <span class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded border border-slate-100 uppercase">{{ user.wallet_method }}</span>
+                    {% endif %}
+                    <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-blue-500 transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </a>
+            
             <a href="/withdraw" class="menu-item group">
                 <div class="flex items-center gap-4">
-                    <div class="h-8 w-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-money-bill-transfer text-sm"></i></div>
-                    <span class="font-bold text-slate-700 text-sm">উইথড্র ফান্ড</span>
+                    <div class="h-8 w-8 bg-emerald-50 text-emerald-600 rounded-[10px] flex items-center justify-center text-sm group-hover:bg-emerald-500 group-hover:text-white transition-colors"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                    <span class="font-bold text-slate-700 text-sm">Withdraw Funds</span>
                 </div>
-                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-emerald-500 transition transform group-hover:translate-x-1"></i>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-emerald-500 transition-transform group-hover:translate-x-1"></i>
             </a>
 
             <a href="/history" class="menu-item group">
                 <div class="flex items-center gap-4">
-                    <div class="h-8 w-8 bg-slate-50 text-slate-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-clock-rotate-left text-sm"></i></div>
-                    <span class="font-bold text-slate-700 text-sm">ট্রানজেকশন হিস্টোরি</span>
+                    <div class="h-8 w-8 bg-purple-50 text-purple-600 rounded-[10px] flex items-center justify-center text-sm group-hover:bg-purple-500 group-hover:text-white transition-colors"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <span class="font-bold text-slate-700 text-sm">Transaction Logs</span>
                 </div>
-                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-emerald-500 transition transform group-hover:translate-x-1"></i>
-            </a>
-
-            <a href="/adm" class="menu-item group">
-                <div class="flex items-center gap-4">
-                    <div class="h-8 w-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-sliders text-sm"></i></div>
-                    <span class="font-bold text-slate-700 text-sm">পেমেন্ট মেথড সেটআপ</span>
-                </div>
-                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-emerald-500 transition transform group-hover:translate-x-1"></i>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-purple-500 transition-transform group-hover:translate-x-1"></i>
             </a>
         </div>
+    </div>
 
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-4 mt-6">System</p>
-
+    <!-- Group 2: Security & Preferences (UI Enhancements) -->
+    <div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-4 mt-6">Security & Prefs</p>
         <div class="menu-group">
-            {% if user.role == 'admin' %}
-            <a href="/admin" class="menu-item group">
+            <!-- Read-only Security Status -->
+            <div class="menu-item cursor-default">
                 <div class="flex items-center gap-4">
-                    <div class="h-8 w-8 bg-slate-900 text-white rounded-lg flex items-center justify-center group-hover:scale-110 transition"><i class="fa-solid fa-shield-halved text-sm"></i></div>
-                    <span class="font-bold text-slate-900 text-sm">এডমিন প্যানেল</span>
+                    <div class="h-8 w-8 bg-slate-100 text-slate-600 rounded-[10px] flex items-center justify-center text-sm"><i class="fa-solid fa-shield-halved"></i></div>
+                    <span class="font-bold text-slate-700 text-sm">Security Level</span>
                 </div>
-                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-slate-900 transition transform group-hover:translate-x-1"></i>
+                <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100 uppercase tracking-widest"><i class="fa-solid fa-lock mr-1"></i> High</span>
+            </div>
+
+            <!-- Fake Toggle for UI Premiumness -->
+            <div class="menu-item">
+                <div class="flex items-center gap-4">
+                    <div class="h-8 w-8 bg-orange-50 text-orange-500 rounded-[10px] flex items-center justify-center text-sm"><i class="fa-solid fa-bell"></i></div>
+                    <div>
+                        <span class="font-bold text-slate-700 text-sm block">Push Notifications</span>
+                        <span class="text-[9px] text-slate-400">Receive alerts for new tasks</span>
+                    </div>
+                </div>
+                <!-- Custom Toggle -->
+                <div class="relative inline-block w-11 h-6 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" name="toggle" id="notifToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/>
+                    <label for="notifToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                    <div class="toggle-dot absolute"></div>
+                </div>
+            </div>
+            
+            <a href="#" class="menu-item group" onclick="alert('পাসওয়ার্ড পরিবর্তনের জন্য লাইভ সাপোর্টে যোগাযোগ করুন।')">
+                <div class="flex items-center gap-4">
+                    <div class="h-8 w-8 bg-slate-100 text-slate-600 rounded-[10px] flex items-center justify-center text-sm group-hover:bg-slate-800 group-hover:text-white transition-colors"><i class="fa-solid fa-key"></i></div>
+                    <span class="font-bold text-slate-700 text-sm">Change Password</span>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-slate-800 transition-transform group-hover:translate-x-1"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Group 3: Support & System -->
+    <div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-4 mt-6">Help & Support</p>
+        <div class="menu-group">
+            
+            <!-- Admin Panel (Conditional) -->
+            {% if user.role == 'admin' %}
+            <a href="/admin" class="menu-item group bg-slate-50">
+                <div class="flex items-center gap-4">
+                    <div class="h-8 w-8 bg-slate-900 text-white rounded-[10px] flex items-center justify-center text-sm shadow-md"><i class="fa-solid fa-user-shield"></i></div>
+                    <span class="font-bold text-slate-900 text-sm">Admin Control Panel</span>
+                </div>
+                <span class="bg-red-500 text-white text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded shadow-sm animate-pulse">Restricted</span>
             </a>
             {% endif %}
 
-            <a href="https://wa.me/8801894577178" target="_blank" class="menu-item group">
+            <a href="https://t.me/payrsrp" target="_blank" class="menu-item group">
                 <div class="flex items-center gap-4">
-                    <div class="h-8 w-8 bg-[#25D366]/10 text-[#25D366] rounded-lg flex items-center justify-center group-hover:scale-110 transition"><i class="fa-brands fa-whatsapp text-sm"></i></div>
-                    <span class="font-bold text-slate-700 text-sm">সাপোর্ট চ্যাট</span>
+                    <div class="h-8 w-8 bg-[#2AABEE]/10 text-[#2AABEE] rounded-[10px] flex items-center justify-center text-sm group-hover:bg-[#2AABEE] group-hover:text-white transition-colors"><i class="fa-brands fa-telegram"></i></div>
+                    <span class="font-bold text-slate-700 text-sm">Live Support Chat</span>
                 </div>
-                <i class="fa-solid fa-arrow-up-right-from-square text-slate-300 text-[10px] group-hover:text-[#25D366] transition transform group-hover:translate-x-1"></i>
+                <i class="fa-solid fa-arrow-up-right-from-square text-slate-300 text-[10px] group-hover:text-[#2AABEE] transition-transform group-hover:translate-x-1 hover:-translate-y-1"></i>
             </a>
 
-            <a href="/logout" class="menu-item group">
+            <a href="/logout" class="menu-item group hover:bg-red-50">
                 <div class="flex items-center gap-4">
-                    <div class="h-8 w-8 bg-red-50 text-red-500 rounded-lg flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition"><i class="fa-solid fa-power-off text-sm"></i></div>
-                    <span class="font-bold text-red-600 text-sm">লগ আউট</span>
+                    <div class="h-8 w-8 bg-red-50 text-red-500 rounded-[10px] flex items-center justify-center text-sm group-hover:bg-red-500 group-hover:text-white transition-colors"><i class="fa-solid fa-power-off"></i></div>
+                    <span class="font-bold text-red-600 text-sm">Secure Logout</span>
                 </div>
-                <i class="fa-solid fa-chevron-right text-slate-300 text-[10px] group-hover:text-red-500 transition transform group-hover:translate-x-1"></i>
+                <i class="fa-solid fa-chevron-right text-red-300 text-[10px] group-hover:text-red-500 transition-transform group-hover:translate-x-1"></i>
             </a>
         </div>
+    </div>
+
+    <!-- App Version Footer -->
+    <div class="text-center pt-4 opacity-50 pb-2">
+        <div class="inline-flex items-center gap-1.5 text-slate-400">
+            <i class="fa-solid fa-briefcase text-xs"></i>
+            <span class="text-[10px] font-black uppercase tracking-widest">Earn Daily</span>
+        </div>
+        <p class="text-[9px] font-mono mt-1 text-slate-400">Version 2.4.1 (Stable)</p>
     </div>
 
 </div>
 
 <!-- Scripts -->
 <script>
+    // 1. Generate & Set Dynamic Referral Link
     document.addEventListener('DOMContentLoaded', () => {
         const domain = window.location.origin;
         const uniqueCode = "{{ user.referral_code if user.referral_code else 'GenerateID' }}";
         const fullLink = `${domain}/register?ref=${uniqueCode}`;
         
-        const inputField = document.getElementById("refLink");
-        if(inputField) {
-            inputField.value = fullLink;
-        }
+        const hiddenInput = document.getElementById("hiddenRefLink");
+        if(hiddenInput) hiddenInput.value = fullLink;
     });
 
-    function copyRef(btn) {
-        const copyText = document.getElementById("refLink");
-        copyText.select();
-        copyText.setSelectionRange(0, 99999); 
-
-        navigator.clipboard.writeText(copyText.value).then(() => {
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-            btn.classList.add("bg-slate-800");
+    // 2. Copy Link Logic with UI Feedback
+    function copyMyRef(btn) {
+        const copyText = document.getElementById("hiddenRefLink").value;
+        navigator.clipboard.writeText(copyText).then(() => {
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check text-white"></i> Copied!';
+            btn.classList.replace("bg-slate-900", "bg-emerald-500");
             
             setTimeout(() => {
-                btn.innerHTML = originalContent;
-                btn.classList.remove("bg-slate-800");
+                btn.innerHTML = originalHTML;
+                btn.classList.replace("bg-emerald-500", "bg-slate-900");
             }, 2000);
         });
     }
