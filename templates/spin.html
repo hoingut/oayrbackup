@@ -3,249 +3,261 @@
 
 <style>
     /* Premium Entry Animations */
-    .fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(15px); }
+    .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
     @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-    /* Task Card Premium Hover */
-    .premium-task-card {
-        background: #ffffff;
-        border: 1px solid #E2E8F0;
-        border-radius: 24px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-    }
-    .premium-task-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.1);
-        border-color: #BFDBFE;
-    }
-
-    /* Custom Ad Wrapper (Native App Style) */
+    /* Custom Ad Wrapper (Native Style) */
     .premium-ad-card {
-        background: #ffffff;
-        border: 1px solid #E2E8F0;
-        border-radius: 20px;
-        position: relative;
-        padding: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-        margin: 16px 0;
-        transition: all 0.3s ease;
-    }
-    .premium-ad-card:hover {
-        border-color: #CBD5E1;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+        background: #ffffff; border: 1px solid #E2E8F0; border-radius: 20px;
+        position: relative; padding: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        margin: 16px auto; max-width: 100%; transition: all 0.3s ease;
     }
     .ad-badge {
-        position: absolute; top: 0; right: 0;
-        background: #F1F5F9; color: #94A3B8;
+        position: absolute; top: 0; right: 0; background: #F1F5F9; color: #94A3B8;
         font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
-        padding: 4px 8px; border-bottom-left-radius: 12px;
-        z-index: 10;
+        padding: 4px 8px; border-bottom-left-radius: 12px; z-index: 10;
     }
     .ad-inner {
         display: flex; justify-content: center; align-items: center;
-        background: #F8FAFC; border-radius: 12px; overflow: hidden;
-        min-height: 60px;
+        background: #F8FAFC; border-radius: 12px; overflow: hidden; min-height: 60px;
     }
 
-    /* Shimmer Effect for Hot Banner */
-    .shimmer-bg { position: relative; overflow: hidden; }
-    .shimmer-bg::after {
-        content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-        background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
-        transform: skewX(-20deg); animation: shimmerFast 3s infinite;
+    /* Modern 3D Spin Wheel */
+    .wheel-container {
+        position: relative; width: 280px; height: 280px; margin: 0 auto;
+        border-radius: 50%; padding: 8px;
+        background: linear-gradient(135deg, #1E293B, #0F172A);
+        box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.3), inset 0 2px 10px rgba(255, 255, 255, 0.1);
     }
-    @keyframes shimmerFast { 100% { left: 200%; } }
+    .wheel-border {
+        position: relative; width: 100%; height: 100%; border-radius: 50%;
+        border: 4px solid #ffffff; overflow: hidden;
+        box-shadow: inset 0 10px 20px rgba(0,0,0,0.3);
+    }
+    .wheel {
+        width: 100%; height: 100%; border-radius: 50%;
+        /* Adjusted color palette for a corporate feel */
+        background: conic-gradient(
+            #3B82F6 0deg 60deg,    /* Blue */
+            #F59E0B 60deg 120deg,  /* Amber */
+            #10B981 120deg 180deg, /* Emerald */
+            #E2136E 180deg 240deg, /* Pink (bKash) */
+            #8B5CF6 240deg 300deg, /* Purple */
+            #EF4444 300deg 360deg  /* Red */
+        );
+        transition: transform 4s cubic-bezier(0.1, 0.7, 0.1, 1);
+        position: relative;
+    }
+    
+    /* 3D Pointer */
+    .pointer {
+        position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+        font-size: 36px; color: #ffffff; z-index: 10;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    }
+    .pointer i {
+        background: -webkit-linear-gradient(top, #ffffff, #cbd5e1);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* Center Hub */
+    .wheel-center {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: 40px; height: 40px; background: white; border-radius: 50%;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2), inset 0 2px 5px rgba(0,0,0,0.1);
+        z-index: 5; border: 4px solid #1E293B;
+    }
+
+    /* Wheel Text Positions */
+    .wheel-text { 
+        position: absolute; color: white; font-weight: 800; font-size: 15px; 
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-family: monospace;
+    }
+    .t1 { top: 15%; left: 65%; transform: rotate(30deg); }
+    .t2 { top: 45%; right: 10%; transform: rotate(90deg); }
+    .t3 { bottom: 15%; right: 25%; transform: rotate(150deg); }
+    .t4 { bottom: 15%; left: 25%; transform: rotate(210deg); }
+    .t5 { top: 45%; left: 10%; transform: rotate(270deg); }
+    .t6 { top: 15%; left: 25%; transform: rotate(330deg); }
+
+    /* Custom Spin Button */
+    .btn-spin {
+        background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3), inset 0 2px 5px rgba(255,255,255,0.2);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .btn-spin:active { transform: scale(0.95); box-shadow: none; }
 </style>
 
-<div class="max-w-2xl mx-auto space-y-6 fade-in-up pb-8 px-1">
+<div class="max-w-md mx-auto space-y-6 fade-in-up pb-8 px-1">
 
     <!-- ==========================================
          1. PAGE HEADER
     ========================================== -->
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-4 mb-4">
+        <a href="/dashboard" class="h-10 w-10 bg-white rounded-xl flex items-center justify-center text-slate-500 shadow-sm border border-slate-200 hover:text-blue-600 hover:bg-blue-50 transition-all active:scale-95">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
         <div>
-            <h2 class="text-3xl font-black text-slate-800 tracking-tight">Micro Tasks</h2>
-            <p class="text-[10px] text-blue-600 font-bold tracking-[0.2em] uppercase mt-1 flex items-center gap-1.5">
-                <i class="fa-solid fa-bolt"></i> Complete & Earn
-            </p>
-        </div>
-        <div class="bg-blue-50 text-blue-700 px-3.5 py-1.5 rounded-xl text-xs font-black shadow-sm border border-blue-100 flex items-center gap-2">
-            <i class="fa-solid fa-list-check"></i> {{ tasks|length }} Available
+            <h2 class="text-xl font-black text-slate-800 tracking-tight leading-none">Lucky Spin</h2>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">Daily Free Reward</p>
         </div>
     </div>
-    
-    <!-- ==========================================
-         2. GMAIL TASK PROMO (High Paying Banner)
-    ========================================== -->
-    <a href="/gmail-tasks" class="block bg-gradient-to-r from-[#DC2626] to-[#E11D48] p-1 rounded-[28px] shadow-[0_10px_30px_rgba(225,29,72,0.25)] shimmer-bg group hover:-translate-y-1 transition duration-300">
-        
-        <!-- Pinned Badge -->
-        <div class="absolute top-0 right-0 bg-amber-400 text-slate-900 text-[9px] font-black px-4 py-1 rounded-bl-[16px] z-10 flex items-center gap-1 shadow-sm uppercase tracking-widest">
-            <i class="fa-solid fa-star"></i> Pinned
-        </div>
-        
-        <div class="bg-white rounded-[24px] p-5 relative z-10 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div class="h-14 w-14 bg-red-50 text-red-600 rounded-[16px] flex items-center justify-center text-3xl shadow-sm border border-red-100 flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <i class="fa-brands fa-google"></i>
-                </div>
-                <div>
-                    <h3 class="font-black text-slate-800 text-base leading-tight">Create Gmail & Earn</h3>
-                    <p class="text-[10px] text-slate-500 mt-1 font-medium">প্রতিটি ফ্রেশ জিমেইলে ২৫-১০০ টাকা আয় করুন!</p>
-                    <span class="inline-block mt-2 bg-red-50 text-red-600 text-[9px] font-black px-2.5 py-1 rounded-md border border-red-100 uppercase tracking-widest">
-                        High Paying
-                    </span>
-                </div>
-            </div>
-            <div class="h-10 w-10 bg-red-600 text-white rounded-xl flex items-center justify-center shadow-lg group-hover:bg-red-700 transition-colors flex-shrink-0">
-                <i class="fa-solid fa-arrow-right"></i>
-            </div>
-        </div>
-    </a>
 
     <!-- ==========================================
-         3. NORMAL TASK LIST WITH NATIVE ADS
+         AD SECTION 1 (TOP) - Premium Native Style
     ========================================== -->
-    <div class="space-y-4 relative">
-        
-        {% for task in tasks %}
-        
-        <!-- Logic for Category Icons & Colors -->
-        {% set icon_bg = 'bg-slate-50 text-slate-600 border-slate-100' %}
-        {% set icon_class = 'fa-solid fa-globe' %}
-        
-        {% if 'YouTube' in task.category %}
-            {% set icon_bg = 'bg-red-50 text-red-500 border-red-100' %}
-            {% set icon_class = 'fa-brands fa-youtube' %}
-        {% elif 'Facebook' in task.category %}
-            {% set icon_bg = 'bg-blue-50 text-blue-600 border-blue-100' %}
-            {% set icon_class = 'fa-brands fa-facebook' %}
-        {% elif 'TikTok' in task.category %}
-            {% set icon_bg = 'bg-slate-900 text-white border-slate-800' %}
-            {% set icon_class = 'fa-brands fa-tiktok' %}
-        {% elif 'Telegram' in task.category %}
-            {% set icon_bg = 'bg-sky-50 text-sky-500 border-sky-100' %}
-            {% set icon_class = 'fa-brands fa-telegram' %}
-        {% endif %}
+    <div class="premium-ad-card">
+        <span class="ad-badge">Sponsored</span>
+        <div class="ad-inner">
+            <script>
+              atOptions = {
+                'key' : '4a72be96f78b75e42afea5ee99005d34',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+              };
+            </script>
+            <script src="https://www.highperformanceformat.com/4a72be96f78b75e42afea5ee99005d34/invoke.js"></script>
+        </div>
+    </div>
 
-        <!-- TASK CARD -->
-        <div class="premium-task-card p-5 group">
+    <!-- ==========================================
+         2. SPIN WHEEL AREA
+    ========================================== -->
+    <div class="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 text-center relative overflow-hidden">
+        
+        <!-- Abstract BG Pattern -->
+        <div class="absolute right-0 top-0 w-32 h-32 bg-orange-50 rounded-bl-full opacity-50 pointer-events-none"></div>
+
+        <div class="mb-8 relative z-10">
+            <h3 class="font-black text-slate-800 text-lg flex items-center justify-center gap-2">
+                <i class="fa-solid fa-dharmachakra text-orange-500 animate-spin-slow"></i> 
+                ভাগ্যের চাকা ঘুরান
+            </h3>
+            <p class="text-[11px] text-slate-500 mt-1 font-medium">প্রতিদিন একবার সম্পূর্ণ ফ্রিতে স্পিন করুন</p>
+        </div>
+
+        <!-- 3D Spin Wheel -->
+        <div class="wheel-container mb-8 relative z-10">
+            <div class="pointer"><i class="fa-solid fa-location-dot"></i></div>
             
-            <!-- Rejected Indicator Status Line -->
-            {% if task.is_rejected %}
-            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500"></div>
+            <div class="wheel-border">
+                <div class="wheel" id="wheel">
+                    <div class="wheel-text t1">৳১০</div>
+                    <div class="wheel-text t2">৳০</div>
+                    <div class="wheel-text t3">৳৫</div>
+                    <div class="wheel-text t4">৳১</div>
+                    <div class="wheel-text t5">৳২</div>
+                    <div class="wheel-text t6">৳৩</div>
+                </div>
+            </div>
+            
+            <!-- Inner Hub -->
+            <div class="wheel-center"></div>
+        </div>
+
+        <!-- Controls & Results -->
+        <div class="relative z-10">
+            {% if can_spin %}
+                <button id="spinBtn" onclick="spinWheel()" class="btn-spin w-full text-white px-8 py-4 rounded-[16px] font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2">
+                    <span>Spin Now</span>
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
             {% else %}
-            <!-- Normal Hover Line (Blue) -->
-            <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-transparent group-hover:bg-blue-600 transition-colors duration-300"></div>
+                <button disabled class="w-full bg-slate-100 text-slate-400 border border-slate-200 px-8 py-4 rounded-[16px] font-bold text-sm cursor-not-allowed uppercase tracking-widest flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-lock"></i> আজকের স্পিন শেষ
+                </button>
+                <p class="text-[10px] text-slate-500 mt-3 font-medium bg-slate-50 px-3 py-1.5 rounded-lg inline-block border border-slate-100">
+                    <i class="fa-regular fa-clock"></i> আগামীকাল আবার চেষ্টা করুন!
+                </p>
             {% endif %}
-
-            <!-- Watermark ID -->
-            <div class="absolute right-4 -bottom-6 text-[80px] font-black text-slate-50 pointer-events-none select-none leading-none z-0 group-hover:scale-110 transition duration-500">
-                {% if loop.index < 10 %}0{% endif %}{{ loop.index }}
-            </div>
-
-            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 pl-1 sm:pl-2">
-                
-                <!-- Left: Icon & Info -->
-                <div class="flex gap-4 items-start w-full">
-                    <div class="h-14 w-14 rounded-[16px] flex items-center justify-center text-2xl shadow-sm border {{ icon_bg }} flex-shrink-0">
-                        <i class="{{ icon_class }}"></i>
-                    </div>
-                    
-                    <div class="flex-grow pr-2">
-                        <h3 class="font-bold text-slate-800 text-base leading-tight mb-1">{{ task.title }}</h3>
-                        
-                        <!-- Badges Row -->
-                        <div class="flex flex-wrap items-center gap-1.5 mt-2">
-                            <span class="text-[9px] font-black bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md uppercase tracking-wider border border-slate-200">
-                                {{ task.category }}
-                            </span>
-                            
-                            <!-- Dynamic Task Type Badges -->
-                            {% if task.task_type == 'screenshot' %}
-                                <span class="text-[9px] font-black bg-indigo-50 text-indigo-600 px-2.5 py-0.5 rounded-md uppercase tracking-wider border border-indigo-100 flex items-center gap-1">
-                                    <i class="fa-solid fa-camera text-[10px]"></i> Proof
-                                </span>
-                            {% elif task.task_type == 'fb_post' %}
-                                <span class="text-[9px] font-black bg-blue-50 text-blue-600 px-2.5 py-0.5 rounded-md uppercase tracking-wider border border-blue-100 flex items-center gap-1">
-                                    <i class="fa-solid fa-share-nodes text-[10px]"></i> Post
-                                </span>
-                            {% endif %}
-                        </div>
-
-                        <!-- Description or Rejection Notice -->
-                        {% if task.is_rejected %}
-                            <p class="text-[10px] text-red-600 font-bold mt-3 bg-red-50 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 border border-red-100">
-                                <i class="fa-solid fa-triangle-exclamation"></i> প্রুফ বাতিল হয়েছে! আবার করুন।
-                            </p>
-                        {% else %}
-                            <p class="text-xs text-slate-500 mt-2 line-clamp-1 font-medium leading-relaxed">{{ task.description }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Right: Reward & Action -->
-                <div class="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto mt-2 md:mt-0 gap-3 border-t md:border-t-0 border-slate-100 pt-4 md:pt-0 flex-shrink-0">
-                    <span class="text-lg font-black text-slate-800 font-mono tracking-tight flex items-center gap-0.5">
-                        <span class="text-[10px] text-slate-400 font-bold">৳</span>{{ task.reward }}
-                    </span>
-                    
-                    {% if task.task_type in ['screenshot', 'fb_post'] %}
-                        <a href="/task/submit/{{ task.id }}" class="w-full md:w-auto px-5 py-2.5 rounded-xl text-[11px] font-bold text-center shadow-md transition-all 
-                            {{ 'bg-red-600 text-white hover:bg-red-700 shadow-red-500/20' if task.is_rejected else 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/20' }}">
-                            {{ 'Retry Task' if task.is_rejected else 'Start Task' }}
-                        </a>
-                    {% else %}
-                        <a href="{{ task.link }}" target="_blank" class="w-full md:w-auto bg-slate-800 text-white px-5 py-2.5 rounded-xl text-[11px] font-bold text-center hover:bg-slate-900 transition shadow-md">
-                            Visit Link
-                        </a>
-                    {% endif %}
-                </div>
+            
+            <!-- Result Message Area -->
+            <div id="resultMsgBox" class="mt-4 p-4 rounded-2xl hidden transition-all">
+                <p id="resultMsg" class="font-bold text-sm"></p>
             </div>
         </div>
+    </div>
 
-        <!-- ==========================================
-             AD INJECTION LOGIC (Native Style, After every 5 tasks)
-        ========================================== -->
-        {% if loop.index % 5 == 0 %}
-        <div class="premium-ad-card">
-            <span class="ad-badge">Sponsored</span>
-            <div class="ad-inner">
-                <!-- Ad Script Provided by User -->
-                <script>
-                  atOptions = {
-                    'key' : '4a72be96f78b75e42afea5ee99005d34',
-                    'format' : 'iframe',
-                    'height' : 60,
-                    'width' : 468,
-                    'params' : {}
-                  };
-                </script>
-                <script src="https://www.highperformanceformat.com/4a72be96f78b75e42afea5ee99005d34/invoke.js"></script>
-            </div>
+    <!-- ==========================================
+         AD SECTION 2 (BOTTOM) - Premium Native Style
+    ========================================== -->
+    <div class="premium-ad-card mb-8">
+        <span class="ad-badge">Sponsored</span>
+        <div class="ad-inner">
+            <script>
+              atOptions = {
+                'key' : '4a72be96f78b75e42afea5ee99005d34',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+              };
+            </script>
+            <script src="https://www.highperformanceformat.com/4a72be96f78b75e42afea5ee99005d34/invoke.js"></script>
         </div>
-        {% endif %}
-        <!-- End Ad Injection -->
-
-        {% else %}
-        <!-- Empty State -->
-        <div class="text-center py-20 bg-white rounded-[32px] border border-slate-100 shadow-sm">
-            <div class="h-20 w-20 bg-slate-50 rounded-[20px] flex items-center justify-center mx-auto mb-4 text-4xl text-slate-300 border border-slate-100">
-                <i class="fa-solid fa-check-double"></i>
-            </div>
-            <h3 class="text-base font-bold text-slate-800">All Caught Up!</h3>
-            <p class="text-[11px] text-slate-500 mt-1 font-medium">নতুন কাজের জন্য কিছুক্ষণ অপেক্ষা করুন</p>
-            <button onclick="location.reload()" class="mt-6 text-xs font-bold text-blue-600 bg-blue-50 px-6 py-3 rounded-xl border border-blue-100 hover:bg-blue-100 transition shadow-sm flex items-center gap-2 mx-auto">
-                <i class="fa-solid fa-rotate-right"></i> Refresh Tasks
-            </button>
-        </div>
-        {% endfor %}
-
     </div>
 
 </div>
+
+<!-- Spin Logic -->
+<script>
+    function spinWheel() {
+        const btn = document.getElementById('spinBtn');
+        const wheel = document.getElementById('wheel');
+        const msgBox = document.getElementById('resultMsgBox');
+        const msgText = document.getElementById('resultMsg');
+        
+        // Disable button & show spinner
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i> <span class="tracking-widest">Spinning...</span>';
+        btn.classList.add('opacity-90');
+
+        // Backend Request
+        fetch('/spin', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                // Calculate Rotation based on reward map
+                let degrees = 3600; // Spin 10 times extra
+                if(data.reward === 10) degrees += 330;
+                else if(data.reward === 0) degrees += 270;
+                else if(data.reward === 5) degrees += 210;
+                else if(data.reward === 1) degrees += 150;
+                else if(data.reward === 2) degrees += 90;
+                else if(data.reward === 3) degrees += 30;
+
+                // Apply CSS Transform
+                wheel.style.transform = `rotate(${degrees}deg)`;
+
+                // Wait for animation to finish (4s)
+                setTimeout(() => {
+                    msgBox.classList.remove('hidden');
+                    
+                    if(data.reward > 0) {
+                        msgBox.className = "mt-4 p-4 rounded-xl bg-green-50 border border-green-100 text-center shadow-sm animate-bounce";
+                        msgText.innerHTML = `<span class="text-green-600 text-lg">🎉 অভিনন্দন!</span><br><span class="text-slate-700 mt-1 block">আপনি <b class="font-mono text-green-700 text-lg">৳${data.reward}</b> পেয়েছেন!</span>`;
+                    } else {
+                        msgBox.className = "mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-center shadow-sm";
+                        msgText.innerHTML = `<span class="text-slate-500">😔 Better Luck Next Time!</span>`;
+                    }
+                    
+                    // Reload after 3s to update status
+                    setTimeout(() => location.reload(), 3000); 
+                }, 4000); 
+                
+            } else {
+                alert(data.message);
+                location.reload();
+            }
+        })
+        .catch(err => {
+            alert("Connection error. Please try again.");
+            location.reload();
+        });
+    }
+</script>
 
 {% endblock %}
