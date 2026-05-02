@@ -1,27 +1,53 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<div class="max-w-2xl mx-auto space-y-6 fade-in pt-4 pb-32">
+<style>
+    /* Premium Entry Animation */
+    .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-    <!-- HEADER -->
-    <div class="clean-card p-6 bg-gradient-to-r from-[#0F172A] to-[#1E293B] text-white relative overflow-hidden">
-        <div class="absolute right-0 top-0 w-32 h-32 bg-emerald-500 opacity-20 rounded-full blur-2xl -mr-10 -mt-10"></div>
-        <div class="relative z-10 flex justify-between items-center">
-            <div>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Financial Records</p>
-                <h2 class="text-2xl font-black">Transaction History</h2>
-            </div>
-            <div class="h-12 w-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/10 text-xl">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-            </div>
+    /* Custom Scrollbar for horizontal tabs (if needed) */
+    .hide-scroll::-webkit-scrollbar { display: none; }
+    .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Staggered animation for list items */
+    .stagger-item { opacity: 0; animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .stagger-item:nth-child(1) { animation-delay: 0.1s; }
+    .stagger-item:nth-child(2) { animation-delay: 0.15s; }
+    .stagger-item:nth-child(3) { animation-delay: 0.2s; }
+    .stagger-item:nth-child(4) { animation-delay: 0.25s; }
+    .stagger-item:nth-child(5) { animation-delay: 0.3s; }
+</style>
+
+<div class="max-w-2xl mx-auto space-y-8 fade-up pb-6">
+
+    <!-- ==========================================
+         1. PREMIUM HEADER SECTION
+    ========================================== -->
+    <div class="bg-white p-6 rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 flex items-center justify-between relative overflow-hidden">
+        
+        <!-- Background Accent -->
+        <div class="absolute right-0 top-0 w-32 h-32 bg-blue-50/50 rounded-bl-full pointer-events-none"></div>
+        <i class="fa-solid fa-file-invoice-dollar absolute right-4 top-4 text-6xl text-slate-50 opacity-50 transform rotate-12"></i>
+
+        <div class="relative z-10">
+            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 mb-1">Financial Records</p>
+            <h2 class="text-2xl font-black text-slate-800 tracking-tight">Transaction History</h2>
+            <p class="text-xs text-slate-500 font-medium mt-1">আপনার সকল আয় ও উত্তোলনের বিস্তারিত বিবরণ</p>
+        </div>
+        
+        <div class="h-14 w-14 bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-[18px] flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30 relative z-10 flex-shrink-0">
+            <i class="fa-solid fa-clock-rotate-left"></i>
         </div>
     </div>
 
-    <!-- WITHDRAWALS -->
+    <!-- ==========================================
+         2. WITHDRAWALS SECTION
+    ========================================== -->
     <div>
-        <div class="flex items-center justify-between px-1 mb-4 mt-8">
-            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                <i class="fa-solid fa-money-bill-transfer text-orange-500"></i> Withdrawals
+        <div class="flex items-center justify-between px-2 mb-4">
+            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2 uppercase tracking-wide">
+                <i class="fa-solid fa-money-bill-transfer text-emerald-500"></i> Withdrawals
             </h3>
             <span class="text-[10px] bg-slate-100 text-slate-500 px-3 py-1 rounded-full font-bold border border-slate-200">
                 Total: {{ withdrawals|length }}
@@ -31,48 +57,67 @@
         {% if withdrawals %}
         <div class="space-y-3">
             {% for item in withdrawals %}
-            <div class="clean-card p-4 flex items-center justify-between group">
+            <div class="stagger-item bg-white p-4 rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 flex items-center justify-between group hover:border-blue-200 transition-colors">
+                
                 <div class="flex items-center gap-4">
-                    <div class="h-10 w-10 rounded-xl flex items-center justify-center text-lg shadow-sm
-                        {% if item.method == 'Nagad' %} bg-orange-50 text-orange-500 border border-orange-100
-                        {% else %} bg-pink-50 text-pink-500 border border-pink-100 {% endif %}">
+                    <!-- Dynamic Icon based on Method -->
+                    <div class="h-12 w-12 rounded-[14px] flex items-center justify-center text-xl shadow-sm border
+                        {% if item.method == 'bKash' %} bg-pink-50 text-pink-500 border-pink-100
+                        {% elif item.method == 'Nagad' %} bg-orange-50 text-orange-500 border-orange-100
+                        {% else %} bg-purple-50 text-purple-500 border-purple-100 {% endif %}">
                         <i class="fa-solid fa-wallet"></i>
                     </div>
+                    
                     <div>
-                        <h4 class="font-bold text-slate-800 text-sm">{{ item.method }} Transfer</h4>
-                        <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-1">
-                            <span class="font-mono bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">{{ item.created_at[:10] }}</span>
-                            <span>•</span>
-                            <span class="font-mono">{{ item.number }}</span>
+                        <h4 class="font-bold text-slate-800 text-sm">{{ item.method }} Cashout</h4>
+                        <div class="flex items-center gap-2 text-[10px] text-slate-500 mt-1 font-medium">
+                            <span><i class="fa-regular fa-clock mr-0.5"></i> {{ item.created_at[:10] }}</span>
+                            <span class="text-slate-300">•</span>
+                            <span class="font-mono bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">{{ item.number }}</span>
                         </div>
                     </div>
                 </div>
+
                 <div class="text-right">
                     <p class="font-black text-slate-800 text-base font-mono">-৳{{ item.amount }}</p>
+                    
+                    <!-- Dynamic Status Badges -->
                     {% if item.status == 'approved' %}
-                        <span class="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md mt-1 border border-emerald-100"><i class="fa-solid fa-check"></i> Success</span>
+                        <span class="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md mt-1 border border-emerald-100 uppercase tracking-wider">
+                            <i class="fa-solid fa-check"></i> Paid
+                        </span>
                     {% elif item.status == 'rejected' %}
-                        <span class="inline-flex items-center gap-1 text-[9px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-md mt-1 border border-red-100"><i class="fa-solid fa-xmark"></i> Failed</span>
+                        <span class="inline-flex items-center gap-1 text-[9px] font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-md mt-1 border border-red-100 uppercase tracking-wider">
+                            <i class="fa-solid fa-xmark"></i> Failed
+                        </span>
                     {% else %}
-                        <span class="inline-flex items-center gap-1 text-[9px] font-bold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-md mt-1 border border-yellow-100 animate-pulse"><i class="fa-regular fa-clock"></i> Pending</span>
+                        <span class="inline-flex items-center gap-1 text-[9px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-md mt-1 border border-amber-100 uppercase tracking-wider animate-pulse">
+                            <i class="fa-regular fa-clock"></i> Pending
+                        </span>
                     {% endif %}
                 </div>
+
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <div class="clean-card text-center py-10 bg-slate-50/50">
-            <div class="h-12 w-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-300 text-xl"><i class="fa-solid fa-money-bill-1-wave"></i></div>
-            <p class="text-xs font-semibold text-slate-500">No withdrawals yet</p>
+        <div class="bg-white rounded-[24px] text-center py-12 border border-dashed border-slate-200">
+            <div class="h-14 w-14 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-300 text-2xl">
+                <i class="fa-solid fa-money-bill-wave"></i>
+            </div>
+            <p class="text-sm font-bold text-slate-600">No withdrawals yet</p>
+            <p class="text-[10px] text-slate-400 mt-1">Your cashout history will appear here.</p>
         </div>
         {% endif %}
     </div>
 
-    <!-- TASKS -->
+    <!-- ==========================================
+         3. TASK INCOMES SECTION
+    ========================================== -->
     <div>
-        <div class="flex items-center justify-between px-1 mb-4 mt-8">
-            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                <i class="fa-solid fa-arrow-down-long text-emerald-500"></i> Task Incomes
+        <div class="flex items-center justify-between px-2 mb-4 mt-8">
+            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2 uppercase tracking-wide">
+                <i class="fa-solid fa-bolt text-blue-500"></i> Task Earnings
             </h3>
             <span class="text-[10px] bg-slate-100 text-slate-500 px-3 py-1 rounded-full font-bold border border-slate-200">
                 Total: {{ tasks|length }}
@@ -82,39 +127,59 @@
         {% if tasks %}
         <div class="space-y-3">
             {% for task in tasks %}
-            <div class="clean-card p-4 flex items-center justify-between group">
-                <div class="flex items-center gap-4">
-                    <div class="h-10 w-10 rounded-xl flex items-center justify-center text-lg shadow-sm border
-                        {% if task.type == 'Special' %} bg-yellow-50 text-yellow-500 border-yellow-100
+            <div class="stagger-item bg-white p-4 rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-100 flex items-center justify-between group hover:border-blue-200 transition-colors">
+                
+                <div class="flex items-center gap-4 w-full">
+                    <!-- Task Icon -->
+                    <div class="h-12 w-12 rounded-[14px] flex items-center justify-center text-xl shadow-sm border flex-shrink-0
+                        {% if task.type == 'Special' %} bg-amber-50 text-amber-500 border-amber-100
                         {% else %} bg-blue-50 text-blue-500 border-blue-100 {% endif %}">
-                        {% if task.type == 'Special' %}<i class="fa-solid fa-gift"></i>{% else %}<i class="fa-brands fa-youtube"></i>{% endif %}
+                        {% if task.type == 'Special' %}
+                            <i class="fa-solid fa-star"></i>
+                        {% else %}
+                            <i class="fa-solid fa-list-check"></i>
+                        {% endif %}
                     </div>
-                    <div class="max-w-[140px] sm:max-w-xs">
-                        <h4 class="font-bold text-slate-800 text-sm truncate">{{ task.title }}</h4>
-                        <p class="text-[10px] text-slate-400 mt-1 font-mono bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 inline-block">{{ task.created_at[:10] }}</p>
+                    
+                    <div class="flex-grow pr-2">
+                        <h4 class="font-bold text-slate-800 text-sm line-clamp-1 leading-tight">{{ task.title }}</h4>
+                        <div class="flex items-center gap-2 mt-1.5">
+                            <p class="text-[9px] text-slate-400 font-mono font-medium flex items-center gap-1">
+                                <i class="fa-regular fa-calendar"></i> {{ task.created_at[:10] }}
+                            </p>
+                            <!-- Task Status -->
+                            {% if task.status == 'approved' %}
+                                <span class="text-[8px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded uppercase tracking-wider">Paid</span>
+                            {% elif task.status == 'rejected' %}
+                                <span class="text-[8px] font-black text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded uppercase tracking-wider">Rejected</span>
+                            {% else %}
+                                <span class="text-[8px] font-black text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded uppercase tracking-wider">Reviewing</span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-                <div class="text-right">
-                    <p class="font-black text-emerald-500 text-base font-mono">+৳{{ task.reward }}</p>
-                    {% if task.status == 'approved' %}
-                        <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md mt-1 inline-block">Paid</span>
-                    {% elif task.status == 'rejected' %}
-                        <span class="text-[9px] font-bold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-md mt-1 inline-block">Rejected</span>
-                    {% else %}
-                        <span class="text-[9px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md mt-1 inline-block">Reviewing</span>
-                    {% endif %}
+
+                <!-- Reward Amount -->
+                <div class="text-right flex-shrink-0">
+                    <p class="font-black text-emerald-500 text-lg font-mono">+৳{{ task.reward }}</p>
                 </div>
+
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <div class="clean-card text-center py-10 bg-slate-50/50">
-            <div class="h-12 w-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-300 text-xl"><i class="fa-solid fa-clipboard-question"></i></div>
-            <p class="text-xs font-semibold text-slate-500">No tasks completed</p>
-            <a href="/tasks" class="text-[10px] font-bold text-emerald-600 mt-2 inline-block hover:underline">Start Working</a>
+        <div class="bg-white rounded-[24px] text-center py-12 border border-dashed border-slate-200">
+            <div class="h-14 w-14 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-300 text-2xl">
+                <i class="fa-solid fa-clipboard-question"></i>
+            </div>
+            <p class="text-sm font-bold text-slate-600">No tasks completed</p>
+            <a href="/tasks" class="text-[10px] font-bold text-blue-600 mt-2 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 inline-block hover:bg-blue-100 transition">
+                Start Working <i class="fa-solid fa-arrow-right ml-1"></i>
+            </a>
         </div>
         {% endif %}
     </div>
 
 </div>
+
 {% endblock %}
