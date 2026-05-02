@@ -760,15 +760,13 @@ def admin_gmail_action(action, task_id):
         flash("❌ কাজ রিজেক্ট করা হয়েছে। এটি আবার অন্য ইউজার করতে পারবে।", "warning")
 
     return redirect(url_for('admin_gmails'))
-    
-# --- ADMIN: DANGER ZONE (FACTORY RESET / MASS WIPE) ---
+    # --- ADMIN: DANGER ZONE (FACTORY RESET / MASS WIPE) ---
 @app.route('/admin/danger-zone', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def danger_zone():
-    # ১. কতজন সাধারণ ইউজার আছে তার কাউন্ট বের করা (১০০% নির্ভুল পদ্ধতি)
+    # ১. কতজন সাধারণ ইউজার আছে তার কাউন্ট বের করা
     try:
-        # আমরা শুধু সাধারণ ইউজারদের আইডিগুলো আনছি এবং Python দিয়ে গুনছি
         res = supabase.table('profiles').select('id').neq('role', 'admin').execute()
         user_count = len(res.data) if res.data else 0
     except Exception as e:
@@ -787,35 +785,57 @@ def danger_zone():
                 if not non_admins:
                     flash("⚠️ ডিলিট করার মতো কোনো সাধারণ ইউজার নেই।", "warning")
                     return redirect(url_for('danger_zone'))
-                    
-                non_admin_ids = [u['id'] for u in non_admins]
 
-                # ৩. চাংকিং (Chunking) - ১০০ টা করে ডিলিট করা যাতে API ক্র্যাশ না করে
-                def chunk_list(lst, n):
-                    for i in range(0, len(lst), n):
-                        yield lst[i:i + n]
+                success_count = 0
+                error_msgs = []
 
-                for chunk in chunk_list(non_admin_ids, 100):
-                    # A. Foreign Key সমস্যা এড়াতে referred_by ফাঁকা করা
-                    supabase.table('profiles').update({'referred_by': None}).in_('referred_by', chunk).execute()
+                # ৩. লুপ চালিয়ে একজন একজন করে ডিলিট করা (এটি সবচেয়ে নিরাপদ পদ্ধতি)
+                for user in non_admins:
+                    uid = user['id']
                     
-                    # B. ইউজারের সমস্ত এক্টিভিটি ডিলিট করা
-                    supabase.table('withdrawals').delete().in_('user_id', chunk).execute()
-                    supabase.table('submissions').delete().in_('user_id', chunk).execute()
-                    supabase.table('special_submissions').delete().in_('user_id', chunk).execute()
-                    supabase.table('activation_requests').delete().in_('user_id', chunk).execute()
-                    supabase.table('vip_requests').delete().in_('user_id', chunk).execute()
-                    supabase.table('user_vips').delete().in_('user_id', chunk).execute()
-                    
-                    # ড্রাইভ অর্ডার টেবিল থাকলে সেটাও ক্লিয়ার করা
                     try:
-                        supabase.table('drive_orders').delete().in_('user_id', chunk).execute()
-                    except: pass
-                    
-                    # C. সবশেষে প্রোফাইল ডিলিট করা
-                    supabase.table('profiles').delete().in_('id', chunk).execute()
+                        # A. এই ইউজার যাদের রেফার করেছিল, তাদের 'referred_by' ফাঁকা করা
+                        supabase.table('profiles').update({'referred_by': None}).eq('referred_by', uid).execute()
+                        
+                        # B. এই ইউজারের জিমেইল কাজগুলো আবার মার্কেটে Available করে দেওয়া
+                        supabase.table('gmail_tasks').update({
+                            'assigned_to': None, 
+                            'status': 'available'
+                        }).eq('assigned_to', uid).execute()
+                        
+                        # C. ইউজারের অন্যান্য সব হিস্টোরি (Activity) ডিলিট করা
+                        supabase.table('chat_messages').delete().eq('thread_id', uid).execute()
+                        supabase.table('chat_threads').delete().eq('user_id', uid).execute()
+                        
+                        supabase.table('withdrawals').delete().eq('user_id', uid).execute()
+                        supabase.table('submissions').delete().eq('user_id', uid).execute()
+                        supabase.table('special_submissions').delete().eq('user_id', uid).execute()
+                        supabase.table('activation_requests').delete().eq('user_id', uid).execute()
+                        supabase.table('vip_requests').delete().eq('user_id', uid).execute()
+                        supabase.table('user_vips').delete().eq('user_id', uid).execute()
+                        
+                        try:
+                            supabase.table('drive_orders').delete().eq('user_id', uid).execute()
+                        except: pass
+                        
+                        # D. সবশেষে মূল প্রোফাইল ডিলিট করা
+                        supabase.table('profiles').delete().eq('id', uid).execute()
+                        
+                        success_count += 1
+                        
+                    except Exception as loop_e:
+                        print(f"Error deleting user {uid}: {loop_e}")
+                        error_msgs.append(str(loop_e))
+                        continue # কোনো একটা ইউজারে এরর আসলেও বাকিদের ডিলিট করবে
 
-                flash("🚨 সিস্টেম ফ্যাক্টরি রিসেট সম্পন্ন হয়েছে! এডমিন বাদে সব ডাটা ক্লিন।", "success")
+                # ৪. ফলাফল জানানো
+                if success_count > 0:
+                    flash(f"🚨 সিস্টেম ফ্যাক্টরি রিসেট সম্পন্ন! সফলভাবে {success_count} জন ইউজার ডিলিট হয়েছে।", "success")
+                else:
+                    flash("❌ কোনো ইউজার ডিলিট করা সম্ভব হয়নি। ডাটাবেস চেক করুন।", "error")
+                    
+                if error_msgs:
+                    print(f"Some errors occurred during factory reset: {error_msgs[:5]}") # Print first 5 errors in console
                 
             except Exception as e:
                 print(f"Factory Reset Error: {e}")
@@ -824,7 +844,7 @@ def danger_zone():
             return redirect(url_for('danger_zone'))
 
     return render_template('danger_zone.html', user_count=user_count)
-
+    
 @app.route('/admin/drive/manage', methods=['GET', 'POST'])
 @login_required
 @admin_required
