@@ -1,1 +1,444 @@
+{% extends "layout.html" %}
+{% block content %}
 
+<style>
+    /* Clean Entry Animations */
+    .fade-up { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(15px); }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    
+    .slide-down-item { animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes slideDownFade {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="space-y-5 pb-8 fade-up max-w-2xl mx-auto">
+
+    <!-- 1. HEADER PROFILE (Clean) -->
+    <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <div class="h-12 w-12 rounded-xl flex items-center justify-center text-xl font-bold shadow-sm
+                    {% if user.current_level > 0 %} bg-amber-50 text-amber-600 border border-amber-200 {% else %} bg-blue-50 text-blue-600 border border-blue-100 {% endif %}">
+                    {{ user.email[0] | upper }}
+                </div>
+                <div class="absolute -bottom-1 -right-1 h-3.5 w-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+            </div>
+            <div>
+                <p class="text-[9px] font-bold uppercase tracking-wider mb-0.5 text-slate-400" id="greeting">HELLO</p>
+                <h2 class="text-base font-bold text-slate-800 leading-none truncate w-40 sm:w-auto">
+                    {{ user.email.split('@')[0] | title }}
+                </h2>
+                
+                {% if user.current_level > 0 %}
+                    <span class="inline-flex items-center gap-1 text-amber-600 text-[10px] font-bold mt-1">
+                        <i class="fa-solid fa-crown"></i> VIP Member
+                    </span>
+                {% elif user.is_active %}
+                    <span class="inline-flex items-center gap-1 text-green-600 text-[10px] font-bold mt-1 bg-green-50 px-1.5 py-0.5 rounded">
+                        <i class="fa-solid fa-shield-check"></i> Verified
+                    </span>
+                {% else %}
+                    <span class="inline-flex items-center gap-1 text-slate-500 text-[10px] font-bold mt-1">
+                        Free Plan
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Reward/Notification Icon -->
+        <a href="/notice" class="h-10 w-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition relative border border-slate-100">
+            <i class="fa-regular fa-bell"></i>
+            {% if settings.notice_text %}
+            <span class="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full"></span>
+            {% endif %}
+        </a>
+    </div>
+
+    <!-- ⚠️ ACTIVATION ALERT -->
+    {% if settings.activation_required and not user.is_active %}
+    <div class="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="bg-white text-red-500 h-10 w-10 rounded-xl flex items-center justify-center shadow-sm text-lg border border-red-100">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-red-700 text-sm">একাউন্ট আনভেরিফাইড</h3>
+                <p class="text-[10px] text-red-500 font-medium">কাজ শুরু করতে একাউন্ট ভেরিফাই করুন</p>
+            </div>
+        </div>
+        <a href="/activate" class="bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md hover:bg-red-700 transition">
+            ভেরিফাই
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- 2. DYNAMIC WALLET CARD (Corporate Banking Style) -->
+    <div class="bg-gradient-to-r from-blue-700 to-blue-600 rounded-[24px] p-6 text-white relative overflow-hidden shadow-[0_8px_30px_rgba(37,99,235,0.25)]">
+        <!-- Decor Pattern -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-bl-full pointer-events-none"></div>
+        <i class="fa-solid fa-building-columns absolute -right-4 -bottom-4 text-7xl opacity-5 pointer-events-none"></i>
+        
+        <div class="relative z-10">
+            <div class="flex justify-between items-start mb-6">
+                <!-- Main Balance -->
+                <div>
+                    <p class="text-[10px] uppercase font-semibold mb-1 text-blue-100 tracking-wider">Main Balance</p>
+                    <div class="flex items-center gap-2 cursor-pointer" onclick="toggleBalance()">
+                        <h2 id="balanceText" class="text-3xl font-bold font-mono blur-md transition-all duration-300 tracking-tight">
+                            ৳{{ user.balance }}
+                        </h2>
+                        <i id="eyeIcon" class="fa-regular fa-eye-slash text-sm text-blue-300 hover:text-white transition"></i>
+                    </div>
+                </div>
+                <!-- VIP Balance -->
+                <div class="text-right">
+                    <p class="text-[10px] uppercase font-semibold mb-1 tracking-wider {{ 'text-amber-300' if user.current_level > 0 else 'text-blue-200' }}">
+                        <i class="fa-solid fa-crown mr-0.5"></i> VIP Bal
+                    </p>
+                    <h2 class="text-xl font-bold font-mono {{ 'text-amber-300' if user.current_level > 0 else 'text-white' }}">
+                        ৳{{ user.vip_balance or 0 }}
+                    </h2>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="flex gap-3 mb-5">
+                <div class="flex-1 bg-white/10 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+                    <p class="text-[9px] text-blue-100 uppercase tracking-widest font-semibold">Today's Profit</p>
+                    <p class="text-sm font-bold mt-0.5 text-white">৳ {{ today_income }}</p>
+                </div>
+                <div class="flex-1 bg-white/10 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+                    <p class="text-[9px] text-blue-100 uppercase tracking-widest font-semibold">In Review</p>
+                    <p class="text-sm font-bold mt-0.5 text-white">৳ {{ pending_income }}</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+                <a href="/withdraw" class="flex-1 bg-white text-blue-700 py-2.5 rounded-xl text-xs font-bold text-center shadow-md hover:bg-blue-50 transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i> উইথড্র
+                </a>
+                {% if user.current_level > 0 %}
+                    <a href="/vip" class="flex-1 bg-amber-500 text-white py-2.5 rounded-xl text-xs font-bold text-center shadow-md hover:bg-amber-600 transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> প্রফিট নিন
+                    </a>
+                {% else %}
+                    <a href="/tasks" class="flex-1 bg-blue-800 text-white border border-blue-500 py-2.5 rounded-xl text-xs font-bold text-center hover:bg-blue-900 transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-play"></i> কাজ করুন
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. APP INSTALL BANNER -->
+    <div id="appDownloadSection" class="hidden bg-slate-50 rounded-2xl p-4 shadow-sm border border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="h-10 w-10 bg-white rounded-xl flex items-center justify-center text-blue-600 text-xl shadow-sm border border-slate-100">
+                <i class="fa-solid fa-mobile-screen"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-sm">Earn Daily অ্যাপ</h3>
+                <p class="text-[9px] text-slate-500 font-medium">হোমস্ক্রিনে যুক্ত করুন</p>
+            </div>
+        </div>
+        <button id="manualInstallBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-blue-700 transition">
+            Install
+        </button>
+    </div>
+
+    <!-- 4. TUTORIAL HIGHLIGHT -->
+    <a href="/tutorial" class="block bg-white border border-slate-100 p-4 rounded-2xl shadow-sm flex items-center justify-between group hover:border-blue-200 transition">
+        <div class="flex items-center gap-3">
+            <div class="h-10 w-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-lg group-hover:bg-red-500 group-hover:text-white transition-colors">
+                <i class="fa-brands fa-youtube"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-sm text-slate-800">কিভাবে কাজ করবেন?</h3>
+                <p class="text-[10px] text-slate-500">কাজ শুরুর আগে ভিডিওটি দেখুন</p>
+            </div>
+        </div>
+        <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-blue-500 transition-transform group-hover:translate-x-1"></i>
+    </a>
+
+    <!-- 5. NOTICE MARQUEE -->
+    {% if settings.notice_text %}
+    <a href="/notice" class="block bg-blue-50/50 border border-blue-100 p-1.5 rounded-xl flex items-center overflow-hidden hover:bg-blue-50 transition">
+        <div class="bg-blue-600 text-white px-2.5 py-1 rounded-lg text-[9px] font-bold flex-shrink-0 mr-2 flex items-center gap-1 shadow-sm uppercase tracking-wider">
+            <i class="fa-solid fa-bullhorn text-[8px]"></i> আপডেট
+        </div>
+        <marquee class="text-xs text-slate-700 font-medium" scrollamount="4">
+            {{ settings.notice_text }}
+        </marquee>
+    </a>
+    {% endif %}
+
+    <!-- 6. DAILY CHECK-IN -->
+    {% if user.last_checkin != today_date %}
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-calendar-check text-blue-600"></i> ডেইলি বোনাস
+            </h3>
+            <span class="text-[10px] text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                Streak: {{ user.streak_count if user.streak_count else 0 }}/7
+            </span>
+        </div>
+        
+        <div class="flex justify-between gap-1 mb-4">
+            {% for day, reward in[(1,5), (2,7), (3,15), (4,18), (5,22), (6,25)] %}
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-[8px] font-bold text-slate-400">D{{ day }}</span>
+                <div class="h-8 w-7 rounded-lg flex flex-col items-center justify-center text-[9px] border transition-all
+                    {{ 'bg-blue-600 text-white shadow-sm border-blue-600' if user.streak_count >= day else 'bg-slate-50 text-slate-400 border-slate-200' }}">
+                    <span class="font-bold">৳{{ reward }}</span>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-[8px] font-bold text-amber-600">D7</span>
+                <div class="h-8 w-7 rounded-lg flex flex-col items-center justify-center text-[9px] border transition-all
+                    {{ 'bg-amber-500 text-white shadow-sm border-amber-500' if user.streak_count >= 7 else 'bg-amber-50 text-amber-500 border-amber-200' }}">
+                    <i class="fa-solid fa-gift mb-0.5"></i>
+                </div>
+            </div>
+        </div>
+        <a href="/daily-checkin" class="w-full block bg-slate-800 text-white text-center py-3 rounded-xl text-xs font-bold shadow-md hover:bg-slate-900 active:scale-95 transition">
+            আজকের বোনাস সংগ্রহ করুন
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- 7. MAIN MENU GRID -->
+    <div>
+        <h3 class="font-bold text-slate-800 text-xs uppercase tracking-widest mb-3 px-1">Quick Services</h3>
+        <div class="grid grid-cols-4 gap-3">
+            <a href="/tasks" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-200 transition"><div class="h-10 w-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-list-check"></i></div><span class="text-[10px] font-bold text-slate-600">টাস্ক</span></a>
+            <a href="/drive" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-200 transition"><div class="h-10 w-10 bg-sky-50 text-sky-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-wifi"></i></div><span class="text-[10px] font-bold text-slate-600">ড্রাইভ</span></a>
+            <a href="/withdraw" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-200 transition"><div class="h-10 w-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-building-columns"></i></div><span class="text-[10px] font-bold text-slate-600">উইথড্র</span></a>
+            <a href="/vip" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-200 transition"><div class="h-10 w-10 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-crown"></i></div><span class="text-[10px] font-bold text-slate-600">VIP</span></a>
+            
+            <a href="/proofs" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-200 transition"><div class="h-10 w-10 bg-pink-50 text-pink-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-receipt"></i></div><span class="text-[10px] font-bold text-slate-600">প্রুফ</span></a>
+            <a href="/referrals" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-200 transition"><div class="h-10 w-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-users"></i></div><span class="text-[10px] font-bold text-slate-600">রেফার</span></a>
+            <a href="/spin" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-200 transition"><div class="h-10 w-10 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-dharmachakra"></i></div><span class="text-[10px] font-bold text-slate-600">স্পিন</span></a>
+            <a href="/gmail-tasks" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-2 hover:border-blue-200 transition"><div class="h-10 w-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-brands fa-google"></i></div><span class="text-[10px] font-bold text-slate-600">Gmail</span></a>
+        </div>
+    </div>
+
+    <!-- 8. LIVE PAYOUTS & LEADERBOARD -->
+    <div class="grid md:grid-cols-2 gap-4">
+        <!-- Live Payouts -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-[220px] flex flex-col relative overflow-hidden">
+            <div class="flex justify-between items-center mb-3 relative z-10">
+                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
+                    লাইভ পেমেন্ট
+                </h3>
+            </div>
+            <div class="flex-grow overflow-hidden relative z-10">
+                <div id="payoutContainer" class="absolute top-0 left-0 w-full flex flex-col justify-start">
+                    <div class="text-center py-6 text-slate-400 text-xs" id="payoutLoader">
+                        <i class="fa-solid fa-circle-notch fa-spin text-lg mb-2 text-slate-300"></i><br>Fetching records...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-500"></i> টপ লিডারবোর্ড
+                </h3>
+            </div>
+            <div class="space-y-2">
+                {% for winner in leaderboard %}
+                <div class="flex items-center justify-between p-2 rounded-xl {{ 'bg-amber-50 border border-amber-100' if loop.index == 1 else 'bg-slate-50 border border-slate-50' }}">
+                    <div class="flex items-center gap-2.5">
+                        <div class="h-7 w-7 rounded-lg flex items-center justify-center font-black text-[10px] shadow-sm
+                            {% if loop.index == 1 %} bg-amber-500 text-white
+                            {% elif loop.index == 2 %} bg-slate-400 text-white
+                            {% else %} bg-orange-400 text-white {% endif %}">
+                            {{ loop.index }}
+                        </div>
+                        <span class="text-xs font-bold text-slate-700">
+                            {{ winner.email.split('@')[0][:3] }}***{{ winner.email.split('@')[0][-2:] }}
+                        </span>
+                    </div>
+                    <span class="text-[10px] font-bold font-mono text-blue-600 bg-white px-2 py-0.5 rounded border border-slate-100 shadow-sm">
+                        ৳{{ winner.balance }}
+                    </span>
+                </div>
+                {% else %}
+                <p class="text-center text-xs text-slate-400 py-6">Data Updating...</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. PLATFORM AGE -->
+    <div class="text-center mt-2">
+        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+            <i class="fa-solid fa-server text-blue-500 mr-1"></i> System Uptime
+        </p>
+        <div class="flex justify-center gap-1.5" id="countdown">
+            <!-- JS Data -->
+        </div>
+    </div>
+
+</div>
+
+<!-- SCRIPTS -->
+<script>
+    (function() {
+        // PWA APP INSTALL LOGIC
+        let deferredPrompt;
+        const appDownloadSection = document.getElementById('appDownloadSection');
+        const manualInstallBtn = document.getElementById('manualInstallBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (appDownloadSection) appDownloadSection.classList.remove('hidden');
+        });
+
+        if (manualInstallBtn) {
+            manualInstallBtn.addEventListener('click', async () => {
+                if (deferredPrompt !== null) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    if (appDownloadSection) appDownloadSection.classList.add('hidden');
+                }
+            });
+        }
+
+        window.addEventListener('appinstalled', () => {
+            if (appDownloadSection) appDownloadSection.classList.add('hidden');
+            deferredPrompt = null;
+        });
+
+        // LIVE PAYOUTS LOGIC (Corporate Theme)
+        const payoutContainer = document.getElementById('payoutContainer');
+        const methods =['bKash', 'Nagad', 'Rocket'];
+        const prefixes =['017', '019', '018', '016', '013', '015'];
+        let payoutCount = 0;
+
+        function generateRealisticAmount() {
+            return Math.floor(Math.random() * (90 - 25) + 25) * 10; 
+        }
+
+        function addPayout() {
+            if(!payoutContainer) return;
+            if(payoutCount === 0) {
+                const loader = document.getElementById('payoutLoader');
+                if(loader) loader.remove();
+            }
+
+            const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const lastTwo = Math.floor(1000 + Math.random() * 9000).toString().slice(-4);
+            const number = `${prefix}****${lastTwo}`;
+            const amount = generateRealisticAmount();
+            const method = methods[Math.floor(Math.random() * methods.length)];
+            
+            let iconClass = 'bg-pink-50 text-pink-600 border-pink-100';
+            if(method === 'Nagad') iconClass = 'bg-orange-50 text-orange-600 border-orange-100';
+            if(method === 'Rocket') iconClass = 'bg-purple-50 text-purple-600 border-purple-100';
+
+            const div = document.createElement('div');
+            div.className = "flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 slide-down-item mb-2";
+            div.innerHTML = `
+                <div class="flex items-center gap-2.5">
+                    <div class="h-7 w-7 ${iconClass} border rounded-lg flex items-center justify-center text-[10px]">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-700 font-bold font-mono">${number}</p>
+                        <p class="text-[8px] text-slate-400 mt-0.5">via ${method}</p>
+                    </div>
+                </div>
+                <span class="text-[10px] font-bold text-emerald-600 font-mono">
+                    -৳${amount}
+                </span>
+            `;
+
+            payoutContainer.insertBefore(div, payoutContainer.firstChild);
+            payoutCount++;
+
+            if (payoutContainer.children.length > 3) {
+                payoutContainer.removeChild(payoutContainer.lastElementChild);
+            }
+
+            let nextInterval = Math.floor(Math.random() * (15000 - 5000) + 5000); 
+            if (Math.random() < 0.15) {
+                nextInterval = Math.floor(Math.random() * (30000 - 20000) + 20000);
+            }
+            setTimeout(addPayout, nextInterval);
+        }
+        setTimeout(addPayout, 2000);
+
+        // SITE AGE COUNTER (Corporate Theme)
+        function updateSiteAge() {
+            const startDate = new Date("2025-12-19T00:00:00").getTime(); 
+            const now = new Date().getTime();
+            const diff = now - startDate;
+
+            if (diff > 0) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById("countdown").innerHTML = `
+                    <div class="bg-white px-2 py-1 rounded-md border border-slate-200 text-center min-w-[40px] shadow-sm">
+                        <span class="block text-xs font-bold text-slate-700 font-mono">${days}</span>
+                        <span class="text-[7px] text-slate-400 font-bold uppercase">D</span>
+                    </div>
+                    <div class="bg-white px-2 py-1 rounded-md border border-slate-200 text-center min-w-[40px] shadow-sm">
+                        <span class="block text-xs font-bold text-slate-700 font-mono">${hours}</span>
+                        <span class="text-[7px] text-slate-400 font-bold uppercase">H</span>
+                    </div>
+                    <div class="bg-white px-2 py-1 rounded-md border border-slate-200 text-center min-w-[40px] shadow-sm">
+                        <span class="block text-xs font-bold text-slate-700 font-mono">${minutes}</span>
+                        <span class="text-[7px] text-slate-400 font-bold uppercase">M</span>
+                    </div>
+                    <div class="bg-white px-2 py-1 rounded-md border border-slate-200 text-center min-w-[40px] shadow-sm">
+                        <span class="block text-xs font-bold text-blue-600 font-mono">${seconds}</span>
+                        <span class="text-[7px] text-slate-400 font-bold uppercase">S</span>
+                    </div>
+                `;
+            } else {
+                document.getElementById("countdown").innerHTML = '<span class="text-[10px] font-bold text-slate-500 bg-white px-3 py-1 rounded border border-slate-200">Preparing Server...</span>';
+            }
+        }
+        setInterval(updateSiteAge, 1000);
+        updateSiteAge();
+
+        // GREETING
+        const hour = new Date().getHours();
+        const greetElement = document.getElementById("greeting");
+        if(greetElement) {
+            if (hour < 12) greetElement.innerText = "GOOD MORNING";
+            else if (hour < 18) greetElement.innerText = "GOOD AFTERNOON";
+            else greetElement.innerText = "GOOD EVENING";
+        }
+
+    })();
+
+    // Toggle Balance
+    function toggleBalance() {
+        const balance = document.getElementById("balanceText");
+        const icon = document.getElementById("eyeIcon");
+        if (balance.classList.contains("blur-md")) {
+            balance.classList.remove("blur-md");
+            icon.classList.replace("fa-eye-slash", "fa-eye");
+        } else {
+            balance.classList.add("blur-md");
+            icon.classList.replace("fa-eye", "fa-eye-slash");
+        }
+    }
+</script>
+
+{% endblock %}
