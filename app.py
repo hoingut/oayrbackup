@@ -309,6 +309,35 @@ def index():
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
     return render_template('home.html')
+
+# ==========================================
+# 💎 PREMIUM WORK ZONE (VIP BAIT / FAKE TASKS)
+# ==========================================
+@app.route('/premium-tasks')
+@login_required
+def premium_tasks():
+    import random
+    from datetime import datetime
+    
+    dummy_tasks = []
+    categories = ['App Beta Testing', 'Crypto Airdrop KYC', 'Finance Survey', 'Global Website Review', 'Software Bug Find', 'Premium Content Rating']
+    
+    # Seed ব্যবহার করছি যাতে আজ সারাদিন লিস্টটা একই রকম দেখায় (ইউজার যাতে ফেক বুঝতে না পারে)
+    random.seed(datetime.utcnow().date().isoformat()) 
+    
+    # 64 টি হাই-পেইং টাস্ক জেনারেট করা হচ্ছে
+    for i in range(1, 65):
+        dummy_tasks.append({
+            'id': 8500 + i,
+            'title': f"{random.choice(categories)} - Project {random.randint(100, 999)}",
+            'reward': random.randint(25, 150), # ২০ টাকার বেশি (২৫ থেকে ১৫০ টাকা)
+            'category': 'Exclusive'
+        })
+        
+    random.seed() # Random reset
+    
+    return render_template('premium_tasks.html', tasks=dummy_tasks)
+    
 # ==========================================
 # 🧩 CAPTCHA ENTRY SYSTEM (Daily 10)
 # ==========================================
