@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#ffffff">
-    <title>Earn Daily | Professional Platform</title>
+    <title>Earn Daily | Professional Earning Platform</title>
     
     <!-- PWA Required Tags -->
     <link rel="manifest" href="/manifest.json">
@@ -18,205 +18,300 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Clean Corporate UI Styles -->
     <style>
         :root {
-            --primary: #1D4ED8; /* Professional Blue */
-            --bg-color: #F3F4F6; /* Solid Light Gray */
+            --primary: #2563EB; /* Premium Blue */
+            --primary-hover: #1D4ED8;
             --surface: #FFFFFF;
+            --background: #F8FAFC; /* Very light slate */
+            --border-light: #E2E8F0;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
         }
 
         body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-color);
-            color: #1E293B;
+            font-family: 'Hind Siliguri', 'Inter', sans-serif; 
+            background-color: var(--background);
+            color: var(--text-main);
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
-            padding-bottom: 80px; /* Space for solid bottom nav */
+            padding-bottom: 85px; /* Space for solid bottom nav */
         }
 
-        /* --- OVERRIDE OLD STYLES (No code edit needed in other files) --- */
+        /* --- GLOBAL OVERRIDES FOR OTHER PAGES --- */
         .btn-emerald {
             background-color: var(--primary) !important;
             background-image: none !important;
-            box-shadow: 0 4px 6px -1px rgba(29, 78, 216, 0.2), 0 2px 4px -1px rgba(29, 78, 216, 0.1) !important;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15) !important;
             border-radius: 12px !important;
-            border: 1px solid #1e40af !important;
-            transition: all 0.2s ease !important;
+            border: none !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
-        .btn-emerald:hover { background-color: #1e40af !important; }
-        .btn-emerald:active { transform: translateY(2px) !important; box-shadow: none !important; }
-        .btn-emerald::after { display: none !important; } /* Remove old shimmer */
+        .btn-emerald:hover { background-color: var(--primary-hover) !important; transform: translateY(-1px) !important; }
+        .btn-emerald:active { transform: translateY(1px) !important; box-shadow: none !important; }
+        .btn-emerald::after { display: none !important; }
 
         .clean-card, .clean-card-ui, .ai-glass-card {
-            background: #ffffff !important;
-            border: 1px solid #E2E8F0 !important;
-            border-radius: 16px !important;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03) !important;
-            backdrop-filter: none !important; /* Remove blur */
+            background: var(--surface) !important;
+            border: 1px solid var(--border-light) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
+            backdrop-filter: none !important;
+            transition: all 0.3s ease !important;
+        }
+        .clean-card:hover, .clean-card-ui:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04) !important;
+            border-color: #CBD5E1 !important;
         }
 
-        /* --- NEW TOP NAVBAR (Solid) --- */
-        .top-navbar {
-            background: #ffffff;
-            border-bottom: 1px solid #E2E8F0;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        /* --- TOP & BOTTOM NAVBARS --- */
+        .nav-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-light);
         }
-
-        /* --- NEW BOTTOM NAVBAR (Solid & Full Width) --- */
-        .bottom-navbar {
-            background: #ffffff;
-            border-top: 1px solid #E2E8F0;
+        .nav-footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border-light);
             padding-bottom: env(safe-area-inset-bottom);
         }
         
-        .nav-item {
-            color: #64748B;
-            transition: color 0.2s ease;
+        .tab-item { color: var(--text-muted); transition: all 0.2s ease; }
+        .tab-item.active { color: var(--primary); }
+        .tab-item.active .tab-icon { transform: translateY(-2px); }
+        
+        /* Floating Center Button in Bottom Nav */
+        .center-action-btn {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+            border: 4px solid var(--background);
+            transition: all 0.3s ease;
         }
-        .nav-item.active {
-            color: var(--primary);
-        }
-        .nav-indicator {
-            height: 4px; width: 4px; border-radius: 50%;
-            background-color: var(--primary);
-            margin-top: 4px;
-            opacity: 0; transition: opacity 0.2s ease;
-        }
-        .nav-item.active .nav-indicator { opacity: 1; }
+        .center-action-btn:active { transform: scale(0.95); }
 
-        /* --- SIDEBAR (Clean White) --- */
-        #sidebar { transition: transform 0.3s ease-in-out; }
+        /* --- SIDEBAR MASTER MENU --- */
+        #sidebar { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .sidebar-open { transform: translateX(0); }
         .sidebar-closed { transform: translateX(-100%); }
+        
+        .menu-group-title {
+            font-size: 10px;
+            font-weight: 800;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin: 20px 0 8px 12px;
+        }
+        .menu-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .menu-item:hover { background: #EFF6FF; color: var(--primary); }
+        .menu-item.active { background: #DBEAFE; color: var(--primary); }
+        .menu-icon { width: 24px; text-align: center; font-size: 16px; opacity: 0.8; }
+        .menu-item:hover .menu-icon, .menu-item.active .menu-icon { opacity: 1; }
 
-        /* General Utilities */
-        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Custom Scrollbar for Sidebar */
+        #sidebar-scroll::-webkit-scrollbar { width: 4px; }
+        #sidebar-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+
+        .toast-enter { animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     </style>
 </head>
 <body>
 
-    <!-- ================= 1. TOP NAVBAR (Solid & Clean) ================= -->
-    <nav class="top-navbar fixed top-0 w-full z-40">
+    <!-- ================= 1. TOP NAVBAR ================= -->
+    <nav class="nav-header fixed top-0 w-full z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
             
-            <!-- Left: Menu + Logo -->
-            <div class="flex items-center gap-4">
-                <button onclick="toggleSidebar()" class="text-slate-600 hover:text-blue-600 transition text-xl">
-                    <i class="fa-solid fa-bars"></i>
+            <!-- Left: Toggle & Brand -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition text-slate-600 text-lg">
+                    <i class="fa-solid fa-bars-staggered"></i>
                 </button>
                 <a href="/" class="flex items-center gap-2">
-                    <div class="bg-blue-600 text-white h-7 w-7 flex items-center justify-center rounded-lg">
-                        <i class="fa-solid fa-briefcase text-xs"></i>
+                    <div class="bg-blue-600 text-white h-8 w-8 flex items-center justify-center rounded-xl shadow-md">
+                        <i class="fa-solid fa-chart-line text-sm"></i>
                     </div>
-                    <span class="text-lg font-bold tracking-tight text-slate-800">Earn<span class="text-blue-600">Daily</span></span>
+                    <span class="text-xl font-black tracking-tight text-slate-900 hidden sm:block">Earn<span class="text-blue-600">Daily</span></span>
                 </a>
             </div>
 
             <!-- Right: Actions -->
-            <div class="flex items-center gap-3">
-                <button onclick="triggerInstall()" class="hidden sm:flex items-center gap-1.5 bg-blue-50 text-blue-600 border border-blue-100 px-3 py-1.5 rounded-md text-[11px] font-semibold hover:bg-blue-100 transition">
-                    <i class="fa-solid fa-download"></i> App
+            <div class="flex items-center gap-2">
+                <!-- App Install -->
+                <button onclick="triggerInstall()" class="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-100 transition">
+                    <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Install App</span>
                 </button>
-                <a href="/notice" class="text-slate-500 hover:text-blue-600 transition relative text-xl">
-                    <i class="fa-regular fa-bell"></i>
+                
+                <!-- Notice/Bell -->
+                <a href="/notice" class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition text-slate-500 relative">
+                    <i class="fa-regular fa-bell text-xl"></i>
                     {% if settings and settings.notice_text %}
-                    <span class="absolute top-0 right-0 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    <span class="absolute top-2 right-2.5 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white"></span>
                     {% endif %}
                 </a>
+                
+                <!-- Avatar -->
                 {% if session.get('user_id') %}
-                <div class="h-8 w-8 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center text-sm font-bold border border-slate-200 ml-2">
+                <a href="/account" class="ml-1 h-9 w-9 bg-slate-100 text-slate-700 rounded-full flex items-center justify-center text-sm font-bold border border-slate-200 hover:border-blue-300 transition">
                     {{ session.get('email', 'U')[0] | upper }}
-                </div>
+                </a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
-    <div class="h-16"></div> <!-- Top Spacer -->
-
-    <!-- ================= 2. SIDEBAR MENU (Corporate Style) ================= -->
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <!-- ================= 2. MASTER SIDEBAR ================= -->
+    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
     
-    <div id="sidebar" class="fixed top-0 left-0 h-full w-[280px] bg-white z-[60] sidebar-closed flex flex-col shadow-2xl">
+    <div id="sidebar" class="fixed top-0 left-0 h-full w-[280px] bg-white z-[60] sidebar-closed flex flex-col shadow-[20px_0_40px_rgba(0,0,0,0.05)] border-r border-slate-100">
         
-        <!-- Sidebar Header -->
-        <div class="p-6 bg-slate-50 border-b border-slate-200">
-            {% if session.get('user_id') %}
-                <h3 class="font-bold text-slate-800 text-lg leading-tight truncate">
-                    {{ session.get('email', 'User').split('@')[0] }}
-                </h3>
-                <p class="text-xs text-slate-500 mt-1">{{ session.get('email', '') }}</p>
-                {% if user and user.referral_code %}
-                <p class="text-[10px] text-blue-600 bg-blue-50 px-2 py-1 rounded-md inline-block mt-2 font-mono font-bold border border-blue-100">
-                    UID: {{ user.referral_code }}
-                </p>
+        <!-- Sidebar Profile Header -->
+        <div class="p-6 bg-slate-50 border-b border-slate-100 relative overflow-hidden">
+            <!-- Decorative Blue Accent -->
+            <div class="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full blur-xl -mr-10 -mt-10"></div>
+            
+            <div class="flex justify-between items-start relative z-10">
+                {% if session.get('user_id') %}
+                    <div>
+                        <div class="h-12 w-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-xl font-bold shadow-md mb-3">
+                            {{ session.get('email', 'U')[0] | upper }}
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-base leading-tight truncate w-48">
+                            {{ session.get('email', 'User').split('@')[0] }}
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">{{ session.get('email', '') }}</p>
+                        {% if user and user.referral_code %}
+                        <div class="mt-2 inline-flex items-center gap-1.5 bg-white border border-slate-200 px-2 py-1 rounded-md text-[10px] font-mono font-bold text-slate-600 shadow-sm cursor-copy" onclick="navigator.clipboard.writeText('{{ user.referral_code }}'); alert('ID Copied!');">
+                            UID: {{ user.referral_code }} <i class="fa-regular fa-copy text-slate-400"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div>
+                        <div class="h-12 w-12 bg-slate-200 text-slate-500 rounded-2xl flex items-center justify-center text-xl mb-3">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <h2 class="text-lg font-bold text-slate-800">Welcome Guest</h2>
+                        <a href="/login" class="inline-block mt-2 bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm">Login Now</a>
+                    </div>
                 {% endif %}
-            {% else %}
-                <h2 class="text-lg font-bold text-slate-800">Welcome Guest</h2>
-                <a href="/login" class="text-blue-600 font-semibold text-xs mt-1 block">Login to continue</a>
-            {% endif %}
+                
+                <button onclick="toggleSidebar()" class="h-8 w-8 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-red-500 shadow-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
         </div>
 
-        <!-- Menu Links -->
-        <div class="flex-grow overflow-y-auto p-4 space-y-1">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-2 mt-2">Main Menu</p>
-            <a href="/dashboard" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium hover:bg-slate-50 {{ 'text-blue-600 bg-blue-50' if request.endpoint == 'dashboard' else 'text-slate-600' }}">
-                <i class="fa-solid fa-house w-5 text-center"></i> Dashboard
+        <!-- Scrollable Menu Links -->
+        <div id="sidebar-scroll" class="flex-grow overflow-y-auto p-3 pb-24">
+            
+            <!-- OVERVIEW -->
+            <p class="menu-group-title">Overview</p>
+            <a href="/dashboard" class="menu-item {{ 'active' if request.endpoint == 'dashboard' }}">
+                <i class="fa-solid fa-grid-2 menu-icon"></i> ড্যাশবোর্ড
             </a>
-            <a href="/tasks" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium hover:bg-slate-50 {{ 'text-blue-600 bg-blue-50' if request.endpoint == 'tasks' else 'text-slate-600' }}">
-                <i class="fa-solid fa-list-check w-5 text-center"></i> Available Tasks
-            </a>
-            <a href="/vip" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium hover:bg-slate-50 {{ 'text-blue-600 bg-blue-50' if request.endpoint == 'vip_page' else 'text-slate-600' }}">
-                <i class="fa-solid fa-star w-5 text-center"></i> Elite Plans
-            </a>
-
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-2 mt-6">Finance</p>
-            <a href="/withdraw" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium hover:bg-slate-50 {{ 'text-blue-600 bg-blue-50' if request.endpoint == 'withdraw' else 'text-slate-600' }}">
-                <i class="fa-solid fa-building-columns w-5 text-center"></i> Withdraw
-            </a>
-            <a href="/history" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium hover:bg-slate-50 {{ 'text-blue-600 bg-blue-50' if request.endpoint == 'history' else 'text-slate-600' }}">
-                <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i> Transactions
+            <a href="/notice" class="menu-item {{ 'active' if request.endpoint == 'notice' }}">
+                <i class="fa-solid fa-bullhorn menu-icon"></i> নোটিশ বোর্ড
             </a>
 
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-2 mt-6">Settings</p>
-            <a href="/account" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium hover:bg-slate-50 {{ 'text-blue-600 bg-blue-50' if request.endpoint == 'account' else 'text-slate-600' }}">
-                <i class="fa-solid fa-gear w-5 text-center"></i> Preferences
+            <!-- EARNING ZONE -->
+            <p class="menu-group-title">Earning Zone</p>
+            <a href="/tasks" class="menu-item {{ 'active' if request.endpoint == 'tasks' }}">
+                <i class="fa-solid fa-list-check menu-icon"></i> সাধারণ টাস্ক
             </a>
-            <a href="https://t.me/payrsrp" target="_blank" class="flex items-center gap-3 p-3 rounded-xl text-sm font-medium hover:bg-slate-50 text-slate-600">
-                <i class="fa-solid fa-headset w-5 text-center"></i> Support
+            <a href="/gmail-tasks" class="menu-item {{ 'active' if request.endpoint == 'gmail_tasks' }}">
+                <i class="fa-brands fa-google menu-icon text-red-500"></i> জিমেইল টাস্ক <span class="ml-auto text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded uppercase font-bold">Hot</span>
+            </a>
+            <a href="/drive" class="menu-item {{ 'active' if request.endpoint == 'drive_store' }}">
+                <i class="fa-solid fa-wifi menu-icon text-blue-500"></i> ড্রাইভ অফার
+            </a>
+            <a href="/spin" class="menu-item {{ 'active' if request.endpoint == 'lucky_spin' }}">
+                <i class="fa-solid fa-dharmachakra menu-icon text-orange-500"></i> লাকি স্পিন
+            </a>
+            <a href="/vip" class="menu-item {{ 'active' if request.endpoint == 'vip_page' }}">
+                <i class="fa-solid fa-crown menu-icon text-amber-500"></i> এলিট VIP প্যাক
             </a>
 
-            <!-- Admin Area -->
+            <!-- FINANCIALS -->
+            <p class="menu-group-title">Financials</p>
+            <a href="/withdraw" class="menu-item {{ 'active' if request.endpoint == 'withdraw' }}">
+                <i class="fa-solid fa-money-bill-transfer menu-icon text-emerald-600"></i> উইথড্র ফান্ড
+            </a>
+            <a href="/history" class="menu-item {{ 'active' if request.endpoint == 'history' }}">
+                <i class="fa-solid fa-clock-rotate-left menu-icon"></i> ট্রানজেকশন হিস্টোরি
+            </a>
+            <a href="/proofs" class="menu-item {{ 'active' if request.endpoint == 'proofs' }}">
+                <i class="fa-solid fa-receipt menu-icon text-pink-500"></i> পেমেন্ট প্রুফ
+            </a>
+
+            <!-- NETWORK & SETTINGS -->
+            <p class="menu-group-title">Community & Settings</p>
+            <a href="/referrals" class="menu-item {{ 'active' if request.endpoint == 'referrals' }}">
+                <i class="fa-solid fa-users menu-icon"></i> মাই টিম / রেফার
+            </a>
+            <a href="/tutorial" class="menu-item {{ 'active' if request.endpoint == 'tutorial' }}">
+                <i class="fa-brands fa-youtube menu-icon text-red-600"></i> টিউটোরিয়াল ভিডিও
+            </a>
+            <a href="/adm" class="menu-item {{ 'active' if request.endpoint == 'adm_settings' }}">
+                <i class="fa-solid fa-sliders menu-icon"></i> পেমেন্ট মেথড সেটআপ
+            </a>
+            <a href="/account" class="menu-item {{ 'active' if request.endpoint == 'account' }}">
+                <i class="fa-solid fa-user-gear menu-icon"></i> প্রোফাইল সেটিংস
+            </a>
+            <a href="https://t.me/payrsrp" target="_blank" class="menu-item">
+                <i class="fa-brands fa-telegram menu-icon text-sky-500"></i> লাইভ সাপোর্ট
+            </a>
+
+            <!-- ADMINISTRATION -->
             {% if user and user.role == 'admin' %}
-            <div class="my-4 border-t border-slate-200"></div>
-            <a href="/admin" class="flex items-center gap-3 p-3 rounded-xl bg-slate-800 text-white text-sm font-medium hover:bg-slate-700">
-                <i class="fa-solid fa-shield-halved w-5 text-center"></i> Admin Portal
+            <div class="my-4 border-t border-slate-100"></div>
+            <p class="menu-group-title">Administration</p>
+            <a href="/admin" class="menu-item bg-slate-900 text-white hover:bg-slate-800 hover:text-white mt-1">
+                <i class="fa-solid fa-shield-halved menu-icon"></i> এডমিন প্যানেল
             </a>
             {% endif %}
 
+            {% if user and (user.role == 'admin' or user.email == 'fatemaaktersamiya2@gmail.com') %}
+            <a href="/aw/newbie-check" class="menu-item bg-orange-50 text-orange-700 hover:bg-orange-100 mt-2">
+                <i class="fa-solid fa-user-graduate menu-icon"></i> Newbie Check Panel
+            </a>
+            {% endif %}
+
+            <!-- LOGOUT -->
             {% if session.get('user_id') %}
-            <div class="my-4 border-t border-slate-200"></div>
-            <a href="/logout" class="flex items-center gap-3 p-3 rounded-xl text-red-600 text-sm font-medium hover:bg-red-50">
-                <i class="fa-solid fa-right-from-bracket w-5 text-center"></i> Log Out
+            <div class="my-4 border-t border-slate-100"></div>
+            <a href="/logout" class="menu-item text-red-600 hover:bg-red-50 hover:text-red-700">
+                <i class="fa-solid fa-right-from-bracket menu-icon"></i> লগ আউট করুন
             </a>
             {% endif %}
         </div>
     </div>
 
-    <!-- ================= 3. TOAST MESSAGES (Clean) ================= -->
-    <div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm px-4 flex flex-col gap-2">
+    <!-- ================= 3. TOAST MESSAGES ================= -->
+    <div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm px-4 flex flex-col gap-2 pointer-events-none">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
-              <div class="bg-white p-3 rounded-lg shadow-lg border-l-4 {{ 'border-red-500' if category == 'error' else 'border-green-500' }} fade-in flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid {{ 'fa-circle-exclamation text-red-500' if category == 'error' else 'fa-circle-check text-green-500' }}"></i>
-                    <span class="text-sm font-medium text-slate-700">{{ message }}</span>
+              <div class="bg-white p-3.5 rounded-xl shadow-lg border border-slate-100 toast-enter flex items-start gap-3 pointer-events-auto">
+                <div class="mt-0.5">
+                    {% if category == 'error' %}
+                        <i class="fa-solid fa-circle-xmark text-red-500 text-lg"></i>
+                    {% else %}
+                        <i class="fa-solid fa-circle-check text-green-500 text-lg"></i>
+                    {% endif %}
                 </div>
+                <p class="text-sm font-semibold text-slate-700 leading-tight">{{ message }}</p>
               </div>
             {% endfor %}
           {% endif %}
@@ -224,40 +319,40 @@
     </div>
 
     <!-- ================= 4. MAIN CONTENT ================= -->
-    <main class="flex-grow container mx-auto px-4 pt-4">
+    <main class="flex-grow container mx-auto px-4 pt-6">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- ================= 5. FLAT BOTTOM NAVIGATION ================= -->
+    <!-- ================= 5. FLAT BOTTOM NAVIGATION (iOS Style) ================= -->
     {% if session.get('user_id') %}
-    <div class="bottom-navbar fixed bottom-0 left-0 w-full z-40">
-        <div class="max-w-md mx-auto flex justify-between items-center h-16 px-6">
+    <div class="nav-footer fixed bottom-0 left-0 w-full z-40">
+        <div class="max-w-md mx-auto flex justify-between items-center h-16 px-4">
             
-            <a href="/dashboard" class="flex flex-col items-center justify-center w-12 nav-item {{ 'active' if request.endpoint == 'dashboard' }}">
-                <i class="fa-solid fa-house text-lg"></i>
-                <div class="nav-indicator"></div>
+            <a href="/dashboard" class="flex flex-col items-center justify-center w-14 tab-item {{ 'active' if request.endpoint == 'dashboard' }}">
+                <i class="fa-solid fa-house text-xl tab-icon transition-transform"></i>
+                <span class="text-[9px] font-bold mt-1">Home</span>
             </a>
 
-            <a href="/history" class="flex flex-col items-center justify-center w-12 nav-item {{ 'active' if request.endpoint == 'history' }}">
-                <i class="fa-solid fa-clock-rotate-left text-lg"></i>
-                <div class="nav-indicator"></div>
+            <a href="/history" class="flex flex-col items-center justify-center w-14 tab-item {{ 'active' if request.endpoint == 'history' }}">
+                <i class="fa-solid fa-clock-rotate-left text-xl tab-icon transition-transform"></i>
+                <span class="text-[9px] font-bold mt-1">History</span>
             </a>
 
-            <a href="/tasks" class="flex flex-col items-center justify-center w-12 nav-item {{ 'active' if request.endpoint == 'tasks' }}">
-                <!-- Task icon emphasized but flat -->
-                <div class="h-10 w-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-lg {{ 'bg-blue-600 text-white' if request.endpoint == 'tasks' }}">
+            <!-- Center Highlight Button -->
+            <div class="relative -top-5 flex justify-center w-16">
+                <a href="/tasks" class="h-14 w-14 rounded-full center-action-btn flex items-center justify-center text-2xl">
                     <i class="fa-solid fa-bolt"></i>
-                </div>
+                </a>
+            </div>
+
+            <a href="/withdraw" class="flex flex-col items-center justify-center w-14 tab-item {{ 'active' if request.endpoint == 'withdraw' }}">
+                <i class="fa-solid fa-wallet text-xl tab-icon transition-transform"></i>
+                <span class="text-[9px] font-bold mt-1">Cashout</span>
             </a>
 
-            <a href="/withdraw" class="flex flex-col items-center justify-center w-12 nav-item {{ 'active' if request.endpoint == 'withdraw' }}">
-                <i class="fa-solid fa-money-bills text-lg"></i>
-                <div class="nav-indicator"></div>
-            </a>
-
-            <a href="/account" class="flex flex-col items-center justify-center w-12 nav-item {{ 'active' if request.endpoint == 'account' }}">
-                <i class="fa-regular fa-user text-lg"></i>
-                <div class="nav-indicator"></div>
+            <a href="/account" class="flex flex-col items-center justify-center w-14 tab-item {{ 'active' if request.endpoint == 'account' }}">
+                <i class="fa-regular fa-user text-xl tab-icon transition-transform"></i>
+                <span class="text-[9px] font-bold mt-1">Profile</span>
             </a>
 
         </div>
@@ -278,11 +373,11 @@
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
             } else {
-                alert("অ্যাপটি ইনস্টল করার অপশন আপনার ব্রাউজারে সাপোর্টেড নয়, অথবা আপনি ইতিমধ্যেই ইনস্টল করেছেন।");
+                alert("অ্যাপটি ইনস্টল করার অপশন আপনার ব্রাউজারে বা ডিভাইসে সাপোর্টেড নয়, অথবা আপনি ইতিমধ্যেই ইনস্টল করেছেন। (Google Chrome ব্যবহার করুন)");
             }
         }
 
-        // Sidebar Logic
+        // Sidebar Logic (Drawer)
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
 
@@ -291,7 +386,8 @@
                 sidebar.classList.remove('sidebar-closed');
                 sidebar.classList.add('sidebar-open');
                 overlay.classList.remove('hidden');
-                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+                // Small delay to allow display:block to apply before animating opacity
+                requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
             } else {
                 sidebar.classList.remove('sidebar-open');
                 sidebar.classList.add('sidebar-closed');
@@ -302,17 +398,18 @@
         
         // Auto Hide Flash Messages
         setTimeout(() => {
-            document.querySelectorAll('.fade-in').forEach(alert => {
+            document.querySelectorAll('.toast-enter').forEach(alert => {
+                alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
                 alert.style.opacity = '0';
-                alert.style.transition = 'opacity 0.3s ease';
-                setTimeout(() => alert.remove(), 300);
+                alert.style.transform = 'translateY(-20px) scale(0.95)';
+                setTimeout(() => alert.remove(), 400);
             });
         }, 4000);
 
-        // Service Worker
+        // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js');
+                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Reg Failed', err));
             });
         }
     </script>
