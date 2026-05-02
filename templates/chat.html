@@ -3,24 +3,27 @@
 
 <style>
     /* ==========================================
-       HIDING WIDGETS FOR TRUE FULL-SCREEN CHAT 
+       HIDING WIDGETS (BOTTOM NAV ONLY)
     ========================================== */
-    /* Hide top navbar */
-    .top-navbar { display: none !important; }
     /* Hide bottom navbar */
     .bottom-navbar { display: none !important; }
-    /* Hide telegram floating button */
+    /* Hide telegram floating button (since we are on chat page) */
     .fixed.z-40.group { display: none !important; }
     
-    /* Remove padding added by layout.html */
-    main { padding-top: 0 !important; padding-bottom: 0 !important; max-width: 100% !important; padding-left: 0 !important; padding-right: 0 !important;}
+    /* Adjust main container padding: Keep Top padding for Top Navbar, Remove Bottom Padding */
+    main { padding-bottom: 20px !important; }
 
     /* Native App Chat Layout */
     .chat-layout {
-        height: 100vh; /* Takes 100% screen height */
+        /* Height matches screen minus top navbar and padding */
+        height: calc(100vh - 120px); 
         display: flex;
         flex-direction: column;
         background: #F8FAFC;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
     
     .chat-messages {
@@ -49,52 +52,46 @@
     #imagePreviewBox { transition: all 0.3s ease; }
 </style>
 
-<div class="w-full mx-auto">
-    <div class="chat-layout relative max-w-2xl mx-auto shadow-[0_0_40px_rgba(0,0,0,0.05)] border-x border-slate-200 bg-[#F8FAFC]">
+<div class="w-full max-w-2xl mx-auto">
+    <div class="chat-layout relative bg-[#F8FAFC]">
         
-        <!-- Header (App Style) -->
-        <div class="bg-white px-4 py-3 border-b border-slate-200 flex items-center justify-between z-20 shadow-sm flex-shrink-0 pt-safe">
-            <div class="flex items-center gap-3">
-                <a href="/dashboard" class="h-10 w-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition border border-slate-200"><i class="fa-solid fa-arrow-left text-base"></i></a>
-                <div>
-                    <h2 class="font-bold text-slate-800 text-base leading-tight">Live Support</h2>
-                    <p class="text-[10px] text-emerald-500 font-bold flex items-center gap-1.5 uppercase tracking-widest mt-0.5"><span class="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-ping"></span> Online</p>
+        <!-- ==========================================
+             FIXED SYSTEM MESSAGE (PINNED)
+        ========================================== -->
+        <div class="bg-blue-50 border-b border-blue-100 p-4 z-20 flex-shrink-0 shadow-sm relative overflow-hidden">
+            <div class="absolute right-0 top-0 text-blue-500 opacity-5 text-6xl transform translate-x-4 -translate-y-2"><i class="fa-solid fa-robot"></i></div>
+            
+            <div class="flex items-start gap-3 relative z-10">
+                <div class="h-10 w-10 bg-white text-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm border border-blue-100">
+                    <i class="fa-solid fa-headset text-lg"></i>
+                </div>
+                <div class="flex-grow">
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-widest">System Auto-Reply</h3>
+                        <span class="flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full"><span class="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-ping"></span> Live</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 font-medium leading-relaxed">
+                        স্বাগতম! আমরা আপনাকে সাহায্য করার জন্য আছি। যদি এখানে রিপ্লাই পেতে দেরি হয়, তবে দয়া করে আমাদের 
+                        <a href="https://t.me/payrsrp" target="_blank" class="text-blue-600 font-black hover:underline inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-blue-100 mx-1">
+                            <i class="fa-brands fa-telegram"></i> টেলিগ্রাম সাপোর্টে
+                        </a> 
+                        মেসেজ দিন।
+                    </p>
                 </div>
             </div>
-            <a href="https://t.me/payrsrp" target="_blank" class="h-10 w-10 bg-sky-50 text-sky-500 rounded-full flex items-center justify-center text-lg border border-sky-100"><i class="fa-brands fa-telegram"></i></a>
         </div>
 
-        <!-- Chat Container -->
+        <!-- ==========================================
+             SCROLLABLE CHAT MESSAGES
+        ========================================== -->
         <div class="chat-messages space-y-4" id="chatContainer">
-            
-            <div class="text-center text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] my-3 bg-slate-100 px-3 py-1 rounded-full w-max mx-auto shadow-sm">Conversation Secured</div>
-            
-            <!-- FIXED WELCOME MESSAGE -->
-            <div class="flex justify-start bubble mr-auto w-full max-w-[85%]">
-                <div class="flex flex-col items-start w-full">
-                    <div class="flex items-center gap-1.5 ml-2 mb-1">
-                        <i class="fa-solid fa-robot text-blue-500 text-[10px]"></i>
-                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">System Auto-Reply</p>
-                    </div>
-                    
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm w-full">
-                        <p class="text-sm text-slate-700 font-medium leading-relaxed mb-3">
-                            স্বাগতম! আমরা এখানে আপনাকে সাহায্য করার জন্য আছি। যদি আপনি এখানে কোনো রিপ্লাই পেতে দেরি দেখেন বা কোনো জরুরি সমস্যা থাকে, তবে দয়া করে আমাদের <b>অফিসিয়াল টেলিগ্রাম সাপোর্ট</b> এ মেসেজ দিন।
-                        </p>
-                        
-                        <div class="flex flex-col gap-2 mt-2">
-                            <a href="https://t.me/payrsrp" target="_blank" class="w-full bg-[#2AABEE]/10 border border-[#2AABEE]/30 text-[#2AABEE] py-2.5 rounded-xl text-xs font-bold text-center hover:bg-[#2AABEE] hover:text-white transition flex items-center justify-center gap-2">
-                                <i class="fa-brands fa-telegram text-lg"></i> টেলিগ্রামে মেসেজ দিন
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="text-center text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] my-2 bg-slate-100 px-3 py-1 rounded-full w-max mx-auto shadow-sm">Conversation Secured</div>
             
             <!-- Dynamic Chat Messages -->
-            <div id="chatContent" class="space-y-4">
+            <div id="chatContent" class="space-y-4 pb-2">
                 {% for msg in messages %}
                     {% if msg.sender_role == 'user' %}
+                    <!-- User Msg -->
                     <div class="flex justify-end bubble ml-auto">
                         <div class="flex flex-col items-end">
                             {% if msg.image_url %}
@@ -106,6 +103,7 @@
                         </div>
                     </div>
                     {% else %}
+                    <!-- Admin Msg -->
                     <div class="flex justify-start bubble mr-auto">
                         <div class="flex flex-col items-start">
                             <p class="text-[9px] font-bold text-slate-400 ml-2 mb-1 uppercase tracking-wider">Admin</p>
@@ -122,8 +120,10 @@
             </div>
         </div>
 
-        <!-- Input Area (Fixed at bottom) -->
-        <div class="bg-white border-t border-slate-200 flex-shrink-0 z-20 relative pb-safe">
+        <!-- ==========================================
+             INPUT AREA
+        ========================================== -->
+        <div class="bg-white border-t border-slate-200 flex-shrink-0 z-20 relative">
             
             <!-- Image Preview Box -->
             <div id="imagePreviewBox" class="hidden absolute bottom-full left-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 p-3 flex items-center justify-between shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
