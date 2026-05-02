@@ -226,62 +226,7 @@
     </aside>
 
     <main class="flex-grow pt-[90px] pb-[100px] px-4 w-full max-w-4xl mx-auto space-y-6">
-        
-        <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 rounded-[32px] p-6 text-white shadow-float">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-            <div class="relative z-10">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h1 class="text-2xl font-bold mb-1">Hello, {{ session.get('email', 'Guest').split('@')[0] }}! 👋</h1>
-                        <p class="text-blue-100 text-xs font-medium opacity-80">Check your daily progress and goals.</p>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-md rounded-2xl p-2 px-4 text-right">
-                        <p class="text-[10px] uppercase font-bold tracking-widest opacity-70">Total Earning</p>
-                        <p class="text-xl font-black">৳ 1,240.50</p>
-                    </div>
-                </div>
-                
-                <div class="mt-8 grid grid-cols-2 gap-3">
-                    <button class="bg-white text-blue-700 py-3 rounded-2xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 active:scale-95 transition">
-                        <i class="fa-solid fa-play-circle"></i> Start Working
-                    </button>
-                    <button class="bg-blue-500/40 border border-white/20 py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition">
-                        <i class="fa-solid fa-gift"></i> Daily Bonus
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="stat-card">
-                <div class="h-10 w-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 mb-4">
-                    <i class="fa-solid fa-list-check"></i>
-                </div>
-                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider">Tasks Done</p>
-                <h4 class="text-xl font-black text-slate-800 mt-1">42</h4>
-            </div>
-            <div class="stat-card">
-                <div class="h-10 w-10 bg-green-50 rounded-xl flex items-center justify-center text-green-500 mb-4">
-                    <i class="fa-solid fa-users"></i>
-                </div>
-                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider">Referrals</p>
-                <h4 class="text-xl font-black text-slate-800 mt-1">12</h4>
-            </div>
-            <div class="stat-card">
-                <div class="h-10 w-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 mb-4">
-                    <i class="fa-solid fa-trophy"></i>
-                </div>
-                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider">Level</p>
-                <h4 class="text-xl font-black text-slate-800 mt-1">08</h4>
-            </div>
-            <div class="stat-card">
-                <div class="h-10 w-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-500 mb-4">
-                    <i class="fa-solid fa-star"></i>
-                </div>
-                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider">Points</p>
-                <h4 class="text-xl font-black text-slate-800 mt-1">850</h4>
-            </div>
-        </div>
+    
 
         <div class="relative bg-white rounded-[32px] p-2 shadow-premium min-h-[300px]">
             {% block content %}
