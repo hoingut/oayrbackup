@@ -236,6 +236,26 @@ def fatema_admin_required(f):
         return redirect(url_for('dashboard'))
     return decorated_function
 
+TELEGRAM_BOT_TOKEN = "8585667379:AAFeoPjAyK7X2X9_PBCgo_Hgx_48w9XypTE"
+TELEGRAM_CHANNEL_ID = "@pay_easy_earn"
+
+def send_to_telegram_channel(title, content, image_url=None):
+    try:
+        # টেলিগ্রাম মেসেজ ফরম্যাট (HTML)
+        tg_msg = f"📢 <b>{title}</b>\n\n{content}\n\n🌐 <i>আমাদের ওয়েবসাইটে ভিজিট করুন: earn-daily.site</i>"
+        
+        if image_url:
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
+            payload = {'chat_id': TELEGRAM_CHANNEL_ID, 'photo': image_url, 'caption': tg_msg, 'parse_mode': 'HTML'}
+        else:
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+            payload = {'chat_id': TELEGRAM_CHANNEL_ID, 'text': tg_msg, 'parse_mode': 'HTML'}
+            
+        requests.post(url, data=payload)
+    except Exception as e:
+        print(f"Telegram Broadcast Error: {e}")
+
+
     
 # --- MIDDLEWARE (UPDATED FOR BAN SYSTEM) ---
 @app.before_request
@@ -1561,42 +1581,85 @@ def delete_proof(id):
         flash(f"Error: {str(e)}", "error")
         
     return redirect(url_for('proofs'))
-    
-# --- NOTICE BOARD ROUTE ---
-@app.route('/notice', methods=['GET', 'POST'])
+    @app.route('/notice', methods=['GET', 'POST'])
 @login_required
 def notice():
-    # ১. নতুন নোটিশ পোস্ট করা (শুধুমাত্র এডমিন)
+    # --- 72 Hours View Counter Logic ---
+    try:
+        settings = supabase.table('site_settings').select('id, notice_views, notice_last_reset').eq('id', 1).single().execute().data
+        now_utc = datetime.now(timezone.utc)
+        
+        last_reset_str = settings.get('notice_last_reset')
+        current_views = settings.get('notice_views', 0)
+        
+        # Parse timestamp safely
+        if last_reset_str:
+            if 'Z' in last_reset_str: last_reset_str = last_reset_str.replace('Z', '+00:00')
+            last_reset = datetime.fromisoformat(last_reset_str)
+        else:
+            last_reset = now_utc
+
+        # Check if 72 hours passed
+        if now_utc > last_reset + timedelta(hours=72):
+            supabase.table('site_settings').update({
+                'notice_views': 1,
+                'notice_last_reset': now_utc.isoformat()
+            }).eq('id', 1).execute()
+            views_last_72h = 1
+        else:
+            views_last_72h = current_views + 1
+            supabase.table('site_settings').update({'notice_views': views_last_72h}).eq('id', 1).execute()
+    except Exception as e:
+        print(f"Counter Error: {e}")
+        views_last_72h = 0
+
+    # --- Post New Notice (Admin Only) ---
     if request.method == 'POST':
-        # সিকিউরিটি চেক: এডমিন না হলে রিজেক্ট
         if g.user.get('role') != 'admin':
             flash("⚠️ শুধুমাত্র এডমিন নোটিশ দিতে পারবে।", "error")
             return redirect(url_for('notice'))
 
         title = request.form.get('title')
         content = request.form.get('content')
+        file = request.files.get('image')
+        image_url = None
 
         try:
+            # 1. ImgBB Upload (If image provided)
+            if file and file.filename != '':
+                img_url, err = smart_imgbb_upload(file)
+                if img_url: 
+                    image_url = img_url
+                else:
+                    flash(f"Image Upload Failed: {err}", "error")
+
+            # 2. Save to Database
             supabase.table('notices').insert({
                 'title': title,
-                'content': content
+                'content': content,
+                'image_url': image_url
             }).execute()
-            flash("✅ নোটিশ পাবলিশ করা হয়েছে!", "success")
+            
+            # 3. Broadcast to Telegram Channel
+            send_to_telegram_channel(title, content, image_url)
+            
+            flash("✅ নোটিশ পাবলিশ হয়েছে এবং টেলিগ্রাম চ্যানেলে পাঠানো হয়েছে!", "success")
         except Exception as e:
-            flash("Error publishing notice", "error")
+            flash(f"Error publishing notice: {e}", "error")
             
         return redirect(url_for('notice'))
 
-    # ২. সব নোটিশ লোড করা (সবার জন্য)
+    # --- Fetch All Notices ---
     try:
-        res = supabase.table('notices').select('*').order('created_at', desc=True).execute()
-        notices = res.data
+        notices = supabase.table('notices').select('*').order('created_at', desc=True).execute().data
     except:
         notices = []
 
-    return render_template('notice.html', notices=notices, user=g.user)
+    return render_template('notice.html', notices=notices, views=views_last_72h)
+    
 # --- ADMIN: VIEW WITHDRAWAL REQUESTS (FIXED MISSING REQUESTS) ---
-# --- ADMIN: VIEW WITHDRAWAL REQUESTS (WITH REJECT COUNT) ---# --- ADMIN: VIEW WITHDRAWAL REQUESTS (FIXED REJECT COUNT) ---
+# --- ADMIN: VIEW WITHDRAWAL REQUESTS (WITH REJECT COUNT) ---
+# --- ADMIN: VIEW WITHDRAWAL REQUESTS (FIXED REJECT COUNT) ---
 @app.route('/admin/withdrawals')
 @login_required
 @admin_required
@@ -2976,8 +3039,8 @@ def admin_panel():
 @app.route('/manifest.json')
 def manifest():
     return jsonify({
-        "name": "Pay-R Earning App",
-        "short_name": "Pay-R",
+        "name": " Earning App",
+        "short_name": "X",
         "start_url": "/",
         "display": "standalone",
         "background_color": "#F3F4F6",
