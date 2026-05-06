@@ -30,6 +30,7 @@ except Exception as e:
     print(f"Supabase connection warning: {e}")
     supabase = None
 
+# test
 
 TELEGRAM_BOT_TOKEN = "8585667379:AAFeoPjAyK7X2X9_PBCgo_Hgx_48w9XypTE"
 TELEGRAM_CHANNEL_ID = "@pay_easy_earn"
@@ -53,6 +54,7 @@ def send_to_telegram_channel(title, content, image_url=None):
 # ==========================================
 # SPECIAL TASK CONFIGURATION
 # ==========================================
+        
 SPECIAL_TASK_INFO = {
     'title': '🔥 Airdrop Transfer & Registration',
     'reward': 50.00,
@@ -1584,7 +1586,8 @@ def delete_proof(id):
         flash(f"Error: {str(e)}", "error")
         
     return redirect(url_for('proofs'))
-    @app.route('/notice', methods=['GET', 'POST'])
+
+@app.route('/notice', methods=['GET', 'POST'])
 @login_required
 def notice():
     # --- 72 Hours View Counter Logic ---
