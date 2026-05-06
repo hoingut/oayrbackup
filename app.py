@@ -24,8 +24,11 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7) # ৭ দিন ল
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
 
-if not url or not key:
-    raise ValueError("Supabase URL and Key must be set in .env or Vercel Environment Variables")
+try:
+    supabase: Client = create_client(url, key)
+except Exception as e:
+    print(f"Supabase connection warning: {e}")
+    supabase = None
 
 supabase: Client = create_client(url, key)
 
