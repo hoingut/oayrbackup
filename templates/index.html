@@ -41,9 +41,21 @@
         border: 1px solid #FDE68A;
     }
     .vip-card:hover { border-color: #F59E0B; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.1); }
+
+    /* ==========================================
+       POPUP ANIMATION STYLES
+    ========================================== */
+    #welcomePopup { transition: opacity 0.3s ease, visibility 0.3s ease; }
+    .popup-content { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    
+    #welcomePopup.show { opacity: 1; visibility: visible; }
+    #welcomePopup.show .popup-content { transform: scale(1) translateY(0); }
+    
+    #welcomePopup.hide { opacity: 0; visibility: hidden; }
+    #welcomePopup.hide .popup-content { transform: scale(0.95) translateY(20px); }
 </style>
 
-<div class="space-y-6 fade-in-up max-w-2xl mx-auto px-1 pb-8">
+<div class="space-y-6 fade-in-up max-w-2xl mx-auto px-1 pb-8 relative z-10">
 
     <!-- ==========================================
          1. PROFILE HEADER (Unique Avatar & Welcome)
@@ -75,7 +87,7 @@
     </div>
 
     <!-- ==========================================
-         2. PREMIUM BALANCE CARD (No Hide, Direct Details)
+         2. PREMIUM BALANCE CARD
     ========================================== -->
     <div class="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 rounded-[32px] p-6 sm:p-8 text-white relative overflow-hidden shadow-[0_10px_30px_-5px_rgba(37,99,235,0.4)]">
         <!-- Abstract Decor -->
@@ -114,7 +126,7 @@
     </div>
 
     <!-- ==========================================
-         3. NOTICE CARD (With See All Icon)
+         3. NOTICE CARD
     ========================================== -->
     {% if settings.notice_text %}
     <div class="bg-white border border-slate-100 p-2 rounded-[20px] flex items-center shadow-sm">
@@ -180,11 +192,6 @@
                 <div class="h-10 w-10 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-dharmachakra"></i></div>
                 <span class="text-[10px] font-bold text-slate-700">Lucky Spin</span>
             </a>
-            
-            <a href="/drive" class="nav-card"><div class="h-10 w-10 bg-sky-50 text-sky-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-wifi"></i></div><span class="text-[10px] font-bold text-slate-700">Drive</span></a>
-            
-            <a href="https://earn-daily.site/skatch" class="nav-card"><div class="h-10 w-10 bg-sky-50 text-sky-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-pen"></i></div><span class="text-[10px] font-bold text-slate-700">Skatch</span></a>
-             <a href="/referrals" class="nav-card"><div class="h-10 w-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-users"></i></div><span class="text-[10px] font-bold text-slate-700">My Team</span></a>
         </div>
     </div>
 
@@ -255,7 +262,7 @@
     {% endif %}
 
     <!-- ==========================================
-         8. OTHER UTILITIES (Drive, Withdraw, History, etc.)
+         8. OTHER UTILITIES
     ========================================== -->
     <div>
         <div class="flex items-center justify-between px-2 mb-3 mt-2">
@@ -264,18 +271,14 @@
             </h3>
         </div>
         <div class="grid grid-cols-4 gap-3">
-            
             <a href="/withdraw" class="nav-card"><div class="h-10 w-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-money-bill-transfer"></i></div><span class="text-[10px] font-bold text-slate-700">Cashout</span></a>
             <a href="/history" class="nav-card"><div class="h-10 w-10 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-clock-rotate-left"></i></div><span class="text-[10px] font-bold text-slate-700">History</span></a>
-           
             <a href="/proofs" class="nav-card"><div class="h-10 w-10 bg-pink-50 text-pink-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-receipt"></i></div><span class="text-[10px] font-bold text-slate-700">Proofs</span></a>
-        
-        
-        <a href="/notice" class="nav-card"><div class="h-10 w-10 bg-pink-50 text-pink-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-regular fa-bell"></i></div><span class="text-[10px] font-bold text-slate-700">Notice</span></a>
-        
-        
-        <a href="https://t.me/pay_easy_earn" class="nav-card"><div class="h-10 w-10 bg-pink-50 text-pink-500 rounded-xl flex items-center justify-center text-lg"><i class="fab fa-telegram"></i></div><span class="text-[10px] font-bold text-slate-700">Telegram Channel</span></a>
-        </div>
+            <a href="/notice" class="nav-card"><div class="h-10 w-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-regular fa-bell"></i></div><span class="text-[10px] font-bold text-slate-700">Notice</span></a>
+            <a href="/drive" class="nav-card"><div class="h-10 w-10 bg-sky-50 text-sky-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-wifi"></i></div><span class="text-[10px] font-bold text-slate-700">Drive</span></a>
+            <a href="https://earn-daily.site/skatch" class="nav-card"><div class="h-10 w-10 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-ticket"></i></div><span class="text-[10px] font-bold text-slate-700">Scratch</span></a>
+            <a href="/referrals" class="nav-card"><div class="h-10 w-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-users"></i></div><span class="text-[10px] font-bold text-slate-700">My Team</span></a>
+            <a href="https://t.me/pay_easy_earn" target="_blank" class="nav-card"><div class="h-10 w-10 bg-sky-50 text-[#2AABEE] rounded-xl flex items-center justify-center text-lg"><i class="fab fa-telegram"></i></div><span class="text-[10px] font-bold text-slate-700">Channel</span></a>
         </div>
     </div>
 
@@ -291,8 +294,95 @@
 
 </div>
 
-<!-- System Uptime Script -->
+<!-- ==========================================
+     10. SMART POPUP MODAL (Notice & Support)
+========================================== -->
+<div id="welcomePopup" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hide flex items-center justify-center px-4">
+    <div class="popup-content bg-white w-full max-w-sm rounded-[32px] shadow-2xl overflow-hidden relative">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-700 to-blue-600 p-6 text-center relative">
+            <button onclick="closePopup()" class="absolute top-4 right-4 h-8 w-8 bg-white/20 hover:bg-red-500 rounded-full flex items-center justify-center text-white transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="h-16 w-16 bg-white text-blue-600 rounded-2xl mx-auto flex items-center justify-center text-3xl shadow-lg transform -rotate-3 mb-3">
+                <i class="fa-solid fa-handshake-angle"></i>
+            </div>
+            <h2 class="text-xl font-black text-white tracking-tight">Earn Daily Updates</h2>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6">
+            <p class="text-sm text-slate-600 font-medium text-center leading-relaxed mb-5">
+                যেকোনো আপডেট পেতে আমাদের <b class="text-blue-600">নোটিস পেজ</b> দেখুন এবং <b class="text-[#2AABEE]">টেলিগ্রাম চ্যানেলে</b> জয়েন হতে পারেন।
+            </p>
+
+            <div class="grid grid-cols-2 gap-3 mb-5">
+                <a href="/notice" class="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center gap-2 hover:bg-blue-50 hover:border-blue-200 transition group text-slate-700">
+                    <i class="fa-solid fa-bullhorn text-blue-500 group-hover:scale-110 transition"></i> <span class="text-xs font-bold">Notice</span>
+                </a>
+                <a href="https://t.me/pay_easy_earn" target="_blank" class="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center gap-2 hover:bg-sky-50 hover:border-sky-200 transition group text-slate-700">
+                    <i class="fa-brands fa-telegram text-[#2AABEE] group-hover:scale-110 transition text-lg"></i> <span class="text-xs font-bold">Channel</span>
+                </a>
+                <a href="/tutorial" class="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center gap-2 hover:bg-red-50 hover:border-red-200 transition group text-slate-700">
+                    <i class="fa-brands fa-youtube text-red-500 group-hover:scale-110 transition"></i> <span class="text-xs font-bold">Tutorial</span>
+                </a>
+                <a href="https://t.me/payrsrp" target="_blank" class="bg-slate-50 border border-slate-100 p-3 rounded-xl flex items-center gap-2 hover:bg-emerald-50 hover:border-emerald-200 transition group text-slate-700">
+                    <i class="fa-solid fa-headset text-emerald-500 group-hover:scale-110 transition"></i> <span class="text-xs font-bold">Support</span>
+                </a>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-100 p-3 rounded-xl text-center">
+                <p class="text-[10px] text-blue-800 font-bold leading-relaxed">
+                    Telegram থাকলে টেলিগ্রামে আসুন, না থাকলে <a href="/chat" class="text-blue-600 underline">Live Chat</a> এ যান। কিছু না বুঝলে Contact করুন।
+                </p>
+            </div>
+            
+            <button onclick="closePopup()" class="w-full mt-4 bg-slate-900 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition active:scale-95 shadow-md">
+                Got it, Thanks!
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     SCRIPTS
+========================================== -->
 <script>
+    // 1. POPUP LOGIC (Show 5 times, 3-hour gap)
+    document.addEventListener("DOMContentLoaded", () => {
+        const popup = document.getElementById('welcomePopup');
+        const maxShows = 5;
+        const gapMs = 3 * 60 * 60 * 1000; // 3 hours
+
+        let showCount = parseInt(localStorage.getItem('earnDailyPopupCount')) || 0;
+        let lastShowTime = parseInt(localStorage.getItem('earnDailyLastShow')) || 0;
+        let currentTime = new Date().getTime();
+
+        if (showCount < maxShows) {
+            if (currentTime - lastShowTime >= gapMs || lastShowTime === 0) {
+                // Delay showing by 1.5 seconds for better UX
+                setTimeout(() => {
+                    popup.classList.remove('hidden', 'hide');
+                    popup.classList.add('show');
+                    
+                    localStorage.setItem('earnDailyPopupCount', showCount + 1);
+                    localStorage.setItem('earnDailyLastShow', currentTime);
+                }, 1500);
+            }
+        } else {
+            popup.classList.add('hidden'); // Ensure it stays hidden after 5 times
+        }
+    });
+
+    function closePopup() {
+        const popup = document.getElementById('welcomePopup');
+        popup.classList.remove('show');
+        popup.classList.add('hide');
+        setTimeout(() => popup.classList.add('hidden'), 300);
+    }
+
+    // 2. SYSTEM UPTIME
     (function() {
         function updateSiteAge() {
             const startDate = new Date("2025-12-19T00:00:00").getTime(); 
