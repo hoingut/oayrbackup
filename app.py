@@ -108,6 +108,28 @@ def smart_imgbb_upload(image_file):
     except Exception as e:
         return None, f"Upload processing error: {str(e)}"
         
+        
+
+TELEGRAM_BOT_TOKEN = "8585667379:AAFeoPjAyK7X2X9_PBCgo_Hgx_48w9XypTE"
+TELEGRAM_CHANNEL_ID = "@pay_easy_earn"
+
+def send_to_telegram_channel(title, content, image_url=None):
+    try:
+        # টেলিগ্রাম মেসেজ ফরম্যাট (HTML)
+        tg_msg = f"📢 <b>{title}</b>\n\n{content}\n\n🌐 <i>আমাদের ওয়েবসাইটে ভিজিট করুন: earn-daily.site</i>"
+        
+        if image_url:
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
+            payload = {'chat_id': TELEGRAM_CHANNEL_ID, 'photo': image_url, 'caption': tg_msg, 'parse_mode': 'HTML'}
+        else:
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+            payload = {'chat_id': TELEGRAM_CHANNEL_ID, 'text': tg_msg, 'parse_mode': 'HTML'}
+            
+        requests.post(url, data=payload)
+    except Exception as e:
+        print(f"Telegram Broadcast Error: {e}")
+        
+        
 # ==========================================
 # 🤖 AI AUTO-BOT (SMART & SECURE SYSTEM)
 # ==========================================
@@ -236,24 +258,6 @@ def fatema_admin_required(f):
         return redirect(url_for('dashboard'))
     return decorated_function
 
-TELEGRAM_BOT_TOKEN = "8585667379:AAFeoPjAyK7X2X9_PBCgo_Hgx_48w9XypTE"
-TELEGRAM_CHANNEL_ID = "@pay_easy_earn"
-
-def send_to_telegram_channel(title, content, image_url=None):
-    try:
-        # টেলিগ্রাম মেসেজ ফরম্যাট (HTML)
-        tg_msg = f"📢 <b>{title}</b>\n\n{content}\n\n🌐 <i>আমাদের ওয়েবসাইটে ভিজিট করুন: earn-daily.site</i>"
-        
-        if image_url:
-            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
-            payload = {'chat_id': TELEGRAM_CHANNEL_ID, 'photo': image_url, 'caption': tg_msg, 'parse_mode': 'HTML'}
-        else:
-            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-            payload = {'chat_id': TELEGRAM_CHANNEL_ID, 'text': tg_msg, 'parse_mode': 'HTML'}
-            
-        requests.post(url, data=payload)
-    except Exception as e:
-        print(f"Telegram Broadcast Error: {e}")
 
 
     
