@@ -30,8 +30,6 @@ except Exception as e:
     print(f"Supabase connection warning: {e}")
     supabase = None
 
-supabase: Client = create_client(url, key)
-
 # ==========================================
 # SPECIAL TASK CONFIGURATION
 # ==========================================
